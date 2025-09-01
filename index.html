@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ali Abbasi - Machine Learning Engineer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="profile-section">
+                <div class="profile-info">
+                    <h1 class="name">Ali Abbasi</h1>
+                    <h2 class="position">Machine Learning Engineer</h2>
+                    <div class="contact-info">
+                        <a href="mailto:abbasialiar@gmail.com" class="contact-item">
+                            <i class="fas fa-envelope"></i> abbasialiar@gmail.com
+                        </a>
+                        <a href="https://github.com/aliarabbasi5155" target="_blank" class="contact-item">
+                            <i class="fab fa-github"></i> aliarabbasi5155
+                        </a>
+                        <a href="https://linkedin.com/in/aliabbasi5155" target="_blank" class="contact-item">
+                            <i class="fab fa-linkedin"></i> aliabbasi5155
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'about')">About</button>
+            <button class="tab-button" onclick="openTab(event, 'experience')">Experience</button>
+            <button class="tab-button" onclick="openTab(event, 'education')">Education</button>
+            <button class="tab-button" onclick="openTab(event, 'skills')">Skills</button>
+            <button class="tab-button" onclick="openTab(event, 'projects')">Projects</button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="content">
+            <!-- About Tab -->
+            <div id="about" class="tab-content active">
+                <section class="summary">
+                    <h3>Summary</h3>
+                    <p><strong>Machine Learning Engineer</strong> with robust foundation in fullstack development from 5+ years as a Senior Developer. Specialized in Reinforcement Learning, Computer Vision, and LLMs, with hands-on DevOps and React/Django expertise. Demonstrated success in delivering scalable, data-driven solutions across large scale real-world problems, and researches.</p>
+                </section>
+            </div>
+
+            <!-- Experience Tab -->
+            <div id="experience" class="tab-content">
+                <section class="experience">
+                    <h3>Professional Experience</h3>
+                    
+                    <div class="job">
+                        <div class="job-header">
+                            <h4>Machine Learning Engineer | Senior Fullstack Developer</h4>
+                            <div class="company-location">
+                                <span class="company">
+                                    <a href="https://www.nimbus.aero/" target="_blank">Nimbus SRL <i class="fas fa-external-link-alt"></i></a>
+                                </span>
+                                <span class="location">Turin, Italy</span>
+                            </div>
+                            <span class="duration">Feb 2022 - Present</span>
+                        </div>
+                        <ul class="job-description">
+                            <li>Engineered an RL model using Proximal Policy Optimization (PPO) to stabilize autopilot mode for VTOL drones, achieving 5% less crashed under poor weather conditions in 2024.</li>
+                            <li>Implemented fine-tuning on llama-3-8b with company knowledge base, reducing newcomer onboarding time to 2-3 days.</li>
+                            <li>Built a new customer support service through RAG approach using llama-3-8b to access company's sources, with over 1200 query weekly.</li>
+                            <li>Directed a 4-member team to build a cross-platform monitoring system, enabling real-time monitoring of over 150 UAVs in Europe over AWS.</li>
+                            <li>Modernized software architecture with React Native, Django DRF, and CI/CD pipelines, delivering 50,000 euro annual cost savings by 2 members less in software development team.</li>
+                            <li>Contributed in Charger Box project, to automatically move the drone to suitable place for charge. (less than 0.5cm error).</li>
+                        </ul>
+                    </div>
+
+                    <div class="job">
+                        <div class="job-header">
+                            <h4>Machine Learning Engineer | Fullstack Developer</h4>
+                            <div class="company-location">
+                                <span class="company">
+                                    <a href="https://www.reefilla.com/" target="_blank">Reefilla SRL <i class="fas fa-external-link-alt"></i></a>
+                                </span>
+                                <span class="location">Turin, Italy</span>
+                            </div>
+                            <span class="duration">Sep 2021 - Feb 2022</span>
+                        </div>
+                        <ul class="job-description">
+                            <li>Designed a recommender model to predict optimal electric power bank request timing, increasing delivering time by 18%.</li>
+                            <li>Contributed in development of a cross-platform(React Native and Django) application for electric vehicle charge management with over 800 active users in 2021.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Education Tab -->
+            <div id="education" class="tab-content">
+                <section class="education">
+                    <h3>Education</h3>
+                    
+                    <div class="degree">
+                        <div class="degree-header">
+                            <h4>M.Sc. in Data Science and Engineering</h4>
+                            <div class="institution-location">
+                                <span class="institution">
+                                    <a href="https://www.polito.it/" target="_blank">Polytechnic University of Turin</a>
+                                </span>
+                                <span class="location">Turin, Italy</span>
+                            </div>
+                            <span class="duration">2020 - 2024</span>
+                        </div>
+                        <ul class="degree-details">
+                            <li><strong>Thesis:</strong> "Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning" 
+                                <a href="https://webthesis.biblio.polito.it/34008/" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                            </li>
+                            <li><strong>Publication:</strong> Published in Elsevier Smart Health Journal (2025) based on thesis work 
+                                <a href="https://www.sciencedirect.com/science/article/pii/S2352648325000285" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                            </li>
+                            <li><strong>Conference:</strong> Also accepted at IEEE/CHASE 2025 Conference</li>
+                        </ul>
+                    </div>
+
+                    <div class="degree">
+                        <div class="degree-header">
+                            <h4>B.Sc. in Computer Engineering</h4>
+                            <div class="institution-location">
+                                <span class="institution">
+                                    <a href="https://www.araku.ac.ir/" target="_blank">Arak University</a>
+                                </span>
+                                <span class="location">Arak, Iran</span>
+                            </div>
+                            <span class="duration">2015 - 2019</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Skills Tab -->
+            <div id="skills" class="tab-content">
+                <section class="skills">
+                    <h3>Technical Skills</h3>
+                    
+                    <div class="skills-grid">
+                        <div class="skill-category">
+                            <h4>Programming Languages</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">C++</span>
+                                <span class="skill-tag">C#</span>
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">TypeScript</span>
+                                <span class="skill-tag">HTML</span>
+                                <span class="skill-tag">CSS</span>
+                                <span class="skill-tag">SQL</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Machine Learning & Data Science</h4>
+                            <div class="skill-subcategory">
+                                <h5>Frameworks & Libraries:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">PyTorch</span>
+                                    <span class="skill-tag">TensorFlow</span>
+                                    <span class="skill-tag">TFLite</span>
+                                    <span class="skill-tag">scikit-learn</span>
+                                    <span class="skill-tag">Matplotlib</span>
+                                    <span class="skill-tag">NetworkX</span>
+                                    <span class="skill-tag">NumPy</span>
+                                    <span class="skill-tag">Pandas</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Tools:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">WandB</span>
+                                    <span class="skill-tag">TensorBoard</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Techniques & Algorithms:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Reinforcement Learning</span>
+                                    <span class="skill-tag">Deep Learning</span>
+                                    <span class="skill-tag">NLP & LLM</span>
+                                    <span class="skill-tag">Computer Vision</span>
+                                    <span class="skill-tag">Prompt Engineering</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Backend Development</h4>
+                            <div class="skill-subcategory">
+                                <h5>Frameworks:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Django</span>
+                                    <span class="skill-tag">DRF</span>
+                                    <span class="skill-tag">.NET</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Databases:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">PostgreSQL</span>
+                                    <span class="skill-tag">MSSQL</span>
+                                    <span class="skill-tag">MySQL</span>
+                                    <span class="skill-tag">SQLite</span>
+                                    <span class="skill-tag">Redis</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>API and Protocols:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">RESTful</span>
+                                    <span class="skill-tag">WebSocket</span>
+                                    <span class="skill-tag">Swagger</span>
+                                    <span class="skill-tag">MQTT</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Frontend & Mobile Development</h4>
+                            <div class="skill-subcategory">
+                                <h5>Frameworks:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">React.js</span>
+                                    <span class="skill-tag">React Native</span>
+                                    <span class="skill-tag">Redux</span>
+                                    <span class="skill-tag">Next.js</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>UI & Styling:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Material UI</span>
+                                    <span class="skill-tag">Bootstrap</span>
+                                    <span class="skill-tag">Tailwind CSS</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Testing:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Jest</span>
+                                    <span class="skill-tag">React Testing Library</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>DevOps & System Administration</h4>
+                            <div class="skill-subcategory">
+                                <h5>Operating Systems:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Linux</span>
+                                    <span class="skill-tag">Windows</span>
+                                    <span class="skill-tag">MacOS</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Containerization:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Docker</span>
+                                    <span class="skill-tag">Kubernetes</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Web Servers:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Nginx</span>
+                                    <span class="skill-tag">Apache</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>CI/CD:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">GitHub Actions</span>
+                                    <span class="skill-tag">GitLab CI</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Cloud Platforms:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">AWS</span>
+                                    <span class="skill-tag">Azure</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Teamwork & Collaboration</h4>
+                            <div class="skill-subcategory">
+                                <h5>Tools:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Git</span>
+                                    <span class="skill-tag">Jira</span>
+                                    <span class="skill-tag">Trello</span>
+                                    <span class="skill-tag">ClickUp</span>
+                                </div>
+                            </div>
+                            <div class="skill-subcategory">
+                                <h5>Practices:</h5>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Agile</span>
+                                    <span class="skill-tag">Scrum</span>
+                                    <span class="skill-tag">Kanban</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects" class="tab-content">
+                <section class="projects">
+                    <h3>Featured Projects</h3>
+                    
+                    <div class="project">
+                        <div class="project-header">
+                            <h4>Reconstructing Human Gaze Behavior in Stroop Test Using IRL and EEG Data</h4>
+                            <div class="project-links">
+                                <a href="https://www.sciencedirect.com/science/article/pii/S2352648325000285" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt"></i> Publication
+                                </a>
+                                <a href="https://github.com/aliarabbasi5155/scanpath" target="_blank" class="project-link">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            </div>
+                            <div class="project-org">Alabama University & Mississippi State University & Polytechnic University of Turin</div>
+                            <span class="duration">Jul 2024 - Dec 2024</span>
+                        </div>
+                        <ul class="project-description">
+                            <li>Developed an Inverse Reinforcement Learning (IRL) model to reconstruct human gaze behavior in a Stroop test.</li>
+                            <li>Fine-tuned Detectron2 FPN model for feature extraction of low res and high res Stroop tasks.</li>
+                            <li>Used PPO and GAE inside GAIL algorithm.</li>
+                            <li>Analyzed the impact of cognitive load on gaze patterns and decision-making processes.</li>
+                        </ul>
+                        <div class="project-tech">
+                            <span class="tech-tag">PyTorch</span>
+                            <span class="tech-tag">Detectron2</span>
+                            <span class="tech-tag">PPO</span>
+                            <span class="tech-tag">GAIL</span>
+                            <span class="tech-tag">WandB</span>
+                        </div>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-header">
+                            <h4>COVID-19 Pandemic Network Modelling Using GSM Mobility Data and SIR Model</h4>
+                            <div class="project-links">
+                                <a href="https://github.com/aliarabbasi5155/Pandemic-Network-Simulation" target="_blank" class="project-link">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            </div>
+                            <div class="project-org">Polytechnic University of Turin</div>
+                            <span class="duration">Jan 2024 - Mar 2024</span>
+                        </div>
+                        <ul class="project-description">
+                            <li>Developed a network model to simulate the spread of COVID-19 using GSM mobility data and the SIR model on weekly basis.</li>
+                            <li>Used library such as NetworkX, Pandas, and NumPy for data manipulation and analysis.</li>
+                            <li>Used CUDA for efficient HPC of the SIR model on large-scale networks.</li>
+                            <li>Analyzed the impact of mobility patterns on the transmission dynamics of the virus.</li>
+                            <li>Implemented various scenarios to assess the effectiveness of different intervention strategies.</li>
+                        </ul>
+                        <div class="project-tech">
+                            <span class="tech-tag">NetworkX</span>
+                            <span class="tech-tag">Pandas</span>
+                            <span class="tech-tag">NumPy</span>
+                            <span class="tech-tag">CUDA</span>
+                            <span class="tech-tag">SIR Model</span>
+                        </div>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-header">
+                            <h4>Distributed Learning on CIFAR-100 dataset: Data-Parallelism Study</h4>
+                            <div class="project-links">
+                                <a href="https://github.com/aliarabbasi5155/Distributed-Machine-Learning-Algorithms" target="_blank" class="project-link">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            </div>
+                            <div class="project-org">Polytechnic University of Turin</div>
+                            <span class="duration">Nov 2023 - Dec 2023</span>
+                        </div>
+                        <ul class="project-description">
+                            <li>Implemented distributed machine learning algorithms, LocalSGD, Distributed SGD, SlowMo, and LocalAdaScale over multiple GPU nodes.</li>
+                            <li>Compared the performance of algorithms on CIFAR-100 dataset in terms of convergence speed, accuracy, and communication overhead.</li>
+                        </ul>
+                        <div class="project-tech">
+                            <span class="tech-tag">PyTorch</span>
+                            <span class="tech-tag">Distributed Learning</span>
+                            <span class="tech-tag">CIFAR-100</span>
+                            <span class="tech-tag">GPU Computing</span>
+                        </div>
+                    </div>
+
+                    <div class="project">
+                        <div class="project-header">
+                            <h4>TFLite Triggerer Words Recognition Model</h4>
+                            <div class="project-links">
+                                <a href="https://github.com/aliarabbasi5155/voice-intent-detection" target="_blank" class="project-link">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            </div>
+                            <div class="project-org">Polytechnic University of Turin</div>
+                            <span class="duration">Oct 2023</span>
+                        </div>
+                        <ul class="project-description">
+                            <li>Developed a model using TFLite and LSTM architecture on Arduino to detect the triggerer word under low voltage and low memory constraints.</li>
+                        </ul>
+                        <div class="project-tech">
+                            <span class="tech-tag">TensorFlow Lite</span>
+                            <span class="tech-tag">LSTM</span>
+                            <span class="tech-tag">Arduino</span>
+                            <span class="tech-tag">Edge Computing</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Ali Abbasi. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
