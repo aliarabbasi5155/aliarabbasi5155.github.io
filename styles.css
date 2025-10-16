@@ -97,30 +97,32 @@ body {
         );
 }
 
-/* Floating Navbar */
+/* Floating Navbar - Full width, below header */
 .navbar {
-    position: fixed;
+    position: sticky;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
     border-radius: 50px;
     padding: 12px 30px;
     border: 1px solid rgba(139, 92, 246, 0.2);
     z-index: 1000;
     transition: all 0.3s ease;
+    margin: 20px 0;
 }
 
 .nav-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 40px;
+    gap: 20px;
+    max-width: 100%;
 }
 
 .nav-center {
     display: flex;
     align-items: center;
     gap: 40px;
+    margin-left: auto;
 }
 
 .logo {
@@ -129,6 +131,7 @@ body {
     color: #8b5cf6;
     text-decoration: none;
     transition: all 0.3s ease;
+    order: -2;
 }
 
 .logo:hover {
@@ -175,11 +178,13 @@ body {
     width: 100%;
 }
 
-/* Auth buttons in navbar */
+/* Auth buttons in navbar - Left side after logo */
 .auth-buttons {
     display: flex;
     gap: 15px;
     align-items: center;
+    order: -1;
+    margin-right: auto;
 }
 
 .auth-btn {
@@ -225,15 +230,17 @@ body {
 }
 
 .container {
-    max-width: 1200px;
-    margin: 80px auto 0;
-    min-height: calc(100vh - 80px);
+    width: 100%;
+    margin: 0;
+    min-height: 100vh;
     position: relative;
     z-index: 1;
 }
 
-/* Header Styles */
+/* Header Styles - Fixed at top */
 .header {
+    position: relative;
+    width: 100%;
     background: var(--liquid-glass-bg);
     color: white;
     padding: 2rem 2rem 1.5rem;
@@ -249,6 +256,7 @@ body {
             calc(var(--glass-reflex-light) * 60%), transparent),
         0px 4px 12px 0px
         color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
+    z-index: 999;
 }
 
 .profile-section {
@@ -283,7 +291,8 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    font-size: 1rem;
 }
 
 .contact-item:hover {
@@ -296,20 +305,18 @@ body {
 
 
 
-/* Content Styles */
+/* Content Styles - Full width with constrained inner content */
 .content {
     padding: 2rem;
     min-height: 500px;
-    background: var(--liquid-glass-bg);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 5%), transparent);
+    width: 100%;
 }
 
 .tab-content {
     display: none;
     animation: fadeIn 0.3s ease-in;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .tab-content.active {
@@ -751,20 +758,39 @@ h3 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .name {
+        font-size: 1.8rem;
+    }
+    
+    .position {
+        font-size: 1.1rem;
+    }
+    
+    .contact-info {
+        gap: 1rem;
+    }
+    
     .navbar {
         top: 15px;
         padding: 10px 20px;
-        width: calc(100% - 30px);
-        max-width: 500px;
+        margin: 15px 0;
+        border-radius: 30px;
     }
 
     .nav-container {
         justify-content: space-between;
-        gap: 0;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
     .nav-center {
-        gap: 20px;
+        order: 3;
+        width: 100%;
+        margin-left: 0;
     }
 
     .nav-links {
@@ -807,12 +833,8 @@ h3 {
     }
     
     .container {
-        margin: 70px 0 0;
+        margin: 0;
         box-shadow: none;
-    }
-    
-    .header {
-        padding: 1.5rem 1rem;
     }
     
     .name {
@@ -859,20 +881,31 @@ h3 {
 }
 
 @media (max-width: 480px) {
+    .header {
+        padding: 1rem 0.5rem;
+    }
+    
+    .name {
+        font-size: 1.5rem;
+    }
+    
+    .position {
+        font-size: 0.95rem;
+    }
+    
+    .contact-info {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
     .navbar {
+        top: 10px;
         padding: 8px 15px;
+        margin: 10px auto;
     }
 
     .logo {
         font-size: 1.3rem;
-    }
-    
-    .name {
-        font-size: 1.8rem;
-    }
-    
-    .position {
-        font-size: 1rem;
     }
     
     h3 {
