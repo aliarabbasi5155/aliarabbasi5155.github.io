@@ -5,6 +5,19 @@
     box-sizing: border-box;
 }
 
+:root {
+    --c-glass: #bbbbbc;
+    --c-light: #fff;
+    --c-dark: #000;
+    --c-content: #224;
+    --c-action: #8b5cf6;
+    --c-bg: #0a0a0a;
+    --liquid-glass-bg: hsla(250, 60%, 30%, 0.15);
+    --glass-reflex-dark: 1;
+    --glass-reflex-light: 1;
+    --saturation: 150%;
+}
+
 html, body {
     margin: 0;
     width: 100%;
@@ -32,19 +45,68 @@ body {
     pointer-events: none;
 }
 
+/* Liquid Glass Effect */
+.liquid-glass {
+    background: var(--liquid-glass-bg);
+    backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+    
+    box-shadow: inset 0 0 0 1px
+        color-mix(
+            in srgb,
+            var(--c-light) calc(var(--glass-reflex-light) * 10%),
+            transparent
+        ),
+        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
+            calc(var(--glass-reflex-light) * 90%), transparent),
+        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
+            calc(var(--glass-reflex-light) * 80%), transparent),
+        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
+            calc(var(--glass-reflex-light) * 60%), transparent),
+        inset -0.3px -1px 4px 0px
+        color-mix(
+            in srgb,
+            var(--c-dark) calc(var(--glass-reflex-dark) * 12%),
+            transparent
+        ),
+        inset -1.5px 2.5px 0px -2px
+        color-mix(
+            in srgb,
+            var(--c-dark) calc(var(--glass-reflex-dark) * 20%),
+            transparent
+        ),
+        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
+            calc(var(--glass-reflex-dark) * 20%), transparent),
+        inset 2px -6.5px 1px -4px
+        color-mix(
+            in srgb,
+            var(--c-dark) calc(var(--glass-reflex-dark) * 10%),
+            transparent
+        ),
+        0px 1px 5px 0px
+        color-mix(
+            in srgb,
+            var(--c-dark) calc(var(--glass-reflex-dark) * 10%),
+            transparent
+        ),
+        0px 6px 16px 0px
+        color-mix(
+            in srgb,
+            var(--c-dark) calc(var(--glass-reflex-dark) * 8%),
+            transparent
+        );
+}
+
 /* Floating Navbar */
 .navbar {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(26, 26, 46, 0.85);
-    backdrop-filter: blur(10px);
     border-radius: 50px;
     padding: 12px 30px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.2);
     z-index: 1000;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
 }
 
@@ -165,21 +227,20 @@ body {
 .container {
     max-width: 1200px;
     margin: 80px auto 0;
-    background-color: rgba(15, 15, 20, 0.85);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
     min-height: calc(100vh - 80px);
     position: relative;
     z-index: 1;
-    backdrop-filter: blur(10px);
 }
 
 /* Header Styles */
 .header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.4) 0%, rgba(22, 33, 62, 0.4) 100%);
     color: white;
     padding: 2rem 2rem 1.5rem;
     text-align: center;
     border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+    backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
 }
 
 .profile-section {
@@ -231,6 +292,9 @@ body {
 .content {
     padding: 2rem;
     min-height: 500px;
+    background: var(--liquid-glass-bg);
+    backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
 }
 
 .tab-content {
@@ -268,8 +332,14 @@ h3 {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
     border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 8px;
-    background-color: rgba(26, 26, 46, 0.5);
+    border-radius: 16px;
+    background: var(--liquid-glass-bg);
+    backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
+        0px 4px 12px 0px
+        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
 }
 
 .job-header {
@@ -345,8 +415,14 @@ h3 {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
     border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 8px;
-    background-color: rgba(26, 26, 46, 0.5);
+    border-radius: 16px;
+    background: var(--liquid-glass-bg);
+    backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
+        0px 4px 12px 0px
+        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
 }
 
 .degree-header {
@@ -418,10 +494,16 @@ h3 {
 }
 
 .skill-category {
-    background-color: rgba(26, 26, 46, 0.5);
+    background: var(--liquid-glass-bg);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 16px;
     border: 1px solid rgba(139, 92, 246, 0.2);
+    backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
+        0px 4px 12px 0px
+        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
 }
 
 .skill-category h4 {
@@ -474,8 +556,14 @@ h3 {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
     border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 8px;
-    background-color: rgba(26, 26, 46, 0.5);
+    border-radius: 16px;
+    background: var(--liquid-glass-bg);
+    backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(8px) saturate(var(--saturation));
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
+        0px 4px 12px 0px
+        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
 }
 
 .project-header {
@@ -547,12 +635,14 @@ h3 {
 
 /* Footer */
 .footer {
-    background-color: #1a1a2e;
+    background: var(--liquid-glass-bg);
     color: #b4b4d4;
     text-align: center;
     padding: 1.5rem;
     margin-top: 2rem;
     border-top: 2px solid rgba(139, 92, 246, 0.3);
+    backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
 }
 
 /* Responsive Design */
@@ -579,14 +669,17 @@ h3 {
         top: 100%;
         left: 0;
         right: 0;
-        background: rgba(26, 26, 46, 0.95);
-        backdrop-filter: blur(10px);
+        background: var(--liquid-glass-bg);
+        backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
+        -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
         flex-direction: column;
         padding: 20px;
         border-radius: 15px;
         margin-top: 10px;
         gap: 15px;
         border: 1px solid rgba(139, 92, 246, 0.3);
+        box-shadow: 0px 6px 16px 0px
+            color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 15%), transparent);
     }
 
     .nav-links.active {

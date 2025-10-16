@@ -11,8 +11,16 @@
 <body>
     <canvas id="canvas"></canvas>
     
+    <!-- SVG Filter for Liquid Glass Effect -->
+    <svg style="display: none;">
+        <filter id="liquidGlass">
+            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="4" seed="92" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="blurred" scale="50" xChannelSelector="B" yChannelSelector="G" />
+        </filter>
+    </svg>
+    
     <!-- Floating Navbar -->
-    <nav class="navbar">
+    <nav class="navbar liquid-glass">
         <div class="nav-container">
             <a href="#" class="logo">AA</a>
             <div class="nav-center">
