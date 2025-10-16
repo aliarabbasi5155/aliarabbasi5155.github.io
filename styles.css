@@ -102,9 +102,7 @@ body {
     position: sticky;
     top: 20px;
     width: 100%;
-    border-radius: 50px;
     padding: 12px 30px;
-    border: 1px solid rgba(139, 92, 246, 0.2);
     z-index: 1000;
     transition: all 0.3s ease;
     margin: 20px 0;
