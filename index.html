@@ -10,6 +10,28 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    
+    <!-- Floating Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">AA</a>
+            <div class="nav-center">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#" data-tab="about" class="active">About</a></li>
+                    <li><a href="#" data-tab="experience">Experience</a></li>
+                    <li><a href="#" data-tab="education">Education</a></li>
+                    <li><a href="#" data-tab="skills">Skills</a></li>
+                    <li><a href="#" data-tab="projects">Projects</a></li>
+                </ul>
+            </div>
+            <div class="auth-buttons">
+                <a href="mailto:abbasialiar@gmail.com" class="auth-btn login-btn">Contact</a>
+                <a href="https://github.com/aliarabbasi5155" target="_blank" class="auth-btn signup-btn">GitHub</a>
+            </div>
+            <button class="menu-toggle" id="menuToggle">☰</button>
+        </div>
+    </nav>
+    
     <div class="container">
         <!-- Header Section -->
         <header class="header">
@@ -32,14 +54,7 @@
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
-        <nav class="tabs">
-            <button class="tab-button active" onclick="openTab(event, 'about')">About</button>
-            <button class="tab-button" onclick="openTab(event, 'experience')">Experience</button>
-            <button class="tab-button" onclick="openTab(event, 'education')">Education</button>
-            <button class="tab-button" onclick="openTab(event, 'skills')">Skills</button>
-            <button class="tab-button" onclick="openTab(event, 'projects')">Projects</button>
-        </nav>
+
 
         <!-- Tab Content -->
         <main class="content">
