@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Canvas for Tube Background Animation -->
     <canvas id="canvas"></canvas>
     
     <!-- SVG Filter for Liquid Glass Effect -->
@@ -19,66 +20,57 @@
         </filter>
     </svg>
     
-    <!-- Header Section - Always visible at top -->
-    <header class="header">
-        <div class="profile-section">
-            <div class="profile-info">
-                <h1 class="name">Ali Abbasi</h1>
-                <h2 class="position">Machine Learning Engineer</h2>
-                <div class="contact-info">
+    <div class="container">
+        <!-- LEFT SIDE: Fixed Profile Panel with Liquid Glass -->
+        <aside class="profile-panel liquid-glass">
+            <div class="profile-content">
+                <div class="profile-header">
+                    <h1 class="profile-name">Ali Abbasi</h1>
+                    <h2 class="profile-role">Machine Learning Engineer</h2>
+                </div>
+                
+                <div class="profile-contacts">
                     <a href="mailto:abbasialiar@gmail.com" class="contact-item">
-                        <i class="fas fa-envelope"></i> abbasialiar@gmail.com
+                        <i class="fas fa-envelope"></i>
+                        <span>abbasialiar@gmail.com</span>
                     </a>
                     <a href="https://github.com/aliarabbasi5155" target="_blank" class="contact-item">
-                        <i class="fab fa-github"></i> aliarabbasi5155
+                        <i class="fab fa-github"></i>
+                        <span>aliarabbasi5155</span>
                     </a>
                     <a href="https://linkedin.com/in/aliabbasi5155" target="_blank" class="contact-item">
-                        <i class="fab fa-linkedin"></i> aliabbasi5155
+                        <i class="fab fa-linkedin"></i>
+                        <span>aliabbasi5155</span>
                     </a>
                 </div>
             </div>
-        </div>
-    </header>
-    
-    <!-- Floating Navbar - Below header -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo">ALI ABBASI</a>
-            <div class="auth-buttons">
-                <a href="mailto:abbasialiar@gmail.com" class="auth-btn login-btn">Contact</a>
-                <a href="https://github.com/aliarabbasi5155" target="_blank" class="auth-btn signup-btn">GitHub</a>
-            </div>
-            <div class="nav-center">
-                <ul class="nav-links" id="navLinks">
-                    <li><a href="#" data-tab="about" class="active">About</a></li>
-                    <li><a href="#" data-tab="experience">Experience</a></li>
-                    <li><a href="#" data-tab="education">Education</a></li>
-                    <li><a href="#" data-tab="skills">Skills</a></li>
-                    <li><a href="#" data-tab="projects">Projects</a></li>
-                </ul>
-            </div>
-            <button class="menu-toggle" id="menuToggle">☰</button>
-        </div>
-    </nav>
-    
-    <div class="container">
+        </aside>
+        
+        <!-- RIGHT SIDE: Content Sections -->
+        <main class="content-panel">
+            <!-- Tab Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-button active" data-tab="about">About</button>
+                <button class="tab-button" data-tab="experience">Experience</button>
+                <button class="tab-button" data-tab="education">Education</button>
+                <button class="tab-button" data-tab="skills">Skills</button>
+                <button class="tab-button" data-tab="projects">Projects</button>
+            </nav>
+            
+            <!-- Tab Contents -->
+            <div class="tab-contents">
+                <!-- About Tab -->
+                <div id="about" class="tab-content active">
+                    <section class="summary">
+                        <h3>Summary</h3>
+                        <p><strong>Machine Learning Engineer</strong> with robust foundation in fullstack development from 5+ years as a Senior Developer. Specialized in Reinforcement Learning, Computer Vision, and LLMs, with hands-on DevOps and React/Django expertise. Demonstrated success in delivering scalable, data-driven solutions across large scale real-world problems, and researches.</p>
+                    </section>
+                </div>
 
-
-
-        <!-- Tab Content -->
-        <main class="content">
-            <!-- About Tab -->
-            <div id="about" class="tab-content active">
-                <section class="summary">
-                    <h3>Summary</h3>
-                    <p><strong>Machine Learning Engineer</strong> with robust foundation in fullstack development from 5+ years as a Senior Developer. Specialized in Reinforcement Learning, Computer Vision, and LLMs, with hands-on DevOps and React/Django expertise. Demonstrated success in delivering scalable, data-driven solutions across large scale real-world problems, and researches.</p>
-                </section>
-            </div>
-
-            <!-- Experience Tab -->
-            <div id="experience" class="tab-content">
-                <section class="experience">
-                    <h3>Professional Experience</h3>
+                <!-- Experience Tab -->
+                <div id="experience" class="tab-content">
+                    <section class="experience">
+                        <h3>Professional Experience</h3>
                     
                     <div class="job">
                         <div class="job-header">
@@ -418,7 +410,7 @@
                         <div class="project-tech">
                             <span class="tech-tag">PyTorch</span>
                             <span class="tech-tag">Distributed Learning</span>
-                            <span class="tech-tag">CIFAR-100</span>
+                                                        <span class="tech-tag">CIFAR-100</span>
                             <span class="tech-tag">GPU Computing</span>
                         </div>
                     </div>
@@ -444,6 +436,15 @@
                             <span class="tech-tag">Edge Computing</span>
                         </div>
                     </div>
+                </section>
+            </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
                 </section>
             </div>
         </main>

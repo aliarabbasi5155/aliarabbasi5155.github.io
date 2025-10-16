@@ -3,10 +3,10 @@ import TubesCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/
 
 const app = TubesCursor(document.getElementById('canvas'), {
     tubes: {
-        colors: ["#f967fb", "#53bc28", "#6958d5"],
+        colors: ["#8b5cf6", "#667eea", "#764ba2"],
         lights: {
             intensity: 200,
-            colors: ["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"]
+            colors: ["#667eea", "#8b5cf6", "#764ba2", "#a78bfa"]
         }
     }
 });
@@ -25,7 +25,7 @@ function randomColors(count) {
         .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
 }
 
-// Tab functionality with floating navbar
+// Tab functionality
 function openTab(tabName) {
     // Hide all tab contents
     const tabContents = document.getElementsByClassName("tab-content");
@@ -33,21 +33,33 @@ function openTab(tabName) {
         tabContents[i].classList.remove("active");
     }
     
-    // Remove active class from all nav links
-    const navLinks = document.querySelectorAll('.nav-links a');
-    navLinks.forEach(link => {
-        link.classList.remove("active");
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove("active");
     });
     
     // Show the selected tab content
     document.getElementById(tabName).classList.add("active");
     
-    // Mark the corresponding nav link as active
-    const activeLink = document.querySelector(`[data-tab="${tabName}"]`);
-    if (activeLink) {
-        activeLink.classList.add("active");
+    // Mark the corresponding button as active
+    const activeButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add("active");
     }
 }
+
+// Add click event listeners to tab buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            openTab(tabName);
+        });
+    });
+});
 
 // Mobile menu toggle functionality
 const menuToggle = document.getElementById('menuToggle');

@@ -10,9 +10,9 @@
     --c-light: #fff;
     --c-dark: #000;
     --c-content: #224;
-    --c-action: #8b5cf6;
+    --c-action: #667eea;
     --c-bg: #0a0a0a;
-    --liquid-glass-bg: hsla(250, 60%, 30%, 0.15);
+    --liquid-glass-bg: hsla(250, 60%, 30%, 0.2);
     --glass-reflex-dark: 1;
     --glass-reflex-light: 1;
     --saturation: 150%;
@@ -28,293 +28,207 @@ html, body {
 body {
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
-    color: #e0e0e0;
-    background-color: #0a0a0a;
-    touch-action: none;
+    color: #333;
+    background: #0a0a0a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Canvas for Tubes Cursor Effect */
+/* Canvas for Tube Background Effect */
 #canvas {
     position: fixed;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
-    overflow: hidden;
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* Liquid Glass Effect - Full Apple Style */
-.liquid-glass {
-    background: var(--liquid-glass-bg);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    
-    box-shadow: inset 0 0 0 1px
-        color-mix(
-            in srgb,
-            var(--c-light) calc(var(--glass-reflex-light) * 10%),
-            transparent
-        ),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 90%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 80%), transparent),
-        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        inset -0.3px -1px 4px 0px
-        color-mix(
-            in srgb,
-            var(--c-dark) calc(var(--glass-reflex-dark) * 12%),
-            transparent
-        ),
-        inset -1.5px 2.5px 0px -2px
-        color-mix(
-            in srgb,
-            var(--c-dark) calc(var(--glass-reflex-dark) * 20%),
-            transparent
-        ),
-        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
-            calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 2px -6.5px 1px -4px
-        color-mix(
-            in srgb,
-            var(--c-dark) calc(var(--glass-reflex-dark) * 10%),
-            transparent
-        ),
-        0px 1px 5px 0px
-        color-mix(
-            in srgb,
-            var(--c-dark) calc(var(--glass-reflex-dark) * 10%),
-            transparent
-        ),
-        0px 6px 16px 0px
-        color-mix(
-            in srgb,
-            var(--c-dark) calc(var(--glass-reflex-dark) * 8%),
-            transparent
-        );
-}
-
-/* Floating Navbar - Full width, below header */
-.navbar {
-    position: sticky;
-    top: 20px;
     width: 100%;
-    padding: 12px 30px;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    margin: 20px 0;
+    height: 100%;
+    z-index: 0;
 }
 
-.nav-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    max-width: 100%;
-}
-
-.nav-center {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    margin-left: auto;
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #8b5cf6;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    order: -2;
-}
-
-.logo:hover {
-    color: #a78bfa;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 30px;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-links a {
-    color: #b4b4d4;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    position: relative;
-    padding: 5px 0;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-    color: #ffffff;
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 50%;
-    background: #8b5cf6;
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.nav-links a:hover::after,
-.nav-links a.active::after {
-    width: 100%;
-}
-
-/* Auth buttons in navbar - Left side after logo */
-.auth-buttons {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    order: -1;
-    margin-right: auto;
-}
-
-.auth-btn {
-    padding: 8px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.login-btn {
-    color: #b4b4d4;
-    border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.login-btn:hover {
-    color: #ffffff;
-    border-color: #8b5cf6;
-}
-
-.signup-btn {
-    background: #8b5cf6;
-    color: #ffffff;
-    border: 1px solid transparent;
-}
-
-.signup-btn:hover {
-    background: #a78bfa;
-    transform: translateY(-1px);
-}
-
-/* Mobile Menu Toggle */
-.menu-toggle {
+/* SVG Filter */
+svg {
     display: none;
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
 }
 
+/* Main Container - Two Column Layout */
 .container {
+    max-width: 1600px;
     width: 100%;
-    margin: 0;
-    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    min-height: 85vh;
     position: relative;
     z-index: 1;
 }
 
-/* Header Styles - Fixed at top */
-.header {
-    position: relative;
-    width: 100%;
+/* LEFT PANEL: Profile with Liquid Glass */
+.profile-panel {
     background: var(--liquid-glass-bg);
-    color: white;
-    padding: 2rem 2rem 1.5rem;
-    text-align: center;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 70%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        0px 4px 12px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
-    z-index: 999;
-}
-
-.profile-section {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 30px;
+    padding: 60px 40px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 30px;
+    height: fit-content;
+    min-height: 85vh;
 }
 
-.name {
-    font-size: 2.5rem;
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.profile-header {
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+}
+
+.profile-name {
+    font-size: 3rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    color: #fff;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.position {
+.profile-role {
     font-size: 1.3rem;
     font-weight: 400;
-    color: #b4b4d4;
-    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
 }
 
-.contact-info {
+.profile-contacts {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 400px;
 }
 
-.contact-item {
-    color: #b4b4d4;
-    text-decoration: none;
+.profile-contacts .contact-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 15px;
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
     font-size: 1rem;
 }
 
-.contact-item:hover {
-    color: #8b5cf6;
+.profile-contacts .contact-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
-.contact-item i {
-    font-size: 1.1rem;
+.profile-contacts .contact-item i {
+    font-size: 1.3rem;
+    width: 28px;
+    text-align: center;
 }
 
+.profile-contacts .contact-item span {
+    flex: 1;
+    word-break: break-word;
+}
 
+/* RIGHT PANEL: Content */
+.content-panel {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 85vh;
+}
 
-/* Content Styles - Full width with constrained inner content */
-.content {
-    padding: 2rem;
-    min-height: 500px;
-    width: 100%;
+/* Tab Navigation */
+.tabs-nav {
+    display: flex;
+    gap: 5px;
+    padding: 25px 30px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.5);
+    flex-wrap: wrap;
+}
+
+.tab-button {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    font-family: 'Roboto', sans-serif;
+}
+
+.tab-button:hover {
+    color: #333;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.tab-button.active {
+    color: #667eea;
+    background: white;
+    font-weight: 600;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px 3px 0 0;
+}
+
+/* Tab Contents */
+.tab-contents {
+    padding: 40px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(100vh - 150px);
 }
 
 .tab-content {
     display: none;
     animation: fadeIn 0.3s ease-in;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 .tab-content.active {
@@ -328,49 +242,41 @@ body {
 
 /* Section Headings */
 h3 {
-    color: #e0e0e0;
-    font-size: 1.8rem;
+    color: #222;
+    font-size: 2rem;
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid #8b5cf6;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
     padding-bottom: 0.5rem;
 }
 
-/* Summary Section */
-.summary p {
-    font-size: 1.1rem;
+/* About Section */
+.about-section p {
+    font-size: 1rem;
     line-height: 1.8;
-    color: #b4b4d4;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.summary p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 1rem;
 }
 
 /* Experience Section */
 .job {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
-    border: none;
-    border-radius: 20px;
-    background: var(--liquid-glass-bg);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 90%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 80%), transparent),
-        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        inset -0.3px -1px 4px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 12%), transparent),
-        inset -1.5px 2.5px 0px -2px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
-            calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 2px -6.5px 1px -4px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 1px 5px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 6px 16px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    background-color: rgba(102, 126, 234, 0.03);
+    transition: all 0.3s ease;
+}
+
+.job:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
 }
 
 .job-header {
@@ -378,7 +284,7 @@ h3 {
 }
 
 .job-header h4 {
-    color: #e0e0e0;
+    color: #222;
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
 }
@@ -393,36 +299,27 @@ h3 {
 }
 
 .company a {
-    color: #8b5cf6;
+    color: #667eea;
     text-decoration: none;
     font-weight: 500;
 }
 
 .company a:hover {
     text-decoration: underline;
-    color: #a78bfa;
 }
 
 .location {
-    color: #9ca3af;
+    color: #666;
     font-style: italic;
 }
 
 .duration {
-    color: #fb923c;
+    color: #764ba2;
     font-weight: 500;
-    background: var(--liquid-glass-bg);
-    padding: 0.3rem 0.7rem;
-    border-radius: 15px;
+    background-color: rgba(118, 75, 162, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
     font-size: 0.9rem;
-    backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 15%), transparent),
-        inset 1px 1.5px 0px -1px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        0px 2px 6px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
 }
 
 .job-description {
@@ -435,15 +332,12 @@ h3 {
     padding-left: 1.2rem;
     position: relative;
     line-height: 1.6;
-}
-
-.job-description li {
-    color: #b4b4d4;
+    color: #555;
 }
 
 .job-description li::before {
     content: "▸";
-    color: #8b5cf6;
+    color: #667eea;
     font-weight: bold;
     position: absolute;
     left: 0;
@@ -453,31 +347,15 @@ h3 {
 .degree {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
-    border: none;
-    border-radius: 20px;
-    background: var(--liquid-glass-bg);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 90%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 80%), transparent),
-        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        inset -0.3px -1px 4px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 12%), transparent),
-        inset -1.5px 2.5px 0px -2px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
-            calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 2px -6.5px 1px -4px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 1px 5px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 6px 16px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    background-color: rgba(102, 126, 234, 0.03);
+    transition: all 0.3s ease;
+}
+
+.degree:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
 }
 
 .degree-header {
@@ -485,7 +363,7 @@ h3 {
 }
 
 .degree-header h4 {
-    color: #e0e0e0;
+    color: #222;
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
 }
@@ -500,14 +378,13 @@ h3 {
 }
 
 .institution a {
-    color: #8b5cf6;
+    color: #667eea;
     text-decoration: none;
     font-weight: 500;
 }
 
 .institution a:hover {
     text-decoration: underline;
-    color: #a78bfa;
 }
 
 .degree-details {
@@ -520,68 +397,51 @@ h3 {
     padding-left: 1.2rem;
     position: relative;
     line-height: 1.6;
-    color: #b4b4d4;
+    color: #555;
 }
 
 .degree-details li::before {
     content: "▸";
-    color: #8b5cf6;
+    color: #667eea;
     font-weight: bold;
     position: absolute;
     left: 0;
 }
 
 .degree-details a {
-    color: #fb923c;
+    color: #764ba2;
     text-decoration: none;
 }
 
 .degree-details a:hover {
     text-decoration: underline;
-    color: #fdba74;
 }
 
 /* Skills Section */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 2rem;
 }
 
 .skill-category {
-    background: var(--liquid-glass-bg);
+    background-color: rgba(102, 126, 234, 0.03);
     padding: 1.5rem;
-    border-radius: 20px;
-    border: none;
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 90%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 80%), transparent),
-        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        inset -0.3px -1px 4px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 12%), transparent),
-        inset -1.5px 2.5px 0px -2px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
-            calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 2px -6.5px 1px -4px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 1px 5px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 6px 16px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border-radius: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.skill-category:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
 }
 
 .skill-category h4 {
-    color: #e0e0e0;
+    color: #222;
     font-size: 1.2rem;
     margin-bottom: 1rem;
-    border-bottom: 1px solid #8b5cf6;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
     padding-bottom: 0.5rem;
 }
 
@@ -590,7 +450,7 @@ h3 {
 }
 
 .skill-subcategory h5 {
-    color: #b4b4d4;
+    color: #333;
     font-size: 1rem;
     margin-bottom: 0.5rem;
     font-weight: 500;
@@ -603,70 +463,38 @@ h3 {
 }
 
 .skill-tag {
-    background: var(--liquid-glass-bg);
-    color: #a78bfa;
+    background-color: rgba(102, 126, 234, 0.1);
+    color: #667eea;
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 500;
-    border: none;
-    backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 15%), transparent),
-        inset 1px 1.5px 0px -1px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        0px 2px 6px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
 .tech-tag {
-    background: var(--liquid-glass-bg);
-    color: #fdba74;
+    background-color: rgba(118, 75, 162, 0.1);
+    color: #764ba2;
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 500;
-    border: none;
-    backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(5px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 15%), transparent),
-        inset 1px 1.5px 0px -1px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        0px 2px 6px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border: 1px solid rgba(118, 75, 162, 0.3);
 }
 
 /* Projects Section */
 .project {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
-    border: none;
-    border-radius: 20px;
-    background: var(--liquid-glass-bg);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 90%), transparent),
-        inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 80%), transparent),
-        inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 60%), transparent),
-        inset -0.3px -1px 4px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 12%), transparent),
-        inset -1.5px 2.5px 0px -2px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark)
-            calc(var(--glass-reflex-dark) * 20%), transparent),
-        inset 2px -6.5px 1px -4px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 1px 5px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent),
-        0px 6px 16px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    background-color: rgba(102, 126, 234, 0.03);
+    transition: all 0.3s ease;
+}
+
+.project:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
 }
 
 .project-header {
@@ -674,7 +502,7 @@ h3 {
 }
 
 .project-header h4 {
-    color: #e0e0e0;
+    color: #222;
     font-size: 1.3rem;
     margin-bottom: 0.8rem;
     line-height: 1.4;
@@ -688,7 +516,7 @@ h3 {
 }
 
 .project-link {
-    color: #8b5cf6;
+    color: #667eea;
     text-decoration: none;
     font-weight: 500;
     display: flex;
@@ -698,11 +526,10 @@ h3 {
 
 .project-link:hover {
     text-decoration: underline;
-    color: #a78bfa;
 }
 
 .project-org {
-    color: #9ca3af;
+    color: #666;
     font-style: italic;
     margin-bottom: 0.5rem;
 }
@@ -718,12 +545,12 @@ h3 {
     padding-left: 1.2rem;
     position: relative;
     line-height: 1.6;
-    color: #b4b4d4;
+    color: #555;
 }
 
 .project-description li::before {
     content: "▸";
-    color: #8b5cf6;
+    color: #667eea;
     font-weight: bold;
     position: absolute;
     left: 0;
@@ -736,215 +563,117 @@ h3 {
     margin-top: 1rem;
 }
 
-/* Footer */
-.footer {
-    background: var(--liquid-glass-bg);
-    color: #b4b4d4;
-    text-align: center;
-    padding: 1.5rem;
-    margin-top: 2rem;
-    border-top: 1px solid rgba(139, 92, 246, 0.2);
-    backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-    -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-    box-shadow: inset 0 0 0 1px
-        color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 8%), transparent),
-        inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-            calc(var(--glass-reflex-light) * 70%), transparent),
-        0px -4px 12px 0px
-        color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent);
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        grid-template-columns: 45% 55%;
+        gap: 25px;
+    }
+    
+    .profile-panel {
+        padding: 50px 35px;
+    }
+    
+    .profile-name {
+        font-size: 2.5rem;
+    }
 }
 
-/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        min-height: auto;
+    }
+    
+    .profile-panel {
+        position: relative;
+        top: 0;
+        min-height: auto;
+        padding: 40px 30px;
+    }
+    
+    .profile-name {
+        font-size: 2.2rem;
+    }
+    
+    .profile-role {
+        font-size: 1.2rem;
+    }
+    
+    .content-panel {
+        min-height: 600px;
+    }
+}
+
 @media (max-width: 768px) {
-    .header {
-        padding: 1.5rem 1rem;
-    }
-    
-    .name {
-        font-size: 1.8rem;
-    }
-    
-    .position {
-        font-size: 1.1rem;
-    }
-    
-    .contact-info {
-        gap: 1rem;
-    }
-    
-    .navbar {
-        top: 15px;
-        padding: 10px 20px;
-        margin: 15px 0;
-        border-radius: 30px;
-    }
-
-    .nav-container {
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .nav-center {
-        order: 3;
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .nav-links {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--liquid-glass-bg);
-        backdrop-filter: brightness(1.1) blur(10px) url(#liquidGlass) saturate(var(--saturation));
-        -webkit-backdrop-filter: brightness(1.1) blur(10px) saturate(var(--saturation));
-        flex-direction: column;
-        padding: 20px;
-        border-radius: 20px;
-        margin-top: 10px;
-        gap: 15px;
-        border: none;
-        box-shadow: inset 0 0 0 1px
-            color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-            inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light)
-                calc(var(--glass-reflex-light) * 70%), transparent),
-            0px 6px 20px 0px
-            color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 15%), transparent);
-    }
-
-    .nav-links.active {
-        display: flex;
-    }
-
-    .nav-links a::after {
-        display: none;
-    }
-
-    .auth-buttons {
-        display: none;
-    }
-
-    .menu-toggle {
-        display: block;
+    body {
+        padding: 20px 10px;
     }
     
     .container {
-        margin: 0;
-        box-shadow: none;
+        gap: 15px;
     }
     
-    .name {
+    .profile-panel {
+        padding: 30px 25px;
+    }
+    
+    .profile-name {
         font-size: 2rem;
     }
     
-    .position {
-        font-size: 1.1rem;
-    }
-    
-    .contact-info {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .tabs {
-        flex-direction: column;
+    .tabs-nav {
+        padding: 20px 20px 0;
+        gap: 3px;
     }
     
     .tab-button {
-        padding: 0.8rem 1rem;
-        text-align: left;
+        padding: 10px 16px;
+        font-size: 0.85rem;
     }
     
-    .content {
-        padding: 1.5rem 1rem;
+    .tab-contents {
+        padding: 30px 20px;
+    }
+    
+    h3 {
+        font-size: 1.6rem;
     }
     
     .skills-grid {
         grid-template-columns: 1fr;
     }
-    
-    .company-location,
-    .institution-location {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .project-links {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
 }
 
 @media (max-width: 480px) {
-    .header {
-        padding: 1rem 0.5rem;
+    .profile-name {
+        font-size: 1.8rem;
     }
     
-    .name {
-        font-size: 1.5rem;
+    .profile-role {
+        font-size: 1rem;
     }
     
-    .position {
-        font-size: 0.95rem;
+    .profile-contacts .contact-item {
+        padding: 12px 15px;
+        font-size: 0.9rem;
     }
     
-    .contact-info {
-        flex-direction: column;
-        gap: 0.8rem;
+    .tabs-nav {
+        padding: 15px 15px 0;
     }
     
-    .navbar {
-        top: 10px;
-        padding: 8px 15px;
-        margin: 10px auto;
+    .tab-button {
+        padding: 8px 12px;
+        font-size: 0.8rem;
     }
-
-    .logo {
-        font-size: 1.3rem;
+    
+    .tab-contents {
+        padding: 25px 15px;
     }
     
     h3 {
-        font-size: 1.5rem;
-    }
-    
-    .job-header h4,
-    .degree-header h4,
-    .project-header h4 {
-        font-size: 1.1rem;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .tabs {
-        display: none;
-    }
-    
-    .tab-content {
-        display: block !important;
-        page-break-inside: avoid;
-    }
-    
-    .container {
-        box-shadow: none;
-        margin: 0;
-    }
-    
-    .header {
-        background: #1a1a2e !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    
-    body {
-        background-color: white;
-        color: #333;
-    }
-    
-    .container {
-        background-color: white;
+        font-size: 1.4rem;
     }
 }
