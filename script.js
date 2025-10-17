@@ -47,6 +47,20 @@ function openTab(tabName) {
     if (activeButton) {
         activeButton.classList.add("active");
     }
+    
+    // Update section title
+    const sectionTitles = {
+        'about': 'Summary',
+        'experience': 'Professional Experience',
+        'education': 'Education',
+        'skills': 'Technical Skills',
+        'projects': 'Featured Projects'
+    };
+    
+    const sectionTitle = document.getElementById('section-title');
+    if (sectionTitle && sectionTitles[tabName]) {
+        sectionTitle.textContent = sectionTitles[tabName];
+    }
 }
 
 // Add click event listeners to navigation buttons
