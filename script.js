@@ -25,42 +25,61 @@ function randomColors(count) {
         .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
 }
 
-// Tab functionality
+// Tab functionality with smooth fade transitions
 function openTab(tabName) {
-    // Hide all tab contents
+    // Get all tab contents and find the currently active one
     const tabContents = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove("active");
-    }
-    
-    // Remove active class from all navigation buttons
-    const navButtons = document.querySelectorAll('.nav-button');
-    navButtons.forEach(button => {
-        button.classList.remove("active");
-    });
-    
-    // Show the selected tab content
-    document.getElementById(tabName).classList.add("active");
-    
-    // Mark the corresponding navigation button as active
-    const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
-    if (activeButton) {
-        activeButton.classList.add("active");
-    }
-    
-    // Update section title
-    const sectionTitles = {
-        'about': 'Summary',
-        'experience': 'Professional Experience',
-        'education': 'Education',
-        'skills': 'Technical Skills',
-        'projects': 'Featured Projects'
-    };
-    
+    const activeContent = document.querySelector('.tab-content.active');
     const sectionTitle = document.getElementById('section-title');
-    if (sectionTitle && sectionTitles[tabName]) {
-        sectionTitle.textContent = sectionTitles[tabName];
+    
+    // Add fade-out class to current active content and title
+    if (activeContent) {
+        activeContent.classList.add('fade-out');
     }
+    if (sectionTitle) {
+        sectionTitle.classList.add('fade-out');
+    }
+    
+    // Wait for fade-out animation to complete
+    setTimeout(() => {
+        // Remove active class and fade-out class from all tabs
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active", "fade-out");
+        }
+        
+        // Remove active class from all navigation buttons
+        const navButtons = document.querySelectorAll('.nav-button');
+        navButtons.forEach(button => {
+            button.classList.remove("active");
+        });
+        
+        // Show the selected tab content
+        const newContent = document.getElementById(tabName);
+        if (newContent) {
+            newContent.classList.add("active");
+        }
+        
+        // Mark the corresponding navigation button as active
+        const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
+        if (activeButton) {
+            activeButton.classList.add("active");
+        }
+        
+        // Update section title with fade-in
+        const sectionTitles = {
+            'about': 'Summary',
+            'experience': 'Professional Experience',
+            'education': 'Education',
+            'skills': 'Technical Skills',
+            'projects': 'Featured Projects'
+        };
+        
+        if (sectionTitle && sectionTitles[tabName]) {
+            // Remove fade-out and update text
+            sectionTitle.classList.remove('fade-out');
+            sectionTitle.textContent = sectionTitles[tabName];
+        }
+    }, 300); // Match this with fade-out animation duration
 }
 
 // Add click event listeners to navigation buttons
