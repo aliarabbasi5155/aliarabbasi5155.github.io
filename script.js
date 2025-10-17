@@ -33,27 +33,27 @@ function openTab(tabName) {
         tabContents[i].classList.remove("active");
     }
     
-    // Remove active class from all tab buttons
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
+    // Remove active class from all navigation buttons
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach(button => {
         button.classList.remove("active");
     });
     
     // Show the selected tab content
     document.getElementById(tabName).classList.add("active");
     
-    // Mark the corresponding button as active
-    const activeButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+    // Mark the corresponding navigation button as active
+    const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
     if (activeButton) {
         activeButton.classList.add("active");
     }
 }
 
-// Add click event listeners to tab buttons
+// Add click event listeners to navigation buttons
 document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-button');
+    const navButtons = document.querySelectorAll('.nav-button');
     
-    tabButtons.forEach(button => {
+    navButtons.forEach(button => {
         button.addEventListener('click', function() {
             const tabName = this.getAttribute('data-tab');
             openTab(tabName);
