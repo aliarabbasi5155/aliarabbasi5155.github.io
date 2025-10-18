@@ -79,8 +79,7 @@ svg {
     justify-content: center;
     position: sticky;
     top: 30px;
-    height: fit-content;
-    min-height: 85vh;
+    height: 85vh;
     overflow: hidden;
 }
 
@@ -98,6 +97,26 @@ svg {
     padding-bottom: 40px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     width: 100%;
+}
+
+.profile-photo {
+    width: 200px;
+    height: auto;
+    border-radius: 20px;
+    object-fit: contain;
+    margin-bottom: 30px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 15px 50px rgba(102, 126, 234, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
 }
 
 .profile-name {
