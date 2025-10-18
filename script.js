@@ -32,6 +32,18 @@ function openTab(tabName) {
     const activeContent = document.querySelector('.tab-content.active');
     const sectionTitle = document.getElementById('section-title');
     
+    // Remove active class from all navigation buttons IMMEDIATELY for smooth animation
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach(button => {
+        button.classList.remove("active");
+    });
+    
+    // Mark the corresponding navigation button as active IMMEDIATELY
+    const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add("active");
+    }
+    
     // Add fade-out class to current active content and title
     if (activeContent) {
         activeContent.classList.add('fade-out');
@@ -47,22 +59,10 @@ function openTab(tabName) {
             tabContents[i].classList.remove("active", "fade-out");
         }
         
-        // Remove active class from all navigation buttons
-        const navButtons = document.querySelectorAll('.nav-button');
-        navButtons.forEach(button => {
-            button.classList.remove("active");
-        });
-        
         // Show the selected tab content
         const newContent = document.getElementById(tabName);
         if (newContent) {
             newContent.classList.add("active");
-        }
-        
-        // Mark the corresponding navigation button as active
-        const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
-        if (activeButton) {
-            activeButton.classList.add("active");
         }
         
         // Update section title with fade-in
@@ -87,9 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const navButtons = document.querySelectorAll('.nav-button');
     
     navButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             const tabName = this.getAttribute('data-tab');
-            openTab(tabName);
+            
+            // Use requestAnimationFrame for smoother transitions
+            requestAnimationFrame(() => {
+                openTab(tabName);
+            });
         });
     });
 });

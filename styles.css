@@ -159,13 +159,13 @@ svg {
     text-overflow: ellipsis;
 }
 
-/* MIDDLE PANEL: Navigation with Liquid Glass */
+/* MIDDLE PANEL: Navigation with Liquid Glass - Accordion Style */
 .navigation-panel {
     background: var(--liquid-glass-bg);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 30px;
-    padding: 40px 20px;
+    padding: 0;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.3),
@@ -175,35 +175,51 @@ svg {
     flex-direction: column;
     position: sticky;
     top: 30px;
-    height: fit-content;
-    min-height: 85vh;
-    justify-content: center;
+    height: 85vh;
+    overflow: hidden;
 }
 
 .section-nav {
     display: flex;
     flex-direction: column;
-    gap: 15px;
     width: 100%;
+    height: 100%;
 }
 
 .nav-button {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 15px;
-    padding: 18px 24px;
+    padding: 20px;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.85);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
+    transition: flex 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                flex-direction 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+    text-align: center;
     font-family: 'Roboto', sans-serif;
     position: relative;
     overflow: hidden;
+    flex: 0 0 5%;
+    flex-direction: row;
+    will-change: flex, flex-direction;
+}
+
+.nav-button:first-child {
+    border-radius: 30px 30px 0 0;
+}
+
+.nav-button:last-child {
+    border-radius: 0 0 30px 30px;
+    border-bottom: none;
 }
 
 .nav-button::before {
@@ -211,19 +227,16 @@ svg {
     position: absolute;
     left: 0;
     top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
-    border-radius: 16px 0 0 16px;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .nav-button:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateX(5px);
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .nav-button:hover::before {
@@ -231,28 +244,50 @@ svg {
 }
 
 .nav-button.active {
+    flex: 0 0 80%;
+    flex-direction: column;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
-    border-color: rgba(99, 102, 241, 0.4);
+    border-color: rgba(99, 102, 241, 0.2);
     color: #ffffff;
     box-shadow: 
-        0 4px 20px rgba(99, 102, 241, 0.3),
+        inset 0 0 30px rgba(99, 102, 241, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .nav-button.active::before {
     opacity: 1;
+    height: 4px;
 }
 
 .nav-button i {
     font-size: 1.2rem;
-    width: 24px;
-    text-align: center;
+    transition: font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0;
     flex-shrink: 0;
 }
 
+.nav-button.active i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
 .nav-button span {
-    flex: 1;
     font-weight: 600;
+    transition: font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                font-weight 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    font-size: 0.9rem;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.nav-button.active span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    transform: translateY(0);
 }
 
 /* RIGHT PANEL: Content */
@@ -900,12 +935,35 @@ h3::after {
     }
     
     .navigation-panel {
-        padding: 30px 15px;
+        padding: 0;
     }
     
     .nav-button {
         padding: 16px 20px;
         font-size: 0.95rem;
+        flex-direction: row;
+    }
+    
+    .nav-button i {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+    
+    .nav-button span {
+        font-size: 0.85rem;
+    }
+    
+    .nav-button.active {
+        flex-direction: column;
+    }
+    
+    .nav-button.active i {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .nav-button.active span {
+        font-size: 1.3rem;
     }
 }
 
@@ -927,19 +985,37 @@ h3::after {
         position: relative;
         top: 0;
         min-height: auto;
-        padding: 30px 25px;
+        height: 500px;
+        padding: 0;
     }
     
     .section-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
+        flex-direction: column;
+        height: 100%;
     }
     
     .nav-button {
-        flex: 1;
-        min-width: 150px;
+        flex: 1 1 0%;
+        min-height: 0;
         justify-content: center;
+        flex-direction: row;
+    }
+    
+    .nav-button span {
+        display: block;
+        opacity: 1;
+        white-space: nowrap;
+        overflow: visible;
+    }
+    
+    .nav-button.active {
+        flex: 4 1 0%;
+        flex-direction: column;
+    }
+    
+    .nav-button.active span {
+        display: block;
+        opacity: 1;
     }
     
     .content-panel {
@@ -978,12 +1054,45 @@ h3::after {
     }
     
     .navigation-panel {
-        padding: 25px 20px;
+        padding: 0;
+        height: 450px;
     }
     
     .nav-button {
         padding: 14px 18px;
         font-size: 0.9rem;
+        flex-direction: row;
+        flex: 1 1 0%;
+        min-height: 0;
+    }
+    
+    .nav-button i {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+    
+    .nav-button span {
+        font-size: 0.85rem;
+        display: block;
+        opacity: 1;
+        white-space: nowrap;
+        overflow: visible;
+    }
+    
+    .nav-button.active {
+        flex: 4 1 0%;
+        flex-direction: column;
+    }
+    
+    .nav-button.active i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .nav-button.active span {
+        font-size: 1.2rem;
+        display: block;
+        opacity: 1;
     }
     
     .content-panel {
@@ -1030,13 +1139,45 @@ h3::after {
     }
     
     .navigation-panel {
-        padding: 20px 15px;
+        padding: 0;
+        height: 400px;
     }
     
     .nav-button {
         padding: 12px 16px;
         font-size: 0.85rem;
-        min-width: 120px;
+        flex-direction: row;
+        flex: 1 1 0%;
+        min-height: 0;
+    }
+    
+    .nav-button i {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .nav-button span {
+        font-size: 0.75rem;
+        display: block;
+        opacity: 1;
+        white-space: nowrap;
+        overflow: visible;
+    }
+    
+    .nav-button.active {
+        flex: 4 1 0%;
+        flex-direction: column;
+    }
+    
+    .nav-button.active i {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .nav-button.active span {
+        font-size: 1rem;
+        display: block;
+        opacity: 1;
     }
     
     .content-panel {
