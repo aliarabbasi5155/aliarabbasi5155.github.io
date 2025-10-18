@@ -316,3 +316,72 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Glassmorphism glow effect - Mouse tracking for all panels and cards
+function addGlowEffect(element) {
+    element.addEventListener('mousemove', (e) => {
+        const rect = element.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        element.style.setProperty('--x', `${x}px`);
+        element.style.setProperty('--y', `${y}px`);
+    });
+    
+    element.addEventListener('mouseleave', () => {
+        element.style.setProperty('--x', '50%');
+        element.style.setProperty('--y', '50%');
+    });
+}
+
+// Add 3D tilt effect
+function add3DTilt(element, intensity = 5) {
+    element.addEventListener('mousemove', (e) => {
+        const rect = element.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * intensity;
+        const rotateY = ((x - centerX) / centerX) * -intensity;
+        
+        element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    
+    element.addEventListener('mouseleave', () => {
+        element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    });
+}
+
+// Apply effects to all panels and cards
+document.addEventListener('DOMContentLoaded', () => {
+    // Profile panel
+    const profilePanel = document.querySelector('.profile-panel');
+    if (profilePanel) {
+        addGlowEffect(profilePanel);
+        add3DTilt(profilePanel, 8);
+    }
+    
+    // Navigation buttons
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach(button => {
+        addGlowEffect(button);
+        add3DTilt(button, 6);
+    });
+    
+    // Section header card
+    const headerCard = document.querySelector('.section-header-card');
+    if (headerCard) {
+        addGlowEffect(headerCard);
+        add3DTilt(headerCard, 8);
+    }
+    
+    // Section content card
+    const contentCard = document.querySelector('.section-content-card');
+    if (contentCard) {
+        addGlowEffect(contentCard);
+        add3DTilt(contentCard, 6);
+    }
+});
