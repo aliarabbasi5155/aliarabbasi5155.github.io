@@ -80,6 +80,14 @@
                     <i class="fas fa-folder-open"></i>
                     <span>Projects</span>
                 </button>
+                <button class="nav-button" data-tab="publications">
+                    <i class="fas fa-book"></i>
+                    <span>Publications</span>
+                </button>
+                <button class="nav-button" data-tab="interests">
+                    <i class="fas fa-heart"></i>
+                    <span>Interests</span>
+                </button>
             </nav>
         </aside>
         
@@ -140,6 +148,58 @@
                         <ul class="job-description">
                             <li>Designed a recommender model to predict optimal electric power bank request timing, increasing delivering time by 18%.</li>
                             <li>Contributed in development of a cross-platform(React Native and Django) application for electric vehicle charge management with over 800 active users in 2021.</li>
+                        </ul>
+                    </div>
+
+                    <h3 style="margin-top: 2rem;">Earlier Experience</h3>
+
+                    <div class="job">
+                        <div class="job-header">
+                            <h4>Backend Developer</h4>
+                            <div class="company-location">
+                                <span class="company">Bardal Startup</span>
+                                <span class="location">Tehran, Iran</span>
+                            </div>
+                            <span class="duration">Jul 2019 - Jan 2020</span>
+                        </div>
+                        <ul class="job-description">
+                            <li>Developed RESTful APIs using Django and Django REST Framework for backend services.</li>
+                            <li>Implemented containerization with Docker and orchestration with Kubernetes for scalable deployments.</li>
+                            <li>Managed PostgreSQL databases and optimized query performance.</li>
+                        </ul>
+                    </div>
+
+                    <div class="job">
+                        <div class="job-header">
+                            <h4>Frontend Developer</h4>
+                            <div class="company-location">
+                                <span class="company">Spinzer Startup</span>
+                                <span class="location">Tehran, Iran</span>
+                            </div>
+                            <span class="duration">Nov 2018 - Jun 2019</span>
+                        </div>
+                        <ul class="job-description">
+                            <li>Built responsive web applications using ReactJS, TypeScript, and Redux for state management.</li>
+                            <li>Implemented modern UI/UX designs with HTML5 and CSS3.</li>
+                            <li>Collaborated with backend team to integrate RESTful APIs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="job">
+                        <div class="job-header">
+                            <h4>Backend Developer (Internship)</h4>
+                            <div class="company-location">
+                                <span class="company">
+                                    <a href="https://www.saeedco.com/" target="_blank">Saaed Co. <i class="fas fa-external-link-alt"></i></a>
+                                </span>
+                                <span class="location">Arak, Iran</span>
+                            </div>
+                            <span class="duration">Jun 2018 - Oct 2018</span>
+                        </div>
+                        <ul class="job-description">
+                            <li>Developed backend services using .NET framework and RESTful API design principles.</li>
+                            <li>Created dynamic web interfaces with HTML, CSS, and JavaScript.</li>
+                            <li>Gained hands-on experience in full-stack development and agile methodologies.</li>
                         </ul>
                     </div>
                 </section>
@@ -468,22 +528,73 @@
                     </div>
                 </section>
             </div>
-            </div>
-        </main>
-    </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+            <!-- Publications Tab -->
+            <div id="publications" class="tab-content">
+                <section class="publications">
+                    <div class="publication">
+                        <div class="publication-header">
+                            <h4>Transforming Stroop task cognitive assessments with multimodal Inverse Reinforcement Learning</h4>
+                            <div class="publication-authors">
+                                <strong>Ali Abbasi</strong>, Jiaqi Gong, Soroush Korivand
+                            </div>
+                            <div class="publication-venue">
+                                <span class="journal">Smart Health</span>
+                                <span class="details">36, p. 100567, 2025. Elsevier</span>
+                            </div>
+                            <div class="publication-links">
+                                <a href="https://www.sciencedirect.com/science/article/pii/S2352648325000285" target="_blank" class="publication-link">
+                                    <i class="fas fa-external-link-alt"></i> View Publication
+                                </a>
+                            </div>
+                        </div>
+                        <div class="publication-abstract">
+                            <p>This research presents a novel approach to cognitive assessment using multimodal Inverse Reinforcement Learning to reconstruct human gaze behavior during Stroop tasks. The study combines EEG data with eye-tracking information to better understand cognitive processes and decision-making patterns under different cognitive load conditions.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Interests Tab -->
+            <div id="interests" class="tab-content">
+                <section class="interests">
+                    <div class="interests-grid">
+                        <div class="interest-card">
+                            <div class="interest-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <h4>Reading</h4>
+                            <p>Absolutely hooked on business-innovation reads (e.g. Eric Ries) & self-help gems (e.g. Cal Newport).</p>
+                        </div>
+
+                        <div class="interest-card">
+                            <div class="interest-icon">
+                                <i class="fas fa-futbol"></i>
+                            </div>
+                            <h4>Football</h4>
+                            <p>Watch way too much Liverpool matches and play FIFA with friends.</p>
+                        </div>
+
+                        <div class="interest-card">
+                            <div class="interest-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h4>Learning</h4>
+                            <p>Always reading about new tech trends or taking online courses now focusing on AI trends.</p>
+                        </div>
+
+                        <div class="interest-card">
+                            <div class="interest-icon">
+                                <i class="fas fa-biking"></i>
+                            </div>
+                            <h4>Night Rides</h4>
+                            <p>30-40 min after-dark city spins on my bike—my go-to for a full mind & body recharge.</p>
+                        </div>
+                    </div>
                 </section>
             </div>
             </div>
         </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>&copy; 2025 Ali Abbasi. All rights reserved.</p>
-        </footer>
     </div>
 
     <script type="module" src="script.js"></script>

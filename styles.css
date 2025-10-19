@@ -903,6 +903,209 @@ h3::after {
     transform: translateY(-1px);
 }
 
+/* Publications Section */
+.publication {
+    margin-bottom: 1.75rem;
+    padding: 24px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.publication::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #a78bfa 0%, #c084fc 100%);
+    border-radius: 20px 0 0 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
+}
+
+.publication:hover {
+    border-color: rgba(167, 139, 250, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 
+        0 10px 30px -10px rgba(167, 139, 250, 0.3),
+        0 0 0 1px rgba(167, 139, 250, 0.2);
+    transform: translateY(-2px);
+}
+
+.publication:hover::before {
+    opacity: 1;
+}
+
+.publication-header {
+    margin-bottom: 1rem;
+}
+
+.publication-header h4 {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.publication-authors {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9375rem;
+    margin-bottom: 0.7rem;
+}
+
+.publication-authors strong {
+    color: #c084fc;
+    font-weight: 600;
+}
+
+.publication-venue {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.publication-venue .journal {
+    color: #e9d5ff;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.publication-venue .details {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9375rem;
+}
+
+.publication-links {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.7rem;
+    flex-wrap: wrap;
+}
+
+.publication-link {
+    color: #c084fc;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.publication-link:hover {
+    color: #e9d5ff;
+}
+
+.publication-link i {
+    font-size: 0.875rem;
+}
+
+.publication-abstract {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.publication-abstract p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
+/* Interests Section */
+.interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.interest-card {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 28px 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    text-align: center;
+}
+
+.interest-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #a78bfa 0%, #c084fc 100%);
+    border-radius: 20px 20px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
+}
+
+.interest-card:hover {
+    border-color: rgba(167, 139, 250, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 
+        0 10px 30px -10px rgba(167, 139, 250, 0.3),
+        0 0 0 1px rgba(167, 139, 250, 0.2);
+    transform: translateY(-2px);
+}
+
+.interest-card:hover::before {
+    opacity: 1;
+}
+
+.interest-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(167, 139, 250, 0.15);
+    border-radius: 50%;
+    border: 2px solid rgba(167, 139, 250, 0.3);
+    transition: all 0.3s ease;
+}
+
+.interest-card:hover .interest-icon {
+    background: rgba(167, 139, 250, 0.25);
+    border-color: rgba(167, 139, 250, 0.5);
+    transform: scale(1.1);
+}
+
+.interest-icon i {
+    font-size: 2rem;
+    color: #e9d5ff;
+}
+
+.interest-card h4 {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.interest-card p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+}
+
 /* Projects Section */
 .project {
     margin-bottom: 1.75rem;
@@ -1097,6 +1300,10 @@ h3::after {
     .profile-contacts .contact-item i {
         font-size: 1.1rem;
     }
+    
+    .interests-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 1024px) {
@@ -1239,6 +1446,10 @@ h3::after {
         padding: 14px 18px;
         font-size: 0.95rem;
     }
+    
+    .interests-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -1330,6 +1541,10 @@ h3::after {
     .skills-grid {
         grid-template-columns: 1fr;
     }
+    
+    .interests-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1416,6 +1631,23 @@ h3::after {
     
     h3 {
         font-size: 1.4rem;
+    }
+    
+    .interests-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .interest-card {
+        padding: 24px 20px;
+    }
+    
+    .interest-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .interest-icon i {
+        font-size: 1.8rem;
     }
 }
 

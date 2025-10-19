@@ -1,23 +1,42 @@
 // Import and initialize Tubes Cursor
 import TubesCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
 
-const app = TubesCursor(document.getElementById('canvas'), {
-    tubes: {
-        colors: ["#8b5cf6", "#667eea", "#764ba2"],
-        lights: {
-            intensity: 200,
-            colors: ["#667eea", "#8b5cf6", "#764ba2", "#a78bfa"]
-        }
-    }
-});
+// Initialize background effect
+let app;
 
-// Change colors on click
-document.body.addEventListener('click', () => {
-    const colors = randomColors(3);
-    const lightsColors = randomColors(4);
-    app.tubes.setColors(colors);
-    app.tubes.setLightsColors(lightsColors);
-});
+function initBackground() {
+    try {
+        const canvas = document.getElementById('canvas');
+        if (!canvas) {
+            console.warn('Canvas element not found');
+            return;
+        }
+        
+        console.log('Initializing TubesCursor...');
+        app = TubesCursor(canvas, {
+            tubes: {
+                colors: ["#8b5cf6", "#667eea", "#764ba2"],
+                lights: {
+                    intensity: 200,
+                    colors: ["#667eea", "#8b5cf6", "#764ba2", "#a78bfa"]
+                }
+            }
+        });
+        console.log('TubesCursor initialized successfully');
+        
+        // Change colors on click
+        document.body.addEventListener('click', () => {
+            const colors = randomColors(3);
+            const lightsColors = randomColors(4);
+            if (app && app.tubes) {
+                app.tubes.setColors(colors);
+                app.tubes.setLightsColors(lightsColors);
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing background:', error);
+    }
+}
 
 function randomColors(count) {
     return new Array(count)
@@ -71,7 +90,9 @@ function openTab(tabName) {
             'experience': 'Professional Experience',
             'education': 'Education',
             'skills': 'Technical Skills',
-            'projects': 'Featured Projects'
+            'projects': 'Featured Projects',
+            'publications': 'Publications',
+            'interests': 'Interests'
         };
         
         if (sectionTitle && sectionTitles[tabName]) {
@@ -82,14 +103,16 @@ function openTab(tabName) {
     }, 300); // Match this with fade-out animation duration
 }
 
-// Add click event listeners to navigation buttons
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize navigation
+function initNavigation() {
     const navButtons = document.querySelectorAll('.nav-button');
+    console.log(`Found ${navButtons.length} navigation buttons`);
     
     navButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const tabName = this.getAttribute('data-tab');
+            console.log(`Switching to tab: ${tabName}`);
             
             // Use requestAnimationFrame for smoother transitions
             requestAnimationFrame(() => {
@@ -97,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-});
+}
 
 // Mobile menu toggle functionality
 const menuToggle = document.getElementById('menuToggle');
@@ -132,8 +155,8 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Smooth scrolling for internal links
-document.addEventListener('DOMContentLoaded', function() {
+// Smooth scrolling and animations
+function initAnimations() {
     // Add smooth scroll behavior to external links
     const externalLinks = document.querySelectorAll('a[target="_blank"]');
     externalLinks.forEach(link => {
@@ -155,15 +178,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Observe all job, degree, and project cards
-    const cards = document.querySelectorAll('.job, .degree, .project, .skill-category');
+    // Observe all job, degree, project, publication, and interest cards
+    const cards = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
     cards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
     });
-});
+}
 
 // Add keyboard navigation for tabs
 document.addEventListener('keydown', function(e) {
@@ -202,7 +225,7 @@ function initSearch() {
     
     searchInput.addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
-        const searchableElements = document.querySelectorAll('.job, .degree, .project, .skill-category');
+        const searchableElements = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
         
         searchableElements.forEach(element => {
             const text = element.textContent.toLowerCase();
@@ -263,7 +286,7 @@ function shareResume(platform) {
 }
 
 // Add tooltips for skill tags
-document.addEventListener('DOMContentLoaded', function() {
+function initSkillTags() {
     const skillTags = document.querySelectorAll('.skill-tag, .tech-tag');
     
     skillTags.forEach(tag => {
@@ -279,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add transition for smooth hover effect
         tag.style.transition = 'transform 0.2s ease';
     });
-});
+}
 
 // Copy email to clipboard
 function copyEmail() {
@@ -356,7 +379,7 @@ function add3DTilt(element, intensity = 5) {
 }
 
 // Apply effects to all panels and cards
-document.addEventListener('DOMContentLoaded', () => {
+function initEffects() {
     // Profile panel
     const profilePanel = document.querySelector('.profile-panel');
     if (profilePanel) {
@@ -384,4 +407,19 @@ document.addEventListener('DOMContentLoaded', () => {
         addGlowEffect(contentCard);
         add3DTilt(contentCard, 6);
     }
-});
+}
+
+// Main initialization
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+} else {
+    initAll();
+}
+
+function initAll() {
+    initBackground();
+    initNavigation();
+    initEffects();
+    initAnimations();
+    initSkillTags();
+}
