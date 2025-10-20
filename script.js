@@ -387,6 +387,13 @@ function initEffects() {
         add3DTilt(profilePanel, 8);
     }
     
+    // Updates panel
+    const updatesPanel = document.querySelector('.updates-panel');
+    if (updatesPanel) {
+        addGlowEffect(updatesPanel);
+        add3DTilt(updatesPanel, 8);
+    }
+    
     // Navigation buttons
     const navButtons = document.querySelectorAll('.nav-button');
     navButtons.forEach(button => {
