@@ -92,6 +92,7 @@ function openTab(tabName) {
             'skills': 'Technical Skills',
             'projects': 'Featured Projects',
             'publications': 'Publications',
+            'blog': 'Blog Posts',
             'interests': 'Interests'
         };
         
@@ -406,6 +407,26 @@ function initEffects() {
         add3DTilt(contentCard, 6);
     }
 }
+
+// Blog post toggle functionality
+function toggleBlogPost(button) {
+    const blogPost = button.closest('.blog-post');
+    const fullContent = blogPost.querySelector('.blog-full-content');
+    const isExpanded = fullContent.style.display !== 'none';
+    
+    if (isExpanded) {
+        // Collapse
+        fullContent.style.display = 'none';
+        button.textContent = 'Show More';
+    } else {
+        // Expand
+        fullContent.style.display = 'block';
+        button.textContent = 'Show Less';
+    }
+}
+
+// Make toggleBlogPost available globally
+window.toggleBlogPost = toggleBlogPost;
 
 // Main initialization
 if (document.readyState === 'loading') {

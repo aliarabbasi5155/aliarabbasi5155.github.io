@@ -96,7 +96,11 @@
         <!-- MIDDLE: Navigation Panel with Liquid Glass -->
         <aside class="navigation-panel liquid-glass">
             <nav class="section-nav">
-                <button class="nav-button active" data-tab="about">
+                <button class="nav-button active" data-tab="blog">
+                    <i class="fas fa-pen-alt"></i>
+                    <span>Blog</span>
+                </button>
+                <button class="nav-button" data-tab="about">
                     <i class="fas fa-user"></i>
                     <span>About</span>
                 </button>
@@ -131,7 +135,7 @@
         <main class="content-panel">
             <!-- Section Title Card -->
             <div class="section-header-card">
-                <h2 id="section-title">Summary</h2>
+                <h2 id="section-title">Blog Posts</h2>
             </div>
             
             <!-- Content Card -->
@@ -139,7 +143,7 @@
                 <!-- Tab Contents -->
                 <div class="tab-contents">
                     <!-- About Tab -->
-                    <div id="about" class="tab-content active">
+                    <div id="about" class="tab-content">
                         <section class="summary">
                             <p><strong>Machine Learning Engineer</strong> with robust foundation in fullstack development from 5+ years as a Senior Developer. Specialized in Reinforcement Learning, Computer Vision, and LLMs, with hands-on DevOps and React/Django expertise. Demonstrated success in delivering scalable, data-driven solutions across large scale real-world problems, and researches.</p>
                         </section>
@@ -586,6 +590,94 @@
                         </div>
                         <div class="publication-abstract">
                             <p>This research presents a novel approach to cognitive assessment using multimodal Inverse Reinforcement Learning to reconstruct human gaze behavior during Stroop tasks. The study combines EEG data with eye-tracking information to better understand cognitive processes and decision-making patterns under different cognitive load conditions.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Blog Tab -->
+            <div id="blog" class="tab-content active">
+                <section class="blog">
+                    <div class="blog-post">
+                        <div class="blog-header">
+                            <h4>The Future of Machine Learning in Autonomous Systems</h4>
+                            <div class="blog-meta">
+                                <span class="blog-date">January 15, 2025</span>
+                                <span class="blog-category">Machine Learning</span>
+                            </div>
+                        </div>
+                        <div class="blog-content">
+                            <p class="blog-excerpt">Exploring how advanced ML algorithms are revolutionizing autonomous drone systems and their real-world applications in various industries...</p>
+                            <div class="blog-full-content" style="display: none;">
+                                <p>Machine learning has become the cornerstone of modern autonomous systems, particularly in the realm of unmanned aerial vehicles (UAVs). As we advance into 2025, the integration of sophisticated algorithms like Proximal Policy Optimization (PPO) and deep reinforcement learning is transforming how drones operate in complex environments.</p>
+                                <p>In my recent work at Nimbus SRL, we've successfully implemented RL models that have reduced crash rates by 5% under adverse weather conditions. This improvement might seem modest, but in the context of autonomous flight systems, it represents a significant leap in reliability and safety.</p>
+                                <p>The key challenges we face include real-time decision making, environmental adaptation, and energy optimization. Our approach combines computer vision with predictive modeling to create systems that can anticipate and respond to dynamic conditions.</p>
+                                <p>Looking ahead, I believe the next breakthrough will come from multimodal learning systems that can process visual, auditory, and sensor data simultaneously, creating truly intelligent autonomous agents.</p>
+                            </div>
+                            <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">Show More</button>
+                        </div>
+                    </div>
+
+                    <div class="blog-post">
+                        <div class="blog-header">
+                            <h4>Inverse Reinforcement Learning: Understanding Human Behavior</h4>
+                            <div class="blog-meta">
+                                <span class="blog-date">December 28, 2024</span>
+                                <span class="blog-category">Research</span>
+                            </div>
+                        </div>
+                        <div class="blog-content">
+                            <p class="blog-excerpt">My journey through researching human gaze behavior using IRL techniques and what it reveals about cognitive processes...</p>
+                            <div class="blog-full-content" style="display: none;">
+                                <p>Inverse Reinforcement Learning (IRL) offers a fascinating window into understanding human decision-making processes. In my thesis work, I explored how we can reconstruct human gaze behavior during Stroop tasks using EEG data and IRL algorithms.</p>
+                                <p>The Stroop test, a classic cognitive assessment tool, reveals how our brains process conflicting information. By applying IRL techniques, we can reverse-engineer the reward functions that guide human attention and decision-making.</p>
+                                <p>Our research, recently published in Elsevier's Smart Health Journal, demonstrates that multimodal approaches combining EEG signals with eye-tracking data provide unprecedented insights into cognitive load and attention patterns.</p>
+                                <p>This work has implications beyond academic research - it could revolutionize how we design human-computer interfaces, develop assistive technologies, and understand neurological conditions.</p>
+                                <p>The methodology we developed uses GAIL (Generative Adversarial Imitation Learning) with PPO and GAE, creating a robust framework for behavioral reconstruction that could be applied to various cognitive tasks.</p>
+                            </div>
+                            <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">Show More</button>
+                        </div>
+                    </div>
+
+                    <div class="blog-post">
+                        <div class="blog-header">
+                            <h4>Building Scalable ML Systems: Lessons from Production</h4>
+                            <div class="blog-meta">
+                                <span class="blog-date">November 20, 2024</span>
+                                <span class="blog-category">Engineering</span>
+                            </div>
+                        </div>
+                        <div class="blog-content">
+                            <p class="blog-excerpt">Practical insights from deploying machine learning models in production environments and the challenges of scaling AI systems...</p>
+                            <div class="blog-full-content" style="display: none;">
+                                <p>Transitioning from research prototypes to production-ready ML systems presents unique challenges that every ML engineer must navigate. Over the past few years, I've learned valuable lessons about building scalable, reliable AI systems.</p>
+                                <p>One of the biggest challenges is model versioning and deployment. We've implemented CI/CD pipelines using GitHub Actions that automatically test, validate, and deploy model updates. This has reduced our deployment time from hours to minutes while maintaining quality standards.</p>
+                                <p>Data drift is another critical issue. We've developed monitoring systems that track model performance in real-time and alert us when accuracy drops below acceptable thresholds. This proactive approach has prevented several potential system failures.</p>
+                                <p>Infrastructure considerations are equally important. Using containerization with Docker and orchestration with Kubernetes has allowed us to scale our ML services efficiently across multiple environments.</p>
+                                <p>The key takeaway: successful ML systems require as much engineering discipline as they do algorithmic innovation. The most elegant model is useless if it can't be deployed, monitored, and maintained effectively.</p>
+                            </div>
+                            <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">Show More</button>
+                        </div>
+                    </div>
+
+                    <div class="blog-post">
+                        <div class="blog-header">
+                            <h4>The Evolution of LLMs: From GPT to Specialized Models</h4>
+                            <div class="blog-meta">
+                                <span class="blog-date">October 10, 2024</span>
+                                <span class="blog-category">AI Trends</span>
+                            </div>
+                        </div>
+                        <div class="blog-content">
+                            <p class="blog-excerpt">Analyzing the rapid evolution of large language models and their impact on various industries, including our experience with fine-tuning Llama-3...</p>
+                            <div class="blog-full-content" style="display: none;">
+                                <p>The landscape of Large Language Models has evolved dramatically over the past two years. From the initial excitement around GPT models to the current ecosystem of specialized, fine-tuned models, we're witnessing a maturation of the field.</p>
+                                <p>At Nimbus, we recently fine-tuned Llama-3-8b with our company's knowledge base, reducing new employee onboarding time to just 2-3 days. This practical application demonstrates how LLMs can be adapted for specific organizational needs.</p>
+                                <p>The key insight is that generic models, while impressive, often fall short in specialized domains. Fine-tuning allows us to inject domain-specific knowledge while maintaining the model's general capabilities.</p>
+                                <p>We've also implemented RAG (Retrieval-Augmented Generation) systems that serve over 1200 queries weekly for customer support. The combination of retrieval and generation provides more accurate, contextual responses than either approach alone.</p>
+                                <p>Looking forward, I believe we'll see more emphasis on efficient, smaller models that can be easily customized and deployed at the edge, rather than relying solely on massive, centralized models.</p>
+                            </div>
+                            <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">Show More</button>
                         </div>
                     </div>
                 </section>
