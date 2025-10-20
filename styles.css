@@ -18,7 +18,8 @@
     --saturation: 150%;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     width: 100%;
     height: 100%;
@@ -77,7 +78,7 @@ svg {
     border-radius: 30px;
     padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -248,7 +249,7 @@ svg {
     border-radius: 30px;
     padding: 30px 35px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -267,11 +268,9 @@ svg {
     content: '';
     position: absolute;
     inset: -2px;
-    background: radial-gradient(
-        600px circle at var(--x, 50%) var(--y, 50%),
-        rgba(99, 102, 241, 0.4),
-        transparent 40%
-    );
+    background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%),
+            rgba(99, 102, 241, 0.4),
+            transparent 40%);
     border-radius: 30px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -398,7 +397,7 @@ svg {
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-radius: 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -407,11 +406,11 @@ svg {
     font-weight: 500;
     cursor: pointer;
     transition: flex 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                flex-direction 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                background 0.3s ease,
-                border-color 0.3s ease,
-                box-shadow 0.3s ease,
-                transform 0.3s ease;
+        flex-direction 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
     text-align: center;
     font-family: 'Roboto', sans-serif;
     position: relative;
@@ -427,11 +426,9 @@ svg {
     content: '';
     position: absolute;
     inset: -2px;
-    background: radial-gradient(
-        400px circle at var(--x, 50%) var(--y, 50%),
-        rgba(139, 92, 246, 0.4),
-        transparent 40%
-    );
+    background: radial-gradient(400px circle at var(--x, 50%) var(--y, 50%),
+            rgba(139, 92, 246, 0.4),
+            transparent 40%);
     border-radius: 40px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -457,7 +454,7 @@ svg {
 .nav-button:hover {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 
+    box-shadow:
         0 12px 40px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.35),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -473,7 +470,7 @@ svg {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
     border-color: rgba(99, 102, 241, 0.2);
     color: #ffffff;
-    box-shadow: 
+    box-shadow:
         inset 0 0 30px rgba(99, 102, 241, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -485,8 +482,8 @@ svg {
 
 .nav-button i {
     font-size: 1.2rem;
-    transition: font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 0;
     flex-shrink: 0;
 }
@@ -499,9 +496,9 @@ svg {
 .nav-button span {
     font-weight: 600;
     transition: font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                font-weight 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     font-size: 0.9rem;
     transform: translateX(0);
@@ -531,7 +528,7 @@ svg {
     border-radius: 30px;
     padding: 30px 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -546,11 +543,9 @@ svg {
     content: '';
     position: absolute;
     inset: -2px;
-    background: radial-gradient(
-        500px circle at var(--x, 50%) var(--y, 50%),
-        rgba(99, 102, 241, 0.35),
-        transparent 40%
-    );
+    background: radial-gradient(500px circle at var(--x, 50%) var(--y, 50%),
+            rgba(99, 102, 241, 0.35),
+            transparent 40%);
     border-radius: 30px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -579,7 +574,7 @@ svg {
     border-radius: 30px;
     padding: 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -597,11 +592,9 @@ svg {
     content: '';
     position: absolute;
     inset: -2px;
-    background: radial-gradient(
-        600px circle at var(--x, 50%) var(--y, 50%),
-        rgba(139, 92, 246, 0.35),
-        transparent 40%
-    );
+    background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%),
+            rgba(139, 92, 246, 0.35),
+            transparent 40%);
     border-radius: 30px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -654,22 +647,24 @@ svg {
 }
 
 @keyframes fadeInContent {
-    from { 
+    from {
         opacity: 0;
         transform: translateY(15px);
     }
-    to { 
+
+    to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
 @keyframes fadeOutContent {
-    from { 
+    from {
         opacity: 1;
         transform: translateY(0);
     }
-    to { 
+
+    to {
         opacity: 0;
         transform: translateY(-15px);
     }
@@ -771,7 +766,7 @@ h3::after {
 .job:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -887,7 +882,7 @@ h3::after {
 .degree:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -997,7 +992,7 @@ h3::after {
 .skill-category:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -1099,7 +1094,7 @@ h3::after {
 .publication:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -1225,7 +1220,7 @@ h3::after {
 .interest-card:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -1302,7 +1297,7 @@ h3::after {
 .project:hover {
     border-color: rgba(167, 139, 250, 0.4);
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: 
+    box-shadow:
         0 10px 30px -10px rgba(167, 139, 250, 0.3),
         0 0 0 1px rgba(167, 139, 250, 0.2);
     transform: translateY(-2px);
@@ -1397,51 +1392,51 @@ h3::after {
         grid-template-columns: 350px 220px 1fr;
         gap: 20px;
     }
-    
+
     .left-column {
         gap: 20px;
     }
-    
+
     .profile-panel {
         padding: 40px 25px;
     }
-    
+
     .profile-name {
         font-size: 2.5rem;
     }
-    
+
     .updates-panel {
         padding: 25px 30px;
     }
-    
+
     .updates-header h3 {
         font-size: 1.3rem;
     }
-    
+
     .nav-button {
         padding: 16px 20px;
         font-size: 0.95rem;
         flex-direction: row;
     }
-    
+
     .nav-button i {
         font-size: 1.1rem;
         margin-bottom: 0;
     }
-    
+
     .nav-button span {
         font-size: 0.85rem;
     }
-    
+
     .nav-button.active {
         flex-direction: column;
     }
-    
+
     .nav-button.active i {
         font-size: 2.5rem;
         margin-bottom: 12px;
     }
-    
+
     .nav-button.active span {
         font-size: 1.3rem;
     }
@@ -1453,59 +1448,59 @@ h3::after {
         grid-template-columns: 320px 200px 1fr;
         gap: 15px;
     }
-    
+
     .left-column {
         gap: 15px;
         height: 85vh;
     }
-    
+
     .profile-panel {
         padding: 35px 25px;
     }
-    
+
     .profile-photo {
         width: 140px;
         margin-bottom: 15px;
     }
-    
+
     .profile-name {
         font-size: 2rem;
     }
-    
+
     .profile-role {
         font-size: 1rem;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 10px 14px;
         font-size: 0.85rem;
     }
-    
+
     .profile-contacts .contact-item i {
         font-size: 1rem;
     }
-    
+
     .updates-panel {
         padding: 20px 25px;
     }
-    
+
     .updates-header h3 {
         font-size: 1.2rem;
     }
-    
+
     .update-item {
         padding: 12px;
         margin-bottom: 15px;
     }
-    
+
     .update-date {
         font-size: 0.75rem;
     }
-    
+
     .update-text {
         font-size: 0.85rem;
     }
-    
+
     .interests-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1517,12 +1512,12 @@ h3::after {
         gap: 20px;
         min-height: auto;
     }
-    
+
     .left-column {
         height: auto;
         gap: 20px;
     }
-    
+
     .profile-panel {
         position: relative;
         top: 0;
@@ -1530,12 +1525,12 @@ h3::after {
         min-height: auto;
         padding: 40px 30px;
     }
-    
+
     /* Reset card effect on mobile - show all content */
     .profile-panel::before {
         display: none;
     }
-    
+
     .profile-photo {
         width: 180px;
         height: 180px;
@@ -1543,50 +1538,50 @@ h3::after {
         border-radius: 50%;
         margin-bottom: 25px !important;
     }
-    
+
     .profile-header {
         padding-bottom: 30px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .profile-name {
         font-size: 2.5rem;
         opacity: 1 !important;
         translate: 0 0 !important;
     }
-    
+
     .profile-role {
         font-size: 1.2rem;
         opacity: 1 !important;
         translate: 0 0 !important;
     }
-    
+
     .profile-contacts {
         opacity: 1 !important;
         translate: 0 0 !important;
         margin-top: 0;
         gap: 20px;
     }
-    
+
     .profile-content {
         gap: 30px;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 15px 20px;
         font-size: 1rem;
     }
-    
+
     .updates-panel {
         height: auto;
         max-height: 400px;
         padding: 30px;
     }
-    
+
     .updates-header h3 {
         font-size: 1.4rem;
     }
-    
+
     .navigation-panel {
         position: relative;
         top: 0;
@@ -1594,14 +1589,14 @@ h3::after {
         height: auto;
         width: 100%;
     }
-    
+
     .section-nav {
         flex-direction: row;
         height: auto;
         width: 100%;
         gap: 10px;
     }
-    
+
     .nav-button {
         flex: 1 1 0%;
         min-width: 0;
@@ -1609,7 +1604,7 @@ h3::after {
         flex-direction: column;
         border-radius: 20px;
     }
-    
+
     .nav-button span {
         display: block;
         opacity: 1;
@@ -1617,47 +1612,47 @@ h3::after {
         overflow: visible;
         font-size: 0.75rem;
     }
-    
+
     .nav-button i {
         font-size: 1.2rem;
         margin-bottom: 5px;
     }
-    
+
     .nav-button.active {
         flex: 2 1 0%;
         flex-direction: column;
     }
-    
+
     .nav-button.active i {
         font-size: 1.8rem;
         margin-bottom: 8px;
     }
-    
+
     .nav-button.active span {
         font-size: 0.9rem;
     }
-    
+
     .nav-button.active span {
         display: block;
         opacity: 1;
     }
-    
+
     .content-panel {
         gap: 15px;
     }
-    
+
     .section-header-card {
         padding: 25px 30px;
     }
-    
+
     #section-title {
         font-size: 1.75rem;
     }
-    
+
     .section-content-card {
         padding: 30px 25px;
     }
-    
+
     .profile-name {
         font-size: 2.2rem;
         white-space: normal;
@@ -1669,37 +1664,37 @@ h3::after {
     body {
         padding: 25px 15px;
     }
-    
+
     .container {
         gap: 15px;
     }
-    
+
     .profile-panel {
         padding: 35px 30px;
         height: auto;
     }
-    
+
     .profile-content {
         gap: 35px;
     }
-    
+
     .profile-photo {
         width: 150px;
     }
-    
+
     .profile-name {
         font-size: 2rem;
     }
-    
+
     .profile-role {
         font-size: 1.15rem;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 14px 18px;
         font-size: 0.95rem;
     }
-    
+
     .interests-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1709,41 +1704,41 @@ h3::after {
     body {
         padding: 20px 10px;
     }
-    
+
     .container {
         gap: 15px;
     }
-    
+
     .profile-panel {
         padding: 30px 25px;
         height: auto;
     }
-    
+
     .profile-photo {
         width: 150px !important;
         height: 150px !important;
     }
-    
+
     .profile-name {
         font-size: 2rem !important;
     }
-    
+
     .profile-role {
         font-size: 1.1rem !important;
     }
-    
+
     .navigation-panel {
         height: auto;
         width: 100%;
     }
-    
+
     .section-nav {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         height: auto;
     }
-    
+
     .nav-button {
         padding: 18px 12px;
         font-size: 0.9rem;
@@ -1751,17 +1746,17 @@ h3::after {
         min-width: 0;
         border-radius: 20px;
     }
-    
+
     /* About button spans full width */
     .nav-button[data-tab="about"] {
         grid-column: 1 / -1;
     }
-    
+
     .nav-button i {
         font-size: 1.3rem;
         margin-bottom: 8px;
     }
-    
+
     .nav-button span {
         font-size: 0.85rem;
         display: block;
@@ -1769,50 +1764,50 @@ h3::after {
         white-space: nowrap;
         overflow: visible;
     }
-    
+
     .nav-button.active {
         flex-direction: column;
     }
-    
+
     .nav-button.active i {
         font-size: 1.8rem;
         margin-bottom: 10px;
     }
-    
+
     .nav-button.active span {
         font-size: 1rem;
         display: block;
         opacity: 1;
     }
-    
+
     .content-panel {
         gap: 15px;
     }
-    
+
     .section-header-card {
         padding: 20px 25px;
     }
-    
+
     #section-title {
         font-size: 1.5rem;
     }
-    
+
     .section-content-card {
         padding: 25px 20px;
     }
-    
+
     .profile-name {
         font-size: 2rem;
     }
-    
+
     h3 {
         font-size: 1.6rem;
     }
-    
+
     .skills-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .interests-grid {
         grid-template-columns: 1fr;
     }
@@ -1822,28 +1817,28 @@ h3::after {
     .profile-name {
         font-size: 1.8rem;
     }
-    
+
     .profile-role {
         font-size: 1rem;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 12px 15px;
         font-size: 0.9rem;
     }
-    
+
     .navigation-panel {
         height: auto;
         width: 100%;
     }
-    
+
     .section-nav {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
         height: auto;
     }
-    
+
     .nav-button {
         padding: 16px 10px;
         font-size: 0.85rem;
@@ -1851,17 +1846,17 @@ h3::after {
         min-width: 0;
         border-radius: 15px;
     }
-    
+
     /* About button spans full width */
     .nav-button[data-tab="about"] {
         grid-column: 1 / -1;
     }
-    
+
     .nav-button i {
         font-size: 1.1rem;
         margin-bottom: 6px;
     }
-    
+
     .nav-button span {
         font-size: 0.75rem;
         display: block;
@@ -1869,59 +1864,59 @@ h3::after {
         white-space: nowrap;
         overflow: visible;
     }
-    
+
     .nav-button.active {
         flex-direction: column;
     }
-    
+
     .nav-button.active i {
         font-size: 1.6rem;
         margin-bottom: 8px;
     }
-    
+
     .nav-button.active span {
         font-size: 0.9rem;
         display: block;
         opacity: 1;
     }
-    
+
     .content-panel {
         gap: 12px;
     }
-    
+
     .section-header-card {
         padding: 18px 20px;
     }
-    
+
     #section-title {
         font-size: 1.3rem;
     }
-    
+
     .section-content-card {
         padding: 20px 18px;
     }
-    
+
     .tab-contents {
         padding: 25px 15px;
     }
-    
+
     h3 {
         font-size: 1.4rem;
     }
-    
+
     .interests-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .interest-card {
         padding: 24px 20px;
     }
-    
+
     .interest-icon {
         width: 60px;
         height: 60px;
     }
-    
+
     .interest-icon i {
         font-size: 1.8rem;
     }
@@ -1932,13 +1927,13 @@ h3::after {
     body {
         padding: 15px 10px;
     }
-    
+
     .container {
         grid-template-columns: 1fr;
         gap: 15px;
         min-height: auto;
     }
-    
+
     .profile-panel {
         position: relative;
         top: 0;
@@ -1948,14 +1943,14 @@ h3::after {
         padding: 25px 20px;
         overflow: visible;
     }
-    
+
     .profile-content {
         flex-direction: row;
         gap: 20px;
         align-items: center;
         justify-content: space-between;
     }
-    
+
     .profile-header {
         display: flex;
         flex-direction: row;
@@ -1969,25 +1964,25 @@ h3::after {
         width: auto;
         flex-shrink: 0;
     }
-    
+
     .profile-photo {
         width: 80px;
         height: 80px;
         margin-bottom: 0;
         flex-shrink: 0;
     }
-    
+
     .profile-name {
         font-size: 1.5rem;
         margin-bottom: 5px;
         white-space: nowrap;
     }
-    
+
     .profile-role {
         font-size: 0.9rem;
         white-space: nowrap;
     }
-    
+
     .profile-contacts {
         flex-direction: row;
         gap: 15px;
@@ -1996,72 +1991,72 @@ h3::after {
         justify-content: flex-start;
         flex-wrap: wrap;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 10px 15px;
         font-size: 0.85rem;
         flex: 0 1 auto;
     }
-    
+
     .profile-contacts .contact-item span {
         display: none;
     }
-    
+
     .profile-contacts .contact-item i {
         font-size: 1.2rem;
         margin: 0;
     }
-    
+
     .navigation-panel {
         height: auto;
     }
-    
+
     .section-nav {
         gap: 8px;
     }
-    
+
     .nav-button {
         padding: 12px 8px;
         font-size: 0.8rem;
     }
-    
+
     .nav-button i {
         font-size: 1rem;
         margin-bottom: 4px;
     }
-    
+
     .nav-button span {
         font-size: 0.7rem;
     }
-    
+
     .nav-button.active i {
         font-size: 1.5rem;
         margin-bottom: 6px;
     }
-    
+
     .nav-button.active span {
         font-size: 0.85rem;
     }
-    
+
     .content-panel {
         height: auto;
         max-height: none;
     }
-    
+
     .section-header-card {
         padding: 15px 20px;
     }
-    
+
     #section-title {
         font-size: 1.2rem;
     }
-    
+
     .section-content-card {
         padding: 20px 18px;
         height: auto;
         max-height: 400px;
     }
-    
+
     .tab-contents {
         max-height: 350px;
     }
@@ -2072,77 +2067,152 @@ h3::after {
     body {
         padding: 10px 8px;
     }
-    
+
     .profile-panel {
         padding: 20px 15px;
     }
-    
+
     .profile-photo {
         width: 60px;
         height: 60px;
     }
-    
+
     .profile-name {
         font-size: 1.2rem;
     }
-    
+
     .profile-role {
         font-size: 0.8rem;
     }
-    
+
     .profile-header {
         gap: 15px;
         padding-right: 15px;
     }
-    
+
     .profile-contacts {
         gap: 10px;
     }
-    
+
     .profile-contacts .contact-item {
         padding: 8px 12px;
     }
-    
+
     .profile-contacts .contact-item i {
         font-size: 1rem;
     }
-    
+
     .nav-button {
         padding: 10px 6px;
     }
-    
+
     .nav-button i {
         font-size: 0.9rem;
         margin-bottom: 3px;
     }
-    
+
     .nav-button span {
         font-size: 0.65rem;
     }
-    
+
     .nav-button.active i {
         font-size: 1.3rem;
         margin-bottom: 5px;
     }
-    
+
     .nav-button.active span {
         font-size: 0.75rem;
     }
-    
+
     .section-header-card {
         padding: 12px 15px;
     }
-    
+
     #section-title {
         font-size: 1.1rem;
     }
-    
+
     .section-content-card {
         padding: 15px;
         max-height: 300px;
     }
-    
+
     .tab-contents {
         max-height: 250px;
+    }
+}
+
+/* Copyright Footer */
+.copyright-footer {
+    margin-top: 40px;
+    padding: 20px 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.copyright-footer p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+/* Responsive Copyright Footer */
+@media (max-width: 1024px) {
+    .copyright-footer {
+        margin-top: 30px;
+        padding: 15px 0;
+    }
+
+    .copyright-footer p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .copyright-footer {
+        margin-top: 25px;
+        padding: 15px 10px;
+    }
+
+    .copyright-footer p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .copyright-footer {
+        margin-top: 20px;
+        padding: 12px 10px;
+    }
+
+    .copyright-footer p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Mobile Landscape Copyright */
+@media (max-width: 926px) and (max-height: 428px) and (orientation: landscape) {
+    .copyright-footer {
+        margin-top: 20px;
+        padding: 10px 0;
+    }
+
+    .copyright-footer p {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 667px) and (max-height: 375px) and (orientation: landscape) {
+    .copyright-footer {
+        margin-top: 15px;
+        padding: 8px 0;
+    }
+
+    .copyright-footer p {
+        font-size: 0.7rem;
     }
 }
