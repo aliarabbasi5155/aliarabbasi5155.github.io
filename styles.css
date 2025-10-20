@@ -447,6 +447,7 @@ svg {
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 40px 40px 0 0;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -747,6 +748,7 @@ h3::after {
     background: rgba(255, 255, 255, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
 }
 
 .job::before {
@@ -757,10 +759,9 @@ h3::after {
     bottom: 0;
     width: 3px;
     background: linear-gradient(180deg, #a78bfa 0%, #c084fc 100%);
-    border-radius: 20px 0 0 20px;
+    border-radius: 3px 0 0 3px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
 }
 
 .job:hover {
@@ -863,6 +864,7 @@ h3::after {
     background: rgba(255, 255, 255, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
 }
 
 .degree::before {
@@ -873,10 +875,9 @@ h3::after {
     bottom: 0;
     width: 3px;
     background: linear-gradient(180deg, #a78bfa 0%, #c084fc 100%);
-    border-radius: 20px 0 0 20px;
+    border-radius: 3px 0 0 3px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
 }
 
 .degree:hover {
@@ -973,6 +974,7 @@ h3::after {
     border: 1px solid rgba(255, 255, 255, 0.15);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
 }
 
 .skill-category::before {
@@ -1075,6 +1077,7 @@ h3::after {
     background: rgba(255, 255, 255, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
 }
 
 .publication::before {
@@ -1085,10 +1088,9 @@ h3::after {
     bottom: 0;
     width: 3px;
     background: linear-gradient(180deg, #a78bfa 0%, #c084fc 100%);
-    border-radius: 20px 0 0 20px;
+    border-radius: 3px 0 0 3px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
 }
 
 .publication:hover {
@@ -1201,6 +1203,7 @@ h3::after {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     text-align: center;
+    overflow: hidden;
 }
 
 .interest-card::before {
@@ -1278,6 +1281,7 @@ h3::after {
     background: rgba(255, 255, 255, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
 }
 
 .project::before {
@@ -1288,10 +1292,9 @@ h3::after {
     bottom: 0;
     width: 3px;
     background: linear-gradient(180deg, #a78bfa 0%, #c084fc 100%);
-    border-radius: 20px 0 0 20px;
+    border-radius: 3px 0 0 3px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    box-shadow: 0 0 15px rgba(167, 139, 250, 0.6);
 }
 
 .project:hover {
