@@ -207,16 +207,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Add loading animation
-window.addEventListener('load', function() {
-    document.body.style.opacity = '1';
-    document.body.style.transform = 'translateY(0)';
-});
-
-// Initialize page
-document.body.style.opacity = '0';
-document.body.style.transform = 'translateY(20px)';
-document.body.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+// Removed loading animation to prevent blinking
 
 // Add search functionality (optional)
 function initSearch() {
