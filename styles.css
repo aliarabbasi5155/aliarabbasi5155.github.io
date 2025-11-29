@@ -84,8 +84,8 @@ svg {
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 0;
-    overflow: clip;
+    min-height: 300px;
+    overflow: hidden;
     position: relative;
     transition: transform 0.3s ease;
     transform-style: preserve-3d;
@@ -108,10 +108,13 @@ svg {
     pointer-events: none;
 }
 
-.profile-panel:hover::before,
-.profile-panel:focus-within::before {
-    translate: 0 100%;
-    transition: translate 0.3s ease;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover::before,
+    .profile-panel:focus-within::before {
+        translate: 0 100%;
+        transition: translate 0.3s ease;
+    }
 }
 
 .profile-content {
@@ -137,22 +140,31 @@ svg {
 
 .profile-photo {
     width: 100%;
+    min-height: 180px;
+    height: auto;
     aspect-ratio: 3 / 2;
     object-fit: cover;
     object-position: 50% 20%;
     border-radius: 1.5rem;
     display: block;
-    transition: aspect-ratio 0.3s ease, object-position 0.3s ease, margin-bottom 0.3s ease;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
 }
 
-.profile-panel:hover .profile-photo,
-.profile-panel:focus-within .profile-photo {
-    aspect-ratio: 8 / 2;
-    object-position: 50% 10%;
-    transition: aspect-ratio 0.3s ease, object-position 0.3s ease;
-    margin-bottom: 0.25rem;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover .profile-photo,
+    .profile-panel:focus-within .profile-photo {
+        min-height: 0;
+        height: 0;
+        aspect-ratio: 16 / 1;
+        object-position: 50% 10%;
+        margin-bottom: 0;
+        overflow: hidden;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 }
 
 .profile-info {
@@ -162,15 +174,20 @@ svg {
     text-align: center;
     flex: 1;
     justify-content: flex-end;
-    padding: 0rem 1rem 1.25rem 1rem;
+    padding: 0rem 1rem 0.25rem 1rem;
     position: relative;
     z-index: 2;
-    transition: justify-content 0.3s ease;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 0;
 }
 
-.profile-panel:hover .profile-info,
-.profile-panel:focus-within .profile-info {
-    justify-content: space-between;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover .profile-info,
+    .profile-panel:focus-within .profile-info {
+        justify-content: flex-start;
+        padding-top: 1rem;
+    }
 }
 
 .profile-text {
@@ -182,27 +199,31 @@ svg {
 }
 
 .profile-name {
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 3vw, 2rem);
     font-weight: 700;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
     margin-bottom: 0.625rem;
     line-height: 1.2;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
     opacity: 1;
     translate: 0 0;
-    transition: color 0.5s, margin-bottom 0.25s;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.profile-panel:hover .profile-name,
-.profile-panel:focus-within .profile-name {
-    color: rgba(255, 255, 255, 1);
-    margin-bottom: 0.5rem;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover .profile-name,
+    .profile-panel:focus-within .profile-name {
+        color: rgba(255, 255, 255, 1);
+        margin-bottom: 0.5rem;
+    }
 }
 
 .profile-role {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2vw, 1.1rem);
     font-weight: 400;
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.3;
@@ -210,12 +231,15 @@ svg {
     margin-bottom: 0;
     opacity: 1;
     translate: 0 0;
-    transition: margin-bottom 0.25s;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.profile-panel:hover .profile-role,
-.profile-panel:focus-within .profile-role {
-    margin-bottom: 0;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover .profile-role,
+    .profile-panel:focus-within .profile-role {
+        margin-bottom: 0;
+    }
 }
 
 .profile-contacts {
@@ -224,18 +248,46 @@ svg {
     gap: 8px;
     width: 100%;
     opacity: 0;
-    translate: 0 30px;
-    transition: translate 0.3s ease 0.1s, opacity 0.4s ease 0.1s;
+    max-height: 0;
+    overflow: hidden;
+    translate: 0 20px;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 4;
     align-self: flex-end;
 }
 
-.profile-panel:hover .profile-contacts,
-.profile-panel:focus-within .profile-contacts {
-    translate: 0 0;
-    opacity: 1;
-    transition: translate 0.3s ease 0.2s, opacity 0.4s ease 0.2s;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) {
+    .profile-panel:hover .profile-contacts,
+    .profile-panel:focus-within .profile-contacts {
+        opacity: 1;
+        max-height: 60vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        translate: 0 0;
+        margin-top: 1rem;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+}
+
+.profile-contacts::-webkit-scrollbar {
+    width: 4px;
+}
+
+.profile-contacts::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.profile-contacts::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.profile-contacts::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .profile-contacts .contact-item {
@@ -250,6 +302,7 @@ svg {
     transition: all 0.3s ease;
     font-size: 0.85rem;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .profile-contacts .contact-item:hover {
@@ -1727,21 +1780,31 @@ h3::after {
         min-height: auto;
     }
 
-    /* Reset card effect on mobile - show all content */
+    /* Disable hover effect on mobile */
     .profile-panel::before {
         display: none;
     }
 
+    /* Show contacts by default on mobile */
+    .profile-contacts {
+        opacity: 1 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        translate: 0 0 !important;
+        margin-top: 0 !important;
+    }
+
     .profile-content {
         justify-content: flex-start;
-        gap: 30px;
+        gap: 0;
     }
 
     .profile-photo {
-        width: 180px;
-        height: 180px;
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
+        width: 100%;
+        min-height: 200px;
+        height: auto;
+        aspect-ratio: 3 / 2;
+        border-radius: 1.5rem;
         margin-bottom: 0 !important;
     }
 
@@ -1752,22 +1815,21 @@ h3::after {
 
     .profile-info {
         margin-top: 0;
-        padding: 0 1rem 1rem 1rem;
+        padding: 30px 1rem 1rem 1rem !important;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
-        padding-top: 30px;
-        justify-content: flex-start;
+        justify-content: flex-start !important;
         gap: 1.5rem;
     }
 
     .profile-name {
-        font-size: 2.5rem;
+        font-size: 2.5rem !important;
         opacity: 1 !important;
         translate: 0 0 !important;
         margin-bottom: 0.5rem !important;
     }
 
     .profile-role {
-        font-size: 1.2rem;
+        font-size: 1.2rem !important;
         opacity: 1 !important;
         translate: 0 0 !important;
         margin-bottom: 1.5rem !important;
@@ -1776,12 +1838,15 @@ h3::after {
     .profile-contacts {
         opacity: 1 !important;
         translate: 0 0 !important;
-        gap: 20px;
+        max-height: none !important;
+        overflow: visible !important;
+        gap: 12px !important;
+        margin-top: 0 !important;
     }
 
     .profile-contacts .contact-item {
-        padding: 15px 20px;
-        font-size: 1rem;
+        padding: 15px 20px !important;
+        font-size: 1rem !important;
     }
 
     .updates-panel {
@@ -1887,35 +1952,35 @@ h3::after {
 
     .profile-content {
         justify-content: flex-start;
-        gap: 25px;
+        gap: 0;
     }
 
     .profile-photo {
-        width: 150px;
-        height: 150px;
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
+        width: 100%;
+        min-height: 180px;
+        height: auto;
+        aspect-ratio: 3 / 2;
+        border-radius: 1.5rem;
         margin-bottom: 0 !important;
     }
 
     .profile-info {
         margin-top: 0;
-        padding: 0 1rem 1rem 1rem;
+        padding: 25px 1rem 1rem 1rem !important;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
-        padding-top: 25px;
-        justify-content: flex-start;
+        justify-content: flex-start !important;
         gap: 1.25rem;
     }
 
     .profile-name {
-        font-size: 2rem;
+        font-size: 2rem !important;
         opacity: 1 !important;
         translate: 0 0 !important;
         margin-bottom: 0.5rem !important;
     }
 
     .profile-role {
-        font-size: 1.15rem;
+        font-size: 1.15rem !important;
         opacity: 1 !important;
         translate: 0 0 !important;
         margin-bottom: 1.25rem !important;
@@ -1924,11 +1989,15 @@ h3::after {
     .profile-contacts {
         opacity: 1 !important;
         translate: 0 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        gap: 12px !important;
+        margin-top: 0 !important;
     }
 
     .profile-contacts .contact-item {
-        padding: 14px 18px;
-        font-size: 0.95rem;
+        padding: 14px 18px !important;
+        font-size: 0.95rem !important;
     }
 
     .interests-grid {
@@ -1951,23 +2020,23 @@ h3::after {
 
     .profile-content {
         justify-content: flex-start;
-        gap: 20px;
+        gap: 0;
     }
 
     .profile-photo {
-        width: 150px !important;
-        height: 150px !important;
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
+        width: 100% !important;
+        min-height: 160px !important;
+        height: auto !important;
+        aspect-ratio: 3 / 2 !important;
+        border-radius: 1.5rem !important;
         margin-bottom: 0 !important;
     }
 
     .profile-info {
         margin-top: 0;
-        padding: 0 1rem 1rem 1rem;
+        padding: 20px 1rem 1rem 1rem !important;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
-        padding-top: 20px;
-        justify-content: flex-start;
+        justify-content: flex-start !important;
         gap: 1.25rem;
     }
 
@@ -1988,6 +2057,15 @@ h3::after {
     .profile-contacts {
         opacity: 1 !important;
         translate: 0 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        gap: 12px !important;
+        margin-top: 0 !important;
+    }
+
+    .profile-contacts .contact-item {
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
     }
 
     .navigation-panel {
@@ -2078,11 +2156,15 @@ h3::after {
 
 @media (max-width: 480px) {
     .profile-content {
-        gap: 18px;
+        gap: 0;
+    }
+
+    .profile-photo {
+        min-height: 150px !important;
     }
 
     .profile-info {
-        padding-top: 18px;
+        padding: 18px 1rem 1rem 1rem !important;
         gap: 1rem;
     }
 
@@ -2096,9 +2178,18 @@ h3::after {
         margin-bottom: 1rem !important;
     }
 
+    .profile-contacts {
+        opacity: 1 !important;
+        translate: 0 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        gap: 10px !important;
+        margin-top: 0 !important;
+    }
+
     .profile-contacts .contact-item {
-        padding: 12px 15px;
-        font-size: 0.9rem;
+        padding: 12px 15px !important;
+        font-size: 0.9rem !important;
     }
 
     .navigation-panel {
