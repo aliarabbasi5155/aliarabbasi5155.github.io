@@ -2088,11 +2088,6 @@ h3::after {
         border-radius: 20px;
     }
 
-    /* About button spans full width */
-    .nav-button[data-tab="about"] {
-        grid-column: 1 / -1;
-    }
-
     .nav-button i {
         font-size: 1.3rem;
         margin-bottom: 8px;
@@ -2210,11 +2205,6 @@ h3::after {
         flex-direction: column;
         min-width: 0;
         border-radius: 15px;
-    }
-
-    /* About button spans full width */
-    .nav-button[data-tab="about"] {
-        grid-column: 1 / -1;
     }
 
     .nav-button i {
