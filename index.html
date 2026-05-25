@@ -13,7 +13,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ali Abbasi - AI Engineer</title>
+    <title>Ali Abbasi - AI / GenAI Engineer</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -43,7 +43,7 @@
                     <div class="profile-info">
                         <div class="profile-text">
                             <h1 class="profile-name">Ali Abbasi</h1>
-                            <h2 class="profile-role">AI Engineer</h2>
+                            <h2 class="profile-role">AI / GenAI Engineer</h2>
                         </div>
                         
                         <div class="profile-contacts">
@@ -77,7 +77,7 @@
                     <div class="update-item">
                         <div class="update-date">Nov 10 2025</div>
                         <div class="update-text">
-                            <strong>🚀 New Position:</strong> Started as AI Engineer (Weekend Part-time job, Remote) at Primentoring.AI ,a fantastic startup, in London, UK.
+                            <strong>🚀 New Position:</strong> Started as AI Engineer & Team Lead (Part-time, Remote) at Primentoring.AI, a fantastic startup, in London, UK.
                         </div>
                     </div>
                     <div class="update-item">
@@ -172,7 +172,8 @@
                     <!-- About Tab -->
                     <div id="about" class="tab-content">
                         <section class="summary">
-                            <p><strong>AI Engineer</strong> with robust foundation in fullstack development from 5+ years as a Senior Developer. Specialized in Reinforcement Learning, Computer Vision, and LLMs, with hands-on DevOps and React/Django expertise. Demonstrated success in delivering scalable, data-driven solutions across large scale real-world problems, and researches.</p>
+                            <p><strong>AI / GenAI Engineer</strong> and hands-on technical lead with 5+ years of software development experience, originally as a fullstack developer and now focused on shipping production GenAI systems. I own LLM-based products end-to-end: from solution design and agentic RAG architecture, to fine-tuning, evaluation, and reliable deployment on AWS with containerized services, CI/CD, and production monitoring.</p>
+                            <p>I combine applied research experience with delivery ownership, leading small teams and translating ambiguous stakeholder needs into production AI systems. My background also covers Reinforcement Learning, Computer Vision, and published applied research.</p>
                         </section>
                     </div>
 
@@ -182,7 +183,7 @@
                     
                     <div class="job">
                         <div class="job-header">
-                            <h4>AI Engineer (Part-time, Remote)</h4>
+                            <h4>AI Engineer (Team Lead, Part-time, Remote)</h4>
                             <div class="company-location">
                                 <span class="company">
                                     <a href="https://primentoring.ai/" target="_blank">Primentoring.AI <i class="fas fa-external-link-alt"></i></a>
@@ -192,8 +193,13 @@
                             <span class="duration">Nov 2025 - Present</span>
                         </div>
                         <ul class="job-description">
-                            <li>Developed an intelligent customer support chatbot leveraging RAG architecture with Weaviate vector database for context-aware responses.</li>
-                            <li>Architected a real-time <a href="https://aimentor.primentoring.ai/" target="_blank">AI agent <i class="fas fa-external-link-alt"></i></a> with talking head capabilities, integrating Wav2Lip for lip-sync generation, fine-tuned GPT-4.1 on OpenAI platform, and RAG-based knowledge retrieval with persistent memory.</li>
+                            <li>Lead a 2-engineer team end-to-end, owning solution architecture, feasibility research, project health reporting, and stakeholder alignment across product, QA, and software teams.</li>
+                            <li>Architected <a href="https://aimentor.primentoring.ai/" target="_blank">Dana AI <i class="fas fa-external-link-alt"></i></a>, a real-time multimodal agent (3D talking head, voice, text) over WebSocket: OmniTalker for lip-sync (LoRA fine-tuned per mentor on AWS SageMaker), GPT-4o Transcribe ASR with vocabulary hints, and GPT-4.1 fine-tuned on the OpenAI platform for mentor tone and persona, at ~2.5s time-to-first video response frame.</li>
+                            <li>Designed a production agentic RAG stack on self-managed Weaviate (AWS EC2) with ~900 ms retrieval latency, hybrid search, query expansion, reranking, function-calling agents, task decomposition, and conversational + long-term memory via LangGraph (~87% top-5 retrieval precision); reused as the backbone of an LLM Customer Support Chatbot over company documents.</li>
+                            <li>Built a Public Data Aggregation feature that extracts mentor signals from 8 platforms in parallel, completing each collection run in ~3 minutes while respecting each service's ToS limits and GDPR.</li>
+                            <li>Built a RAGAS-based evaluation suite with 100 curated mentor-domain queries, plus guardrails, PII filtering, confidence scoring, human-in-the-loop handoff, prompt/version tracking, and a closed-loop Unanswered Pool that routes low-confidence queries to mentors and ingests responses back into the knowledge base.</li>
+                            <li>Built a recommender system that extracts behavioral signals (skills, engagement, talk-time, emotion) from mentoring sessions to match mentors to mentees.</li>
+                            <li>Operationalized all AI services as Django/Celery microservices on EC2 with Redis, PostgreSQL, ETL pipelines, GitHub Actions CI/CD reducing deployment time to ~1.5 minutes, and Prometheus + Grafana monitoring.</li>
                         </ul>
                     </div>
 
@@ -209,12 +215,12 @@
                             <span class="duration">Feb 2022 - Present</span>
                         </div>
                         <ul class="job-description">
-                            <li>Engineered an RL model using Proximal Policy Optimization (PPO) to stabilize autopilot mode for VTOL drones, achieving 5% less crashed under poor weather conditions in 2024.</li>
-                            <li>Implemented fine-tuning on llama-3-8b using LoRA via Hugging Face pipelines and AWS SageMaker with company knowledge base, reducing newcomer onboarding time to 2-3 days.</li>
-                            <li>Built LLM-powered customer support using a LangChain RAG stack over llama-3-8b and internal sources, now serving 1200+ weekly queries.</li>
-                            <li>Directed a 4-member team to build a cross-platform monitoring system, enabling real-time monitoring of over 150 UAVs in Europe over AWS.</li>
-                            <li>Modernized software architecture with React Native, Django DRF, and CI/CD pipelines, delivering 50,000 euro annual cost savings by 2 members less in software development team.</li>
-                            <li>Contributed in Charger Box project, to automatically move the drone to suitable place for charge. (less than 0.5cm error).</li>
+                            <li>Built and shipped an internal LLM-powered support assistant (LangChain RAG over a LoRA fine-tuned Llama-3-8B on AWS SageMaker, grounded in proprietary docs), now serving 1,200+ weekly queries.</li>
+                            <li>Cut new-engineer onboarding from weeks to 2-3 days by exposing the fine-tuned model through an internal chat interface backed by the company knowledge base.</li>
+                            <li>Designed a PPO-based Reinforcement Learning controller to stabilize VTOL autopilot under degraded weather, improving recovery success by 5% in adverse-weather flight test simulations.</li>
+                            <li>Led a 4-engineer team to deliver a cross-platform fleet monitoring system on AWS, providing 2-second-interval telemetry for 150+ UAVs across Europe.</li>
+                            <li>Modernized the software stack (React Native, Django REST Framework, CI/CD, containerized deployments), saving ~€50,000/year by reducing the engineering capacity required to maintain and evolve the platform.</li>
+                            <li>Contributed to the Charger Box project, automating drone repositioning for autonomous charging and achieving 98% successful docking.</li>
                         </ul>
                     </div>
 
@@ -230,8 +236,8 @@
                             <span class="duration">Sep 2021 - Feb 2022</span>
                         </div>
                         <ul class="job-description">
-                            <li>Designed a recommender model to predict optimal electric power bank request timing, increasing delivering time by 18%.</li>
-                            <li>Contributed in development of a cross-platform(React Native and Django) application for electric vehicle charge management with over 800 active users in 2021.</li>
+                            <li>Designed and deployed a recommender model that predicts the optimal timing for electric power-bank requests, improving delivery responsiveness by ~18%.</li>
+                            <li>Co-developed a cross-platform application (React Native + Django) for EV charging management, growing the user base to 800+ active users within 2021.</li>
                         </ul>
                     </div>
 
@@ -343,190 +349,110 @@
                                 <span class="skill-tag">C#</span>
                                 <span class="skill-tag">JavaScript</span>
                                 <span class="skill-tag">TypeScript</span>
-                                <span class="skill-tag">HTML</span>
-                                <span class="skill-tag">CSS</span>
                                 <span class="skill-tag">SQL</span>
                             </div>
                         </div>
 
                         <div class="skill-category">
-                            <h4>Machine Learning & Data Science</h4>
-                            <div class="skill-subcategory">
-                                <h5>Frameworks & Libraries:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">PyTorch</span>
-                                    <span class="skill-tag">TensorFlow</span>
-                                    <span class="skill-tag">TFLite</span>
-                                    <span class="skill-tag">scikit-learn</span>
-                                    <span class="skill-tag">LangChain</span>
-                                    <span class="skill-tag">Hugging Face Transformers</span>
-                                    <span class="skill-tag">Weaviate</span>
-                                    <span class="skill-tag">Matplotlib</span>
-                                    <span class="skill-tag">NetworkX</span>
-                                    <span class="skill-tag">NumPy</span>
-                                    <span class="skill-tag">Pandas</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Tools:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">WandB</span>
-                                    <span class="skill-tag">TensorBoard</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Techniques & Algorithms:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Reinforcement Learning</span>
-                                    <span class="skill-tag">Deep Learning</span>
-                                    <span class="skill-tag">NLP & LLM</span>
-                                    <span class="skill-tag">Computer Vision</span>
-                                    <span class="skill-tag">Prompt Engineering</span>
-                                </div>
+                            <h4>GenAI & LLM Engineering</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">LangGraph</span>
+                                <span class="skill-tag">LangChain</span>
+                                <span class="skill-tag">Agentic RAG</span>
+                                <span class="skill-tag">Hybrid Search</span>
+                                <span class="skill-tag">Reranking</span>
+                                <span class="skill-tag">Function Calling</span>
+                                <span class="skill-tag">Task Decomposition</span>
+                                <span class="skill-tag">Conversational & Long-term Memory</span>
+                                <span class="skill-tag">MCP</span>
+                                <span class="skill-tag">LoRA Fine-tuning</span>
+                                <span class="skill-tag">OpenAI Fine-tuning Platform</span>
+                                <span class="skill-tag">RAGAS</span>
+                                <span class="skill-tag">Guardrails</span>
+                                <span class="skill-tag">PII Filtering</span>
+                                <span class="skill-tag">Prompt Versioning</span>
                             </div>
                         </div>
 
                         <div class="skill-category">
-                            <h4>Backend Development</h4>
-                            <div class="skill-subcategory">
-                                <h5>Frameworks:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Django</span>
-                                    <span class="skill-tag">DRF</span>
-                                    <span class="skill-tag">.NET</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Databases:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">PostgreSQL</span>
-                                    <span class="skill-tag">MSSQL</span>
-                                    <span class="skill-tag">MySQL</span>
-                                    <span class="skill-tag">SQLite</span>
-                                    <span class="skill-tag">Redis</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>API and Protocols:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">RESTful</span>
-                                    <span class="skill-tag">WebSocket</span>
-                                    <span class="skill-tag">Swagger</span>
-                                    <span class="skill-tag">MQTT</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Architectures:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Microservices</span>
-                                    <span class="skill-tag">Monolithic</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Testing:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Pytest</span>
-                                    <span class="skill-tag">Unittest</span>
-                                    <span class="skill-tag">Postman</span>
-                                </div>
+                            <h4>Machine Learning</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">PyTorch</span>
+                                <span class="skill-tag">TensorFlow</span>
+                                <span class="skill-tag">scikit-learn</span>
+                                <span class="skill-tag">Hugging Face Transformers</span>
+                                <span class="skill-tag">Reinforcement Learning</span>
+                                <span class="skill-tag">Computer Vision</span>
+                                <span class="skill-tag">NLP</span>
+                                <span class="skill-tag">WandB</span>
+                                <span class="skill-tag">TensorBoard</span>
                             </div>
                         </div>
 
                         <div class="skill-category">
-                            <h4>Frontend & Mobile Development</h4>
-                            <div class="skill-subcategory">
-                                <h5>Frameworks:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">React.js</span>
-                                    <span class="skill-tag">React Native</span>
-                                    <span class="skill-tag">Redux</span>
-                                    <span class="skill-tag">Next.js</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>UI & Styling:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Material UI</span>
-                                    <span class="skill-tag">Bootstrap</span>
-                                    <span class="skill-tag">Tailwind CSS</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Testing:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Jest</span>
-                                    <span class="skill-tag">React Testing Library</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Tools:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Figma</span>
-                                    <span class="skill-tag">Adobe XD</span>
-                                </div>
+                            <h4>Data & Storage</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">PostgreSQL</span>
+                                <span class="skill-tag">Redis</span>
+                                <span class="skill-tag">Weaviate</span>
+                                <span class="skill-tag">MySQL</span>
+                                <span class="skill-tag">SQLite</span>
+                                <span class="skill-tag">ETL Pipelines</span>
                             </div>
                         </div>
 
                         <div class="skill-category">
-                            <h4>DevOps & System Administration</h4>
-                            <div class="skill-subcategory">
-                                <h5>Operating Systems:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Linux</span>
-                                    <span class="skill-tag">Windows</span>
-                                    <span class="skill-tag">MacOS</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Containerization:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Docker</span>
-                                    <span class="skill-tag">Kubernetes</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Web Servers:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Nginx</span>
-                                    <span class="skill-tag">Apache</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>CI/CD:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">GitHub Actions</span>
-                                    <span class="skill-tag">GitLab CI</span>
-                                </div>
-                            </div>
-                            <div class="skill-subcategory">
-                                <h5>Cloud Platforms:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">AWS</span>
-                                    <span class="skill-tag">Azure</span>
-                                </div>
+                            <h4>Backend & APIs</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Django</span>
+                                <span class="skill-tag">Django REST Framework</span>
+                                <span class="skill-tag">Celery</span>
+                                <span class="skill-tag">REST</span>
+                                <span class="skill-tag">WebSocket</span>
+                                <span class="skill-tag">Microservices</span>
+                                <span class="skill-tag">Pytest</span>
                             </div>
                         </div>
 
                         <div class="skill-category">
-                            <h4>Teamwork & Collaboration</h4>
-                            <div class="skill-subcategory">
-                                <h5>Tools:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Git</span>
-                                    <span class="skill-tag">Jira</span>
-                                    <span class="skill-tag">Confluence</span>
-                                    <span class="skill-tag">Slack</span>
-                                    <span class="skill-tag">Trello</span>
-                                    <span class="skill-tag">ClickUp</span>
-                                </div>
+                            <h4>DevOps & Cloud</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">AWS (EC2, SageMaker, S3)</span>
+                                <span class="skill-tag">Azure</span>
+                                <span class="skill-tag">Docker</span>
+                                <span class="skill-tag">Kubernetes</span>
+                                <span class="skill-tag">GitHub Actions</span>
+                                <span class="skill-tag">GitLab CI</span>
+                                <span class="skill-tag">Nginx</span>
+                                <span class="skill-tag">Prometheus</span>
+                                <span class="skill-tag">Grafana</span>
+                                <span class="skill-tag">Linux</span>
                             </div>
-                            <div class="skill-subcategory">
-                                <h5>Practices:</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Agile</span>
-                                    <span class="skill-tag">Scrum</span>
-                                    <span class="skill-tag">Kanban</span>
-                                </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Frontend & Mobile</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">React.js</span>
+                                <span class="skill-tag">React Native</span>
+                                <span class="skill-tag">Next.js</span>
+                                <span class="skill-tag">Redux</span>
+                                <span class="skill-tag">Tailwind CSS</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4>Leadership & Collaboration</h4>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Technical Leadership</span>
+                                <span class="skill-tag">Solution Architecture</span>
+                                <span class="skill-tag">Stakeholder Management</span>
+                                <span class="skill-tag">Feasibility Analysis</span>
+                                <span class="skill-tag">Mentoring</span>
+                                <span class="skill-tag">Agile/Scrum</span>
+                                <span class="skill-tag">Git</span>
+                                <span class="skill-tag">Jira</span>
+                                <span class="skill-tag">Confluence</span>
                             </div>
                         </div>
                     </div>
@@ -536,6 +462,29 @@
             <!-- Projects Tab -->
             <div id="projects" class="tab-content">
                 <section class="projects">
+
+                    <div class="project">
+                        <div class="project-header">
+                            <h4>Vector DB Manager for Weaviate and Qdrant</h4>
+                            <div class="project-links">
+                                <a href="https://github.com/aliarabbasi5155/vector-db-manager" target="_blank" class="project-link">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                            </div>
+                            <div class="project-org">Personal Project</div>
+                            <span class="duration">Mar 2025</span>
+                        </div>
+                        <ul class="project-description">
+                            <li>Next.js/TypeScript dashboard for managing Weaviate and Qdrant vector databases: CRUD over collections and objects, semantic and hybrid search, live metrics, and one-command Docker deployment.</li>
+                        </ul>
+                        <div class="project-tech">
+                            <span class="tech-tag">Next.js</span>
+                            <span class="tech-tag">TypeScript</span>
+                            <span class="tech-tag">Weaviate</span>
+                            <span class="tech-tag">Qdrant</span>
+                            <span class="tech-tag">Docker</span>
+                        </div>
+                    </div>
                     
                     <div class="project">
                         <div class="project-header">
