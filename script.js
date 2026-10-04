@@ -1,51 +1,64 @@
-// Import and initialize Tubes Cursor
-import TubesCursor from "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
+// Dot field background: every tab morphs the dots into its own shape
+import { DotField, PALETTES } from './dot-field.js';
+import { samplePortrait } from './dot-portrait.js';
 
-// Initialize background effect
-let app;
+// [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
+// `tall` is used on portrait screens, where everything stacks in one column.
+const TAB_SCENES = {
+    blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
+    about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
+    experience: { shape: 'beam', wide: [0, 0, 1] },
+    education: { shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
+    skills: { shape: 'streams', wide: [0, 0, 1] },
+    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
+    publications: { shape: 'rings', wide: [0.42, -0.08, 0.8], tall: [0, 0, 0.7] },
+    interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
+};
+const TAB_ORDER = Object.keys(TAB_SCENES);
+
+let field = null;
 
 function initBackground() {
-    try {
-        const canvas = document.getElementById('canvas');
-        if (!canvas) {
-            console.warn('Canvas element not found');
-            return;
-        }
-        
-        console.log('Initializing TubesCursor...');
-        app = TubesCursor(canvas, {
-            tubes: {
-                colors: ["#8b5cf6", "#667eea", "#764ba2"],
-                lights: {
-                    intensity: 200,
-                    colors: ["#667eea", "#8b5cf6", "#764ba2", "#a78bfa"]
-                }
-            }
-        });
-        console.log('TubesCursor initialized successfully');
-        
-        // Change colors on click
-        document.body.addEventListener('click', () => {
-            const colors = randomColors(3);
-            const lightsColors = randomColors(4);
-            if (app && app.tubes) {
-                app.tubes.setColors(colors);
-                app.tubes.setLightsColors(lightsColors);
-            }
-        });
-    } catch (error) {
-        console.error('Error initializing background:', error);
-    }
-}
+    const canvas = document.getElementById('canvas');
+    if (!canvas) return;
 
-function randomColors(count) {
-    return new Array(count)
-        .fill(0)
-        .map(() => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
+    const activeTab = document.querySelector('.nav-button.active')?.dataset.tab;
+    const small = window.matchMedia('(max-width: 768px)').matches;
+    try {
+        field = new DotField(canvas, {
+            scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
+            initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
+            // On phones the copy sits right on top of the shapes, so dim the bloom
+            palette: small ? { ...PALETTES.violet, glow: 0.3, gain: 1.15 } : PALETTES.violet,
+            count: small ? 24000 : 42000,
+            pointSize: 2.6,
+            maxPixelRatio: small ? 1.25 : 1.5,
+            reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        });
+        field.start();
+    } catch (error) {
+        console.warn('Dot field disabled:', error);
+        return;
+    }
+
+    samplePortrait('profile-photo.jpg', field.count)
+        .then(points => field.setPortrait(points))
+        .catch(error => console.warn('Portrait sampling failed:', error));
+
+    window.addEventListener('pointermove', e => field.setPointer(e.clientX, e.clientY), { passive: true });
+    document.addEventListener('pointerleave', () => field.clearPointer());
+    window.addEventListener('blur', () => field.clearPointer());
+    // Clicks that aren't on a control send a ripple through the dots
+    document.addEventListener('pointerdown', e => {
+        if (e.target.closest('a, button, input, textarea, select')) return;
+        field.ripple(e.clientX, e.clientY);
+    });
 }
 
 // Tab functionality with smooth fade transitions
 function openTab(tabName) {
+    field?.morphTo(TAB_ORDER.indexOf(tabName));
+
     // Get all tab contents and find the currently active one
     const tabContents = document.getElementsByClassName("tab-content");
     const activeContent = document.querySelector('.tab-content.active');
@@ -114,7 +127,8 @@ function initNavigation() {
             e.preventDefault();
             const tabName = this.getAttribute('data-tab');
             console.log(`Switching to tab: ${tabName}`);
-            
+            field?.ripple(e.clientX, e.clientY, 1.2);
+
             // Use requestAnimationFrame for smoother transitions
             requestAnimationFrame(() => {
                 openTab(tabName);

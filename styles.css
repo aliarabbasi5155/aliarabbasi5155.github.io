@@ -16,6 +16,8 @@
     --glass-reflex-dark: 1;
     --glass-reflex-light: 1;
     --saturation: 150%;
+    /* Light frost, so the dot shapes behind the panels stay readable */
+    --glass-blur: 6px;
 }
 
 html,
@@ -72,8 +74,8 @@ svg {
 
 /* LEFT PANEL: Profile with Liquid Glass */
 .profile-panel {
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     border-radius: 30px;
     padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -328,8 +330,8 @@ svg {
 /* UPDATES PANEL: Latest Updates with Liquid Glass */
 .updates-panel {
     background: var(--liquid-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     border-radius: 30px;
     padding: 30px 35px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -477,8 +479,8 @@ svg {
     gap: 15px;
     padding: 20px;
     background: var(--liquid-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     border-radius: 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow:
@@ -608,8 +610,8 @@ svg {
 /* Section Header Card */
 .section-header-card {
     background: var(--liquid-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     border-radius: 30px;
     padding: 30px 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -654,8 +656,8 @@ svg {
 /* Section Content Card */
 .section-content-card {
     background: var(--liquid-glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     border-radius: 30px;
     padding: 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
