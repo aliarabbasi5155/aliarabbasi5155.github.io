@@ -5,24 +5,45 @@ import { samplePortrait } from './dot-portrait.js';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
+// Titles, letters and shape names live on the nav buttons, so each language
+// page carries its own.
 const TAB_SCENES = {
-    blog: { letter: 'A', label: 'Open book', shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
-    about: { letter: 'B', label: 'Portrait', shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
-    experience: { letter: 'C', label: 'Convergence', shape: 'beam', wide: [0, 0, 1] },
-    education: { letter: 'D', label: 'Globe', shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
-    skills: { letter: 'E', label: 'Streams', shape: 'streams', wide: [0, 0, 1] },
-    projects: { letter: 'F', label: 'Terrain', shape: 'terrain', wide: [0, -0.05, 1] },
-    publications: { letter: 'G', label: 'EEG rings', shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
-    interests: { letter: 'H', label: 'Ripples', shape: 'ripples', wide: [0.46, -0.05, 1] },
+    blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
+    about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
+    experience: { shape: 'beam', wide: [0, 0, 1] },
+    education: { shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
+    skills: { shape: 'streams', wide: [0, 0, 1] },
+    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
+    publications: { shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
+    interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
 const TAB_ORDER = Object.keys(TAB_SCENES);
+
+// The few strings the script writes itself
+const STRINGS = {
+    en: {
+        bands: ['DELTA', 'THETA', 'ALPHA', 'BETA', 'GAMMA'],
+        hertz: value => `${value.toFixed(1)} HZ`,
+        more: 'Show More',
+        less: 'Show Less',
+        glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
+    },
+    fa: {
+        bands: ['دلتا', 'تتا', 'آلفا', 'بتا', 'گاما'],
+        hertz: value => `${value.toLocaleString('fa-IR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} هرتز`,
+        more: 'ادامه‌ی مطلب',
+        less: 'بستن',
+        glyphs: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
+    },
+};
+const TEXT = STRINGS[document.documentElement.lang] ?? STRINGS.en;
 
 // The field renders the glass only where the layout is pinned to the viewport;
 // stacked layouts scroll, and CSS glass keeps up with scrolling better
 const GLASS_QUERY = window.matchMedia('(min-width: 1101px) and (hover: hover) and (pointer: fine)');
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const BANDS = [[4, 'DELTA'], [8, 'THETA'], [13, 'ALPHA'], [30, 'BETA'], [Infinity, 'GAMMA']];
-const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
+// Upper edges of the EEG bands, in Hz
+const BAND_LIMITS = [4, 8, 13, 30, Infinity];
 
 let field = null;
 
@@ -38,6 +59,8 @@ function initBackground() {
             initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
             // On phones the copy sits right on top of the shapes, so keep them quieter
             palette: small ? { ...PALETTES.sand, gain: 1.05 } : PALETTES.sand,
+            // Right-to-left pages mirror the shapes along with the layout
+            mirror: document.documentElement.dir === 'rtl',
             count: small ? 24000 : 42000,
             pointSize: 2.6,
             maxPixelRatio: small ? 1.25 : 1.5,
@@ -49,7 +72,7 @@ function initBackground() {
         return;
     }
 
-    samplePortrait('profile-photo.jpg', field.count)
+    samplePortrait(new URL('profile-photo.jpg', import.meta.url).href, field.count)
         .then(points => field.setPortrait(points))
         .catch(error => console.warn('Portrait sampling failed:', error));
 
@@ -80,8 +103,8 @@ function initEnergy() {
         const value = input.value / 100;
         // Log scale from 1.5 Hz to 40 Hz
         const frequency = 1.5 * (40 / 1.5) ** value;
-        band.textContent = BANDS.find(([limit]) => frequency < limit)[1];
-        hz.textContent = `${frequency.toFixed(1)} HZ`;
+        band.textContent = TEXT.bands[BAND_LIMITS.findIndex(limit => frequency < limit)];
+        hz.textContent = TEXT.hertz(frequency);
         field?.setEnergy(value);
     };
     input.addEventListener('input', apply);
@@ -96,12 +119,15 @@ function scramble(element, text, duration = 600) {
         return;
     }
     const start = performance.now();
+    const glyphs = TEXT.glyphs;
     const step = now => {
         const progress = Math.min(1, (now - start) / duration);
         const settled = Math.floor(progress * text.length);
         let out = '';
         for (let i = 0; i < text.length; i++) {
-            out += i < settled || text[i] === ' ' ? text[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+            // Spaces and zero-width non-joiners keep the word shapes in place
+            const keep = i < settled || text[i] === ' ' || text[i] === '\u200c';
+            out += keep ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
         }
         element.textContent = out;
         if (progress < 1) element.scrambleFrame = requestAnimationFrame(step);
@@ -112,10 +138,10 @@ function scramble(element, text, duration = 600) {
 // Tab functionality with smooth fade transitions
 function openTab(tabName) {
     field?.morphTo(TAB_ORDER.indexOf(tabName));
-    const scene = TAB_SCENES[tabName];
-    if (scene) {
-        document.getElementById('section-badge').textContent = scene.letter;
-        scramble(document.getElementById('field-tag'), scene.label, 500);
+    const tabButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
+    if (tabButton) {
+        document.getElementById('section-badge').textContent = tabButton.querySelector('.nav-letter').textContent;
+        scramble(document.getElementById('field-tag'), tabButton.dataset.field, 500);
     }
 
     // Get all tab contents and find the currently active one
@@ -156,22 +182,10 @@ function openTab(tabName) {
             newContent.classList.add("active");
         }
         
-        // Update section title with fade-in
-        const sectionTitles = {
-            'about': 'Summary',
-            'experience': 'Professional Experience',
-            'education': 'Education',
-            'skills': 'Technical Skills',
-            'projects': 'Featured Projects',
-            'publications': 'Publications',
-            'blog': 'Blog Posts',
-            'interests': 'Interests'
-        };
-        
-        if (sectionTitle && sectionTitles[tabName]) {
+        if (sectionTitle && tabButton) {
             // Remove fade-out and scramble in the new title
             sectionTitle.classList.remove('fade-out');
-            scramble(sectionTitle, sectionTitles[tabName]);
+            scramble(sectionTitle, tabButton.dataset.title);
         }
     }, 300); // Match this with fade-out animation duration
 }
@@ -414,11 +428,11 @@ function toggleBlogPost(button) {
     if (isExpanded) {
         // Collapse
         fullContent.style.display = 'none';
-        button.textContent = 'Show More';
+        button.textContent = TEXT.more;
     } else {
         // Expand
         fullContent.style.display = 'block';
-        button.textContent = 'Show Less';
+        button.textContent = TEXT.less;
     }
 }
 

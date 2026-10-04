@@ -53,6 +53,8 @@ uniform float uMorph;
 // Placement: xy offset in half-view units, z scale
 uniform vec3 uPlaceA;
 uniform vec3 uPlaceB;
+// -1 mirrors scenes left to right, for right-to-left pages
+uniform float uMirror;
 uniform float uIntro;
 uniform float uEnergy;
 uniform float uHasImage;
@@ -303,7 +305,9 @@ vec4 sceneAt(int i, vec3 place, vec4 s, vec4 r, float t) {
 	if (r.w < dustShare(i)) return dust(s, r, t);
 	vec4 p = shapeAt(i, s, r, t);
 	p.xyz *= place.z;
-	p.xy += place.xy * uHalf;
+	// The portrait keeps its own handedness; a mirrored face reads as someone else
+	if (i != 1) p.x *= uMirror;
+	p.xy += place.xy * vec2(uMirror, 1.0) * uHalf;
 	return p;
 }
 
@@ -668,6 +672,7 @@ export class DotField {
 		morphDuration = 1.8,
 		reduceMotion = false,
 		maxPixelRatio = 1.5,
+		mirror = false,
 		glass = {},
 	}) {
 		const gl = canvas.getContext('webgl2', {
@@ -687,6 +692,7 @@ export class DotField {
 		this.morphDuration = morphDuration;
 		this.reduceMotion = reduceMotion;
 		this.maxPixelRatio = maxPixelRatio;
+		this.mirror = mirror ? -1 : 1;
 		this.palette = {
 			...palette,
 			background: rgb(palette.background),
@@ -934,6 +940,7 @@ export class DotField {
 		gl.uniform3fv(p.uPlaceA, sceneA[layout]);
 		gl.uniform3fv(p.uPlaceB, sceneB[layout]);
 		gl.uniform1f(p.uMorph, this.morph);
+		gl.uniform1f(p.uMirror, this.mirror);
 		gl.uniform1f(p.uIntro, this.intro);
 		gl.uniform1f(p.uEnergy, this.energy);
 		gl.uniform1f(p.uHasImage, this.hasImage);

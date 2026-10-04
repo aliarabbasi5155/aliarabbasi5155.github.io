@@ -14,6 +14,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ali Abbasi - AI / GenAI Engineer</title>
+    <link rel="alternate" hreflang="en" href="https://aliarabbasi5155.github.io/">
+    <link rel="alternate" hreflang="fa" href="https://aliarabbasi5155.github.io/fa/">
     <meta name="theme-color" content="#191a1e">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,35 +121,35 @@
         <!-- MIDDLE: Navigation Panel with Liquid Glass -->
         <aside class="navigation-panel">
             <nav class="section-nav">
-                <button class="nav-button glass active" data-tab="blog">
+                <button class="nav-button glass active" data-tab="blog" data-title="Blog Posts" data-field="Open book">
                     <span class="nav-letter">A</span>
                     <span class="nav-label">Blog</span>
                 </button>
-                <button class="nav-button glass" data-tab="about">
+                <button class="nav-button glass" data-tab="about" data-title="Summary" data-field="Portrait">
                     <span class="nav-letter">B</span>
                     <span class="nav-label">About</span>
                 </button>
-                <button class="nav-button glass" data-tab="experience">
+                <button class="nav-button glass" data-tab="experience" data-title="Professional Experience" data-field="Convergence">
                     <span class="nav-letter">C</span>
                     <span class="nav-label">Experience</span>
                 </button>
-                <button class="nav-button glass" data-tab="education">
+                <button class="nav-button glass" data-tab="education" data-title="Education" data-field="Globe">
                     <span class="nav-letter">D</span>
                     <span class="nav-label">Education</span>
                 </button>
-                <button class="nav-button glass" data-tab="skills">
+                <button class="nav-button glass" data-tab="skills" data-title="Technical Skills" data-field="Streams">
                     <span class="nav-letter">E</span>
                     <span class="nav-label">Skills</span>
                 </button>
-                <button class="nav-button glass" data-tab="projects">
+                <button class="nav-button glass" data-tab="projects" data-title="Featured Projects" data-field="Terrain">
                     <span class="nav-letter">F</span>
                     <span class="nav-label">Projects</span>
                 </button>
-                <button class="nav-button glass" data-tab="publications">
+                <button class="nav-button glass" data-tab="publications" data-title="Publications" data-field="EEG rings">
                     <span class="nav-letter">G</span>
                     <span class="nav-label">Publications</span>
                 </button>
-                <button class="nav-button glass" data-tab="interests">
+                <button class="nav-button glass" data-tab="interests" data-title="Interests" data-field="Ripples">
                     <span class="nav-letter">H</span>
                     <span class="nav-label">Interests</span>
                 </button>
@@ -868,10 +870,13 @@
     <!-- Footer dock: copyright and the dot field's energy -->
     <footer class="dock">
         <p class="copyright">&copy; 2025 Ali Abbasi. All rights reserved.</p>
-        <label class="energy glass">
-            <span class="energy-readout"><b>ALPHA</b> · <span class="energy-hz">9.1 HZ</span></span>
-            <input type="range" min="0" max="100" value="55" aria-label="Field energy">
-        </label>
+        <div class="dock-controls">
+            <a class="lang-switch glass" href="fa/" hreflang="fa" lang="fa"><span>فارسی</span></a>
+            <label class="energy glass">
+                <span class="energy-readout"><b>ALPHA</b> · <span class="energy-hz">9.1 HZ</span></span>
+                <input type="range" min="0" max="100" value="55" aria-label="Field energy">
+            </label>
+        </div>
     </footer>
 
     <script type="module" src="script.js"></script>
