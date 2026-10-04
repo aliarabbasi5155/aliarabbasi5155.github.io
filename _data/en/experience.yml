@@ -1,0 +1,63 @@
+jobs:
+  - title: AI Engineer (Team Lead, Part-time, Remote)
+    company: Primentoring.AI
+    company_url: https://primentoring.ai/
+    location: London, UK
+    period: Nov 2025 - Present
+    bullets:
+      - Lead a 2-engineer team end-to-end, owning solution architecture, feasibility research, project health reporting, and stakeholder alignment across product, QA, and software teams.
+      - "Architected [Dana AI](https://aimentor.primentoring.ai/), a real-time multimodal agent (3D talking head, voice, text) over WebSocket: OmniTalker for lip-sync (LoRA fine-tuned per mentor on AWS SageMaker), GPT-4o Transcribe ASR with vocabulary hints, and GPT-4.1 fine-tuned on the OpenAI platform for mentor tone and persona, at ~2.5s time-to-first video response frame."
+      - Designed a production agentic RAG stack on self-managed Weaviate (AWS EC2) with ~900 ms retrieval latency, hybrid search, query expansion, reranking, function-calling agents, task decomposition, and conversational + long-term memory via LangGraph (~87% top-5 retrieval precision); reused as the backbone of an LLM Customer Support Chatbot over company documents.
+      - Built a Public Data Aggregation feature that extracts mentor signals from 8 platforms in parallel, completing each collection run in ~3 minutes while respecting each service's ToS limits and GDPR.
+      - Built a RAGAS-based evaluation suite with 100 curated mentor-domain queries, plus guardrails, PII filtering, confidence scoring, human-in-the-loop handoff, prompt/version tracking, and a closed-loop Unanswered Pool that routes low-confidence queries to mentors and ingests responses back into the knowledge base.
+      - Built a recommender system that extracts behavioral signals (skills, engagement, talk-time, emotion) from mentoring sessions to match mentors to mentees.
+      - Operationalized all AI services as Django/Celery microservices on EC2 with Redis, PostgreSQL, ETL pipelines, GitHub Actions CI/CD reducing deployment time to ~1.5 minutes, and Prometheus + Grafana monitoring.
+  - title: Machine Learning Engineer | Fullstack Developer
+    company: Nimbus SRL
+    company_url: https://www.nimbus.aero/
+    location: Turin, Italy
+    period: Feb 2022 - Present
+    bullets:
+      - Built and shipped an internal LLM-powered support assistant (LangChain RAG over a LoRA fine-tuned Llama-3-8B on AWS SageMaker, grounded in proprietary docs), now serving 1,200+ weekly queries.
+      - Cut new-engineer onboarding from weeks to 2-3 days by exposing the fine-tuned model through an internal chat interface backed by the company knowledge base.
+      - Designed a PPO-based Reinforcement Learning controller to stabilize VTOL autopilot under degraded weather, improving recovery success by 5% in adverse-weather flight test simulations.
+      - Led a 4-engineer team to deliver a cross-platform fleet monitoring system on AWS, providing 2-second-interval telemetry for 150+ UAVs across Europe.
+      - Modernized the software stack (React Native, Django REST Framework, CI/CD, containerized deployments), saving ~€50,000/year by reducing the engineering capacity required to maintain and evolve the platform.
+      - Contributed to the Charger Box project, automating drone repositioning for autonomous charging and achieving 98% successful docking.
+  - title: Machine Learning Engineer | Fullstack Developer
+    company: Reefilla SRL
+    company_url: https://www.reefilla.com/
+    location: Turin, Italy
+    period: Sep 2021 - Feb 2022
+    bullets:
+      - Designed and deployed a recommender model that predicts the optimal timing for electric power-bank requests, improving delivery responsiveness by ~18%.
+      - Co-developed a cross-platform application (React Native + Django) for EV charging management, growing the user base to 800+ active users within 2021.
+earlier_title: Earlier Experience
+earlier_jobs:
+  - title: Backend Developer
+    company: Bardal Startup
+    company_url: ""
+    location: Tehran, Iran
+    period: Jul 2019 - Jan 2020
+    bullets:
+      - Developed RESTful APIs using Django and Django REST Framework for backend services.
+      - Implemented containerization with Docker and orchestration with Kubernetes for scalable deployments.
+      - Managed PostgreSQL databases and optimized query performance.
+  - title: Frontend Developer
+    company: Spinzer Startup
+    company_url: ""
+    location: Tehran, Iran
+    period: Nov 2018 - Jun 2019
+    bullets:
+      - Built responsive web applications using ReactJS, TypeScript, and Redux for state management.
+      - Implemented modern UI/UX designs with HTML5 and CSS3.
+      - Collaborated with backend team to integrate RESTful APIs.
+  - title: Backend Developer (Internship)
+    company: Saaed Co.
+    company_url: https://www.saeedco.com/
+    location: Arak, Iran
+    period: Jun 2018 - Oct 2018
+    bullets:
+      - Developed backend services using .NET framework and RESTful API design principles.
+      - Created dynamic web interfaces with HTML, CSS, and JavaScript.
+      - Gained hands-on experience in full-stack development and agile methodologies.

@@ -1,0 +1,23 @@
+title: تازه‌ها
+items:
+  - date: ۱۰ نوامبر ۲۰۲۵
+    label: "🚀 موقعیت شغلی جدید:"
+    text: به‌عنوان AI Engineer و Team Lead (پاره‌وقت، دورکاری) به Primentoring.AI پیوستم؛ یک استارتاپ فوق‌العاده در لندن.
+  - date: ۲۱ اکتبر ۲۰۲۵
+    label: "🚀 شروع پروژه‌ی جدید:"
+    text: کار روی یک پروژه‌ی جدید مبتنی بر LLM با Django و React را شروع کردم که فعلاً اسمش HardWordExtractor است.
+  - date: ۱۸ سپتامبر ۲۰۲۵
+    label: "🌐 بازطراحی وب‌سایت:"
+    text: وب‌سایت شخصی‌ام روی GitHub Pages با طراحی و محتوای تازه به‌روز شد.
+  - date: ژانویه ۲۰۲۵
+    label: 📄 پذیرش مقاله!
+    text: مقاله‌ی ما با عنوان «Transforming Stroop task cognitive assessments with multimodal IRL» در ژورنال Smart Health انتشارات Elsevier منتشر شد.
+  - date: دسامبر ۲۰۲۴
+    label: "🎤 پذیرش در کنفرانس:"
+    text: مقاله‌مان در کنفرانس IEEE/CHASE 2025 پذیرفته شد.
+  - date: ۱۰ دسامبر ۲۰۲۴
+    label: "🎓 فارغ‌التحصیلی:"
+    text: بالاخره دوره‌ی کارشناسی ارشدم در رشته‌ی علوم و مهندسی داده تمام شد.
+  - date: ۱۰ دسامبر ۲۰۲۴
+    label: "🛡️ دفاع از پایان‌نامه:"
+    text: از پایان‌نامه‌ی کارشناسی ارشدم با عنوان «Reconstructing Human Gaze Behavior in Stroop Test Using IRL and EEG Data» با موفقیت دفاع کردم.

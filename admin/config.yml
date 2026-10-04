@@ -1,0 +1,282 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Sveltia CMS for this site. Open /admin/ and sign in with a GitHub fine-grained
+# personal access token that has Contents: read and write on this repository.
+# Every save is a commit to master, and GitHub Pages rebuilds the site from it.
+#
+# Lists use `i18n: duplicate`: adding, removing or reordering an item in English
+# does the same in Persian, while each item's text is edited per language.
+
+backend:
+  name: github
+  repo: aliarabbasi5155/aliarabbasi5155.github.io
+  branch: master
+  auth_methods: [token]
+
+site_url: https://aliarabbasi5155.github.io
+display_url: https://aliarabbasi5155.github.io
+media_folder: assets/uploads
+public_folder: /assets/uploads
+
+i18n:
+  structure: multiple_folders
+  locales: [en, fa]
+  default_locale: en
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Post
+    folder: _blog
+    extension: md
+    format: frontmatter
+    create: true
+    i18n: true
+    identifier_field: title
+    slug: "{{slug}}"
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: Title, widget: string, i18n: true }
+      - name: date
+        label: Published
+        widget: datetime
+        format: YYYY-MM-DD HH:mm
+        i18n: duplicate
+        hint: Newest first; the time only orders posts published on the same day.
+      - { name: topic, label: Topic, widget: string, i18n: true, hint: "Shown next to the date, e.g. Book Review" }
+      - name: summary
+        label: Summary
+        widget: text
+        i18n: true
+        hint: "Shown before Show More. Markdown works: **bold**, *italic*, [link](https://…)"
+      - { name: body, label: Body, widget: markdown, i18n: true }
+
+  - name: cv
+    label: CV
+    i18n: true
+    files:
+      - name: profile
+        label: Profile
+        file: _data/{{locale}}/profile.yml
+        i18n: true
+        fields:
+          - { name: name, label: Name, widget: string, i18n: true }
+          - { name: role, label: Role, widget: string, i18n: true }
+          - { name: photo_alt, label: Photo description, widget: string, i18n: true }
+          - name: contacts
+            label: Contacts
+            widget: list
+            i18n: duplicate
+            summary: "{{label}}"
+            fields:
+              - &icon { name: icon, label: Icon, widget: string, i18n: duplicate, hint: "Font Awesome 6 classes, e.g. fab fa-github" }
+              - { name: label, label: Label, widget: string, i18n: true }
+              - { name: url, label: Link, widget: string, i18n: duplicate }
+
+      - name: about
+        label: About
+        file: _data/{{locale}}/about.yml
+        i18n: true
+        fields:
+          - name: paragraphs
+            label: Paragraphs
+            widget: list
+            i18n: true
+            field: &markdown_line { name: text, label: Text, widget: text, hint: "Markdown works: **bold**, *italic*, [link](https://…)" }
+
+      - name: updates
+        label: Latest Updates
+        file: _data/{{locale}}/updates.yml
+        i18n: true
+        fields:
+          - { name: title, label: Panel title, widget: string, i18n: true }
+          - name: items
+            label: Updates
+            widget: list
+            i18n: duplicate
+            summary: "{{date}} · {{label}}"
+            fields:
+              - { name: date, label: Date, widget: string, i18n: true, hint: "Written as it should appear, e.g. Nov 10 2025" }
+              - { name: label, label: Label, widget: string, i18n: true, hint: "Bold lead-in, e.g. 🚀 New Position:" }
+              - { name: text, label: Text, widget: text, i18n: true, hint: "Markdown works" }
+
+      - name: experience
+        label: Experience
+        file: _data/{{locale}}/experience.yml
+        i18n: true
+        fields:
+          - name: jobs
+            label: Jobs
+            widget: list
+            i18n: duplicate
+            summary: "{{title}} · {{company}}"
+            fields: &job_fields
+              - { name: title, label: Title, widget: string, i18n: true }
+              - { name: company, label: Company, widget: string, i18n: true }
+              - { name: company_url, label: Company website, widget: string, i18n: duplicate, required: false }
+              - { name: location, label: Location, widget: string, i18n: true }
+              - { name: period, label: Period, widget: string, i18n: true, hint: "e.g. Feb 2022 - Present" }
+              - name: bullets
+                label: Highlights
+                widget: list
+                i18n: true
+                field: *markdown_line
+          - { name: earlier_title, label: Heading for earlier jobs, widget: string, i18n: true }
+          - name: earlier_jobs
+            label: Earlier jobs
+            widget: list
+            i18n: duplicate
+            summary: "{{title}} · {{company}}"
+            fields: *job_fields
+
+      - name: education
+        label: Education
+        file: _data/{{locale}}/education.yml
+        i18n: true
+        fields:
+          - name: degrees
+            label: Degrees
+            widget: list
+            i18n: duplicate
+            summary: "{{title}}"
+            fields:
+              - { name: title, label: Degree, widget: string, i18n: true }
+              - { name: institution, label: Institution, widget: string, i18n: true }
+              - { name: institution_url, label: Institution website, widget: string, i18n: duplicate, required: false }
+              - { name: location, label: Location, widget: string, i18n: true }
+              - { name: period, label: Period, widget: string, i18n: true }
+              - name: details
+                label: Details
+                widget: list
+                i18n: true
+                required: false
+                field: *markdown_line
+
+      - name: skills
+        label: Skills
+        file: _data/{{locale}}/skills.yml
+        i18n: true
+        fields:
+          - name: groups
+            label: Groups
+            widget: list
+            i18n: duplicate
+            summary: "{{title}}"
+            fields:
+              - { name: title, label: Group, widget: string, i18n: true }
+              - { name: tags, label: Skills, widget: list, i18n: true, hint: One per line }
+
+      - name: projects
+        label: Projects
+        file: _data/{{locale}}/projects.yml
+        i18n: true
+        fields:
+          - name: items
+            label: Projects
+            widget: list
+            i18n: duplicate
+            summary: "{{title}}"
+            fields:
+              - { name: title, label: Title, widget: string, i18n: true }
+              - name: links
+                label: Links
+                widget: list
+                i18n: duplicate
+                required: false
+                summary: "{{label}}"
+                fields:
+                  - { name: label, label: Label, widget: string, i18n: true }
+                  - { name: url, label: Link, widget: string, i18n: duplicate }
+                  - *icon
+              - { name: org, label: Organisation, widget: string, i18n: true }
+              - { name: period, label: Period, widget: string, i18n: true }
+              - name: bullets
+                label: Highlights
+                widget: list
+                i18n: true
+                field: *markdown_line
+              - { name: tech, label: Tech, widget: list, i18n: true, hint: One per line }
+
+      - name: publications
+        label: Publications
+        file: _data/{{locale}}/publications.yml
+        i18n: true
+        fields:
+          - name: items
+            label: Publications
+            widget: list
+            i18n: duplicate
+            summary: "{{title}}"
+            fields:
+              - { name: title, label: Title, widget: string, i18n: true }
+              - { name: authors, label: Authors, widget: string, i18n: true, hint: "Markdown works, e.g. **Ali Abbasi**, Jane Doe" }
+              - { name: journal, label: Journal, widget: string, i18n: true }
+              - { name: details, label: Volume and pages, widget: string, i18n: true }
+              - { name: url, label: Link, widget: string, i18n: duplicate }
+              - { name: link_label, label: Link label, widget: string, i18n: true }
+              - { name: abstract, label: Abstract, widget: text, i18n: true }
+
+      - name: interests
+        label: Interests
+        file: _data/{{locale}}/interests.yml
+        i18n: true
+        fields:
+          - name: items
+            label: Interests
+            widget: list
+            i18n: duplicate
+            summary: "{{title}}"
+            fields:
+              - *icon
+              - { name: title, label: Title, widget: string, i18n: true }
+              - { name: text, label: Text, widget: text, i18n: true }
+
+      - name: ui
+        label: Site text
+        file: _data/{{locale}}/ui.yml
+        i18n: true
+        fields:
+          - { name: title, label: Browser tab title, widget: string, i18n: true }
+          - { name: description, label: Search description, widget: text, i18n: true }
+          - name: nav
+            label: Menu
+            widget: list
+            i18n: duplicate
+            summary: "{{letter}} · {{label}}"
+            hint: The first entry opens by default. The section title shows the same name.
+            fields:
+              - name: tab
+                label: Section
+                widget: select
+                i18n: duplicate
+                options: [blog, about, experience, education, skills, projects, publications, interests]
+              - { name: letter, label: Letter, widget: string, i18n: true }
+              - { name: label, label: Name, widget: string, i18n: true }
+          - { name: show_more, label: Show more button, widget: string, i18n: true }
+          - { name: show_less, label: Show less button, widget: string, i18n: true }
+          - { name: months, label: Month names, widget: list, i18n: true, hint: "January to December, one per line" }
+          - { name: date_pattern, label: Date pattern, widget: string, i18n: true, hint: "Uses {day}, {month} and {year}" }
+          - { name: digits, label: Digits, widget: string, i18n: true, required: false, hint: "Ten characters that replace 0–9 in dates, e.g. ۰۱۲۳۴۵۶۷۸۹; empty keeps 0–9" }
+          - name: temperature
+            label: Temperature control
+            widget: object
+            i18n: true
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: hint, label: Tooltip, widget: text }
+              - name: bands
+                label: Readouts
+                widget: list
+                summary: "≤ {{max}} · {{label}}"
+                fields:
+                  - { name: max, label: Up to, widget: number, value_type: float, min: 0, max: 2, step: 0.05 }
+                  - { name: label, label: Readout, widget: string }
+          - name: lang_switch
+            label: Language switch
+            widget: object
+            i18n: true
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: url, label: Link, widget: string }
+              - { name: lang, label: Language code, widget: string }
+          - { name: copyright, label: Copyright, widget: string, i18n: true }

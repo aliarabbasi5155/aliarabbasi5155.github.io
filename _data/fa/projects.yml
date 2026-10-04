@@ -1,0 +1,85 @@
+items:
+  - title: Vector DB Manager for Weaviate and Qdrant
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/vector-db-manager
+        icon: fab fa-github
+    org: پروژه‌ی شخصی
+    period: مارس ۲۰۲۵
+    bullets:
+      - "داشبوردی با Next.js و TypeScript برای مدیریت vector databaseهای Weaviate و Qdrant: عملیات CRUD روی collectionها و objectها، semantic search و hybrid search، متریک‌های زنده و deploy با یک دستور Docker."
+    tech:
+      - Next.js
+      - TypeScript
+      - Weaviate
+      - Qdrant
+      - Docker
+  - title: Reconstructing Human Gaze Behavior in Stroop Test Using IRL and EEG Data
+    links:
+      - label: مقاله
+        url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
+        icon: fas fa-external-link-alt
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/scanpath
+        icon: fab fa-github
+    org: دانشگاه آلاباما، دانشگاه ایالتی می‌سی‌سی‌پی و دانشگاه پلی‌تکنیک تورین
+    period: ژوئیه ۲۰۲۴ – دسامبر ۲۰۲۴
+    bullets:
+      - توسعه‌ی یک مدل Inverse Reinforcement Learning (IRL) برای بازسازی رفتار نگاه انسان در آزمون Stroop.
+      - fine-tune کردن مدل Detectron2 FPN برای feature extraction از تسک‌های Stroop با رزولوشن پایین و بالا.
+      - استفاده از PPO و GAE درون الگوریتم GAIL.
+      - تحلیل اثر cognitive load بر الگوهای نگاه و فرایند تصمیم‌گیری.
+    tech:
+      - PyTorch
+      - Detectron2
+      - PPO
+      - GAIL
+      - WandB
+  - title: مدل‌سازی شبکه‌ای همه‌گیری COVID-19 با داده‌های جابه‌جایی GSM و مدل SIR
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/Pandemic-Network-Simulation
+        icon: fab fa-github
+    org: دانشگاه پلی‌تکنیک تورین
+    period: ژانویه ۲۰۲۴ – مارس ۲۰۲۴
+    bullets:
+      - توسعه‌ی یک مدل شبکه‌ای برای شبیه‌سازی هفتگی شیوع COVID-19 با داده‌های جابه‌جایی GSM و مدل SIR.
+      - استفاده از کتابخانه‌هایی مثل NetworkX، Pandas و NumPy برای پردازش و تحلیل داده.
+      - استفاده از CUDA برای اجرای HPC و کارآمد مدل SIR روی شبکه‌های بزرگ‌مقیاس.
+      - تحلیل اثر الگوهای جابه‌جایی بر دینامیک انتقال ویروس.
+      - پیاده‌سازی سناریوهای مختلف برای سنجش اثربخشی راهبردهای مداخله.
+    tech:
+      - NetworkX
+      - Pandas
+      - NumPy
+      - CUDA
+      - SIR Model
+  - title: "Distributed Learning روی دیتاست CIFAR-100: بررسی Data Parallelism"
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/Distributed-Machine-Learning-Algorithms
+        icon: fab fa-github
+    org: دانشگاه پلی‌تکنیک تورین
+    period: نوامبر ۲۰۲۳ – دسامبر ۲۰۲۳
+    bullets:
+      - پیاده‌سازی الگوریتم‌های distributed machine learning شامل LocalSGD، Distributed SGD، SlowMo و LocalAdaScale روی چند GPU node.
+      - مقایسه‌ی عملکرد الگوریتم‌ها روی دیتاست CIFAR-100 از نظر سرعت همگرایی، دقت و communication overhead.
+    tech:
+      - PyTorch
+      - Distributed Learning
+      - CIFAR-100
+      - GPU Computing
+  - title: مدل تشخیص کلمه‌ی trigger با TFLite
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/voice-intent-detection
+        icon: fab fa-github
+    org: دانشگاه پلی‌تکنیک تورین
+    period: اکتبر ۲۰۲۳
+    bullets:
+      - توسعه‌ی مدلی با TFLite و معماری LSTM روی Arduino برای تشخیص کلمه‌ی trigger، با محدودیت ولتاژ و حافظه‌ی کم.
+    tech:
+      - TensorFlow Lite
+      - LSTM
+      - Arduino
+      - Edge Computing

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+{%- comment -%}
+  The one-page CV. Every word on it comes from _data/<lang>/*.yml and _blog/<lang>/*.md,
+  which the CMS at /admin/ edits; this file only arranges them.
+{%- endcomment -%}
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign data = site.data[lang] -%}
+{%- assign ui = data.ui -%}
+{%- assign first_tab = ui.nav.first.tab -%}
+{%- assign posts = site.blog | where: "lang", lang | sort: "date" | reverse -%}
+<html lang="{{ lang }}" dir="{{ page.direction | default: 'ltr' }}">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SN7JFYP48S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-SN7JFYP48S');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ui.title | escape }}</title>
+    <meta name="description" content="{{ ui.description | escape }}">
+    <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
+    <link rel="alternate" hreflang="fa" href="{{ '/fa/' | absolute_url }}">
+    <meta name="theme-color" content="#191a1e">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {%- if lang == "fa" %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;500;600&family=Space+Mono:wght@400;700&family=Vazirmatn:wght@400;500;600;700&display=swap">
+    {%- else %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Xanh+Mono&display=swap">
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
+    <!-- Just the letters of the language switch, so its Persian label joins up -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ ui.lang_switch.label | url_encode }}&display=swap">
+    {%- endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+</head>
+<body>
+    <!-- Dot field background; on desktop it also renders the glass panes -->
+    <canvas id="canvas" aria-hidden="true"></canvas>
+
+    <div class="container">
+        <!-- Profile and latest updates -->
+        <div class="left-column">
+            <aside class="profile-panel glass">
+                <div class="profile-content">
+                    <div class="profile-header">
+                        <img src="{{ '/profile-photo.jpg' | relative_url }}" alt="{{ data.profile.photo_alt | escape }}" class="profile-photo">
+                    </div>
+
+                    <div class="profile-info">
+                        <div class="profile-text">
+                            <h1 class="profile-name">{{ data.profile.name | escape }}</h1>
+                            <h2 class="profile-role">{{ data.profile.role | escape }}</h2>
+                        </div>
+
+                        <div class="profile-contacts">
+                            {%- for contact in data.profile.contacts %}
+                            <a href="{{ contact.url }}" class="contact-item">
+                                <i class="{{ contact.icon }}"></i>
+                                <span dir="ltr">{{ contact.label | escape }}</span>
+                            </a>
+                            {%- endfor %}
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <aside class="updates-panel glass">
+                <div class="updates-header">
+                    <h3><i class="fas fa-bolt"></i> {{ data.updates.title | escape }}</h3>
+                </div>
+                <div class="updates-content">
+                    {%- for update in data.updates.items %}
+                    <div class="update-item">
+                        <div class="update-date">{{ update.date | escape }}</div>
+                        <div class="update-text">
+                            <strong>{{ update.label | escape }}</strong> {% include inline.html text=update.text %}
+                        </div>
+                    </div>
+                    {%- endfor %}
+                </div>
+            </aside>
+        </div>
+
+        <!-- Section navigation -->
+        <aside class="navigation-panel">
+            <nav class="section-nav">
+                {%- for item in ui.nav %}
+                <button class="nav-button glass{% if forloop.first %} active{% endif %}" data-tab="{{ item.tab }}">
+                    <span class="nav-letter">{{ item.letter }}</span>
+                    <span class="nav-label">{{ item.label | escape }}</span>
+                </button>
+                {%- endfor %}
+            </nav>
+        </aside>
+
+        <!-- Sections -->
+        <main class="content-panel">
+            <div class="section-header-card glass">
+                <span class="section-badge" id="section-badge" aria-hidden="true">{{ ui.nav.first.letter }}</span>
+                <h2 class="section-title"><i aria-hidden="true"></i><span id="section-title">{{ ui.nav.first.label | escape }}</span></h2>
+            </div>
+
+            <div class="section-content-card glass">
+                <div class="tab-contents">
+                    <div id="about" class="tab-content{% if first_tab == 'about' %} active{% endif %}">
+                        <section class="summary">
+                            {%- for paragraph in data.about.paragraphs %}
+                            <p>{% include inline.html text=paragraph %}</p>
+                            {%- endfor %}
+                        </section>
+                    </div>
+
+                    <div id="experience" class="tab-content{% if first_tab == 'experience' %} active{% endif %}">
+                        <section class="experience">
+                            {%- for job in data.experience.jobs %}
+                            {% include job.html job=job %}
+                            {%- endfor %}
+                            {%- if data.experience.earlier_jobs.size > 0 %}
+                            <h3 class="earlier-title">{{ data.experience.earlier_title | escape }}</h3>
+                            {%- for job in data.experience.earlier_jobs %}
+                            {% include job.html job=job %}
+                            {%- endfor %}
+                            {%- endif %}
+                        </section>
+                    </div>
+
+                    <div id="education" class="tab-content{% if first_tab == 'education' %} active{% endif %}">
+                        <section class="education">
+                            {%- for degree in data.education.degrees %}
+                            <div class="degree">
+                                <div class="degree-header">
+                                    <h4>{{ degree.title | escape }}</h4>
+                                    <div class="institution-location">
+                                        <span class="institution">
+                                            {%- if degree.institution_url != blank -%}
+                                            <a href="{{ degree.institution_url }}">{{ degree.institution | escape }}</a>
+                                            {%- else -%}
+                                            {{ degree.institution | escape }}
+                                            {%- endif -%}
+                                        </span>
+                                        <span class="location">{{ degree.location | escape }}</span>
+                                    </div>
+                                    <span class="duration">{{ degree.period | escape }}</span>
+                                </div>
+                                {%- if degree.details.size > 0 %}
+                                <ul class="degree-details">
+                                    {%- for detail in degree.details %}
+                                    <li>{% include inline.html text=detail %}</li>
+                                    {%- endfor %}
+                                </ul>
+                                {%- endif %}
+                            </div>
+                            {%- endfor %}
+                        </section>
+                    </div>
+
+                    <div id="skills" class="tab-content{% if first_tab == 'skills' %} active{% endif %}">
+                        <section class="skills">
+                            <div class="skills-grid">
+                                {%- for group in data.skills.groups %}
+                                <div class="skill-category">
+                                    <h4>{{ group.title | escape }}</h4>
+                                    <div class="skill-tags">
+                                        {%- for tag in group.tags %}
+                                        <span class="skill-tag">{{ tag | escape }}</span>
+                                        {%- endfor %}
+                                    </div>
+                                </div>
+                                {%- endfor %}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="projects" class="tab-content{% if first_tab == 'projects' %} active{% endif %}">
+                        <section class="projects">
+                            {%- for project in data.projects.items %}
+                            <div class="project">
+                                <div class="project-header">
+                                    <h4>{{ project.title | escape }}</h4>
+                                    {%- if project.links.size > 0 %}
+                                    <div class="project-links">
+                                        {%- for link in project.links %}
+                                        <a href="{{ link.url }}" class="project-link"><i class="{{ link.icon }}"></i> {{ link.label | escape }}</a>
+                                        {%- endfor %}
+                                    </div>
+                                    {%- endif %}
+                                    <div class="project-org">{{ project.org | escape }}</div>
+                                    <span class="duration">{{ project.period | escape }}</span>
+                                </div>
+                                <ul class="project-description">
+                                    {%- for bullet in project.bullets %}
+                                    <li>{% include inline.html text=bullet %}</li>
+                                    {%- endfor %}
+                                </ul>
+                                <div class="project-tech">
+                                    {%- for tech in project.tech %}
+                                    <span class="tech-tag">{{ tech | escape }}</span>
+                                    {%- endfor %}
+                                </div>
+                            </div>
+                            {%- endfor %}
+                        </section>
+                    </div>
+
+                    <div id="publications" class="tab-content{% if first_tab == 'publications' %} active{% endif %}">
+                        <section class="publications">
+                            {%- for publication in data.publications.items %}
+                            <div class="publication">
+                                <div class="publication-header">
+                                    <h4>{{ publication.title | escape }}</h4>
+                                    <div class="publication-authors"><span dir="ltr">{% include inline.html text=publication.authors %}</span></div>
+                                    <div class="publication-venue">
+                                        <span class="journal">{{ publication.journal | escape }}</span>
+                                        <span class="details" dir="ltr">{{ publication.details | escape }}</span>
+                                    </div>
+                                    <div class="publication-links">
+                                        <a href="{{ publication.url }}" class="publication-link"><i class="fas fa-external-link-alt"></i> {{ publication.link_label | escape }}</a>
+                                    </div>
+                                </div>
+                                <div class="publication-abstract">
+                                    <p>{% include inline.html text=publication.abstract %}</p>
+                                </div>
+                            </div>
+                            {%- endfor %}
+                        </section>
+                    </div>
+
+                    <div id="blog" class="tab-content{% if first_tab == 'blog' %} active{% endif %}">
+                        <section class="blog">
+                            {%- for post in posts %}
+                            <article class="blog-post">
+                                <div class="blog-header">
+                                    <h4>{{ post.title | escape }}</h4>
+                                    <div class="blog-meta">
+                                        <time class="blog-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{% include date.html date=post.date ui=ui %}</time>
+                                        <span class="blog-category">{{ post.topic | escape }}</span>
+                                    </div>
+                                </div>
+                                <div class="blog-content">
+                                    <p class="blog-excerpt">{% include inline.html text=post.summary %}</p>
+                                    <div class="blog-full-content" style="display: none;">
+                                        {{ post.content }}
+                                    </div>
+                                    <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">{{ ui.show_more | escape }}</button>
+                                </div>
+                            </article>
+                            {%- endfor %}
+                        </section>
+                    </div>
+
+                    <div id="interests" class="tab-content{% if first_tab == 'interests' %} active{% endif %}">
+                        <section class="interests">
+                            <div class="interests-grid">
+                                {%- for interest in data.interests.items %}
+                                <div class="interest-card">
+                                    <div class="interest-icon">
+                                        <i class="{{ interest.icon }}"></i>
+                                    </div>
+                                    <h4>{{ interest.title | escape }}</h4>
+                                    <p>{% include inline.html text=interest.text %}</p>
+                                </div>
+                                {%- endfor %}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Dock: copyright, language and the dot field's temperature -->
+    <footer class="dock">
+        <p class="copyright">{{ ui.copyright | escape }}</p>
+        <div class="dock-controls">
+            <a class="lang-switch glass" href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}"><span>{{ ui.lang_switch.label | escape }}</span></a>
+            <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
+                <span class="energy-readout"><b>{{ ui.temperature.label | escape }}</b> <span class="energy-value"></span> · <span class="energy-band"></span></span>
+                <input type="range" min="0" max="200" step="5" value="70" aria-label="{{ ui.temperature.label | escape }}">
+            </label>
+        </div>
+    </footer>
+
+    <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
+    <script type="module" src="{{ '/script.js' | relative_url }}"></script>
+</body>
+</html>

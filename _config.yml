@@ -1,0 +1,27 @@
+# Jekyll, as GitHub Pages runs it. Content lives in _data/<lang>/ and _blog/<lang>/;
+# edit it at /admin/ or by hand.
+title: Ali Abbasi
+url: https://aliarabbasi5155.github.io
+# A user site lives at the domain root; set explicitly so builds never guess
+baseurl: ""
+timezone: UTC
+
+collections:
+  blog:
+    # Posts are shown inside the one page, not as pages of their own
+    output: false
+
+defaults:
+  - scope:
+      path: _blog/en
+      type: blog
+    values:
+      lang: en
+  - scope:
+      path: _blog/fa
+      type: blog
+    values:
+      lang: fa
+
+exclude:
+  - README.md

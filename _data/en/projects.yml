@@ -1,0 +1,85 @@
+items:
+  - title: Vector DB Manager for Weaviate and Qdrant
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/vector-db-manager
+        icon: fab fa-github
+    org: Personal Project
+    period: Mar 2025
+    bullets:
+      - "Next.js/TypeScript dashboard for managing Weaviate and Qdrant vector databases: CRUD over collections and objects, semantic and hybrid search, live metrics, and one-command Docker deployment."
+    tech:
+      - Next.js
+      - TypeScript
+      - Weaviate
+      - Qdrant
+      - Docker
+  - title: Reconstructing Human Gaze Behavior in Stroop Test Using IRL and EEG Data
+    links:
+      - label: Publication
+        url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
+        icon: fas fa-external-link-alt
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/scanpath
+        icon: fab fa-github
+    org: Alabama University & Mississippi State University & Polytechnic University of Turin
+    period: Jul 2024 - Dec 2024
+    bullets:
+      - Developed an Inverse Reinforcement Learning (IRL) model to reconstruct human gaze behavior in a Stroop test.
+      - Fine-tuned Detectron2 FPN model for feature extraction of low res and high res Stroop tasks.
+      - Used PPO and GAE inside GAIL algorithm.
+      - Analyzed the impact of cognitive load on gaze patterns and decision-making processes.
+    tech:
+      - PyTorch
+      - Detectron2
+      - PPO
+      - GAIL
+      - WandB
+  - title: COVID-19 Pandemic Network Modelling Using GSM Mobility Data and SIR Model
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/Pandemic-Network-Simulation
+        icon: fab fa-github
+    org: Polytechnic University of Turin
+    period: Jan 2024 - Mar 2024
+    bullets:
+      - Developed a network model to simulate the spread of COVID-19 using GSM mobility data and the SIR model on weekly basis.
+      - Used library such as NetworkX, Pandas, and NumPy for data manipulation and analysis.
+      - Used CUDA for efficient HPC of the SIR model on large-scale networks.
+      - Analyzed the impact of mobility patterns on the transmission dynamics of the virus.
+      - Implemented various scenarios to assess the effectiveness of different intervention strategies.
+    tech:
+      - NetworkX
+      - Pandas
+      - NumPy
+      - CUDA
+      - SIR Model
+  - title: "Distributed Learning on CIFAR-100 dataset: Data-Parallelism Study"
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/Distributed-Machine-Learning-Algorithms
+        icon: fab fa-github
+    org: Polytechnic University of Turin
+    period: Nov 2023 - Dec 2023
+    bullets:
+      - Implemented distributed machine learning algorithms, LocalSGD, Distributed SGD, SlowMo, and LocalAdaScale over multiple GPU nodes.
+      - Compared the performance of algorithms on CIFAR-100 dataset in terms of convergence speed, accuracy, and communication overhead.
+    tech:
+      - PyTorch
+      - Distributed Learning
+      - CIFAR-100
+      - GPU Computing
+  - title: TFLite Triggerer Words Recognition Model
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/voice-intent-detection
+        icon: fab fa-github
+    org: Polytechnic University of Turin
+    period: Oct 2023
+    bullets:
+      - Developed a model using TFLite and LSTM architecture on Arduino to detect the triggerer word under low voltage and low memory constraints.
+    tech:
+      - TensorFlow Lite
+      - LSTM
+      - Arduino
+      - Edge Computing

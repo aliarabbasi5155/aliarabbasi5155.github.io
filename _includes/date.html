@@ -1,0 +1,18 @@
+{%- comment -%}
+  A date in the page's language: ui.date_pattern with {day}, {month} and {year},
+  month names from ui.months, and ui.digits (ten characters, if set) replacing 0–9.
+{%- endcomment -%}
+{%- assign _month_index = include.date | date: "%-m" | minus: 1 -%}
+{%- assign _day = include.date | date: "%-d" -%}
+{%- assign _year = include.date | date: "%Y" -%}
+{%- assign _month = include.ui.months[_month_index] -%}
+{%- assign _out = include.ui.date_pattern | replace: "{day}", _day | replace: "{month}", _month | replace: "{year}", _year -%}
+{%- assign _digits = include.ui.digits | default: "" -%}
+{%- if _digits.size == 10 -%}
+  {%- for i in (0..9) -%}
+    {%- assign _digit = _digits | slice: i -%}
+    {%- assign _ascii = i | append: "" -%}
+    {%- assign _out = _out | replace: _ascii, _digit -%}
+  {%- endfor -%}
+{%- endif -%}
+{{- _out -}}

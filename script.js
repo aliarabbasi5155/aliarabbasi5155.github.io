@@ -5,8 +5,6 @@ import { samplePortrait } from './dot-portrait.js';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
-// Titles, letters and shape names live on the nav buttons, so each language
-// page carries its own.
 const TAB_SCENES = {
     blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
     about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
@@ -19,31 +17,29 @@ const TAB_SCENES = {
 };
 const TAB_ORDER = Object.keys(TAB_SCENES);
 
-// The few strings the script writes itself
-const STRINGS = {
-    en: {
-        bands: ['DELTA', 'THETA', 'ALPHA', 'BETA', 'GAMMA'],
-        hertz: value => `${value.toFixed(1)} HZ`,
-        more: 'Show More',
-        less: 'Show Less',
-        glyphs: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
-    },
-    fa: {
-        bands: ['دلتا', 'تتا', 'آلفا', 'بتا', 'گاما'],
-        hertz: value => `${value.toLocaleString('fa-IR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} هرتز`,
-        more: 'ادامه‌ی مطلب',
-        less: 'بستن',
-        glyphs: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
-    },
-};
-const TEXT = STRINGS[document.documentElement.lang] ?? STRINGS.en;
+// The page's strings come from _data/<lang>/ui.yml, embedded by the layout
+const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
+const LANG = document.documentElement.lang || 'en';
+// What a title cycles through while it scrambles in
+const GLYPHS = {
+    en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
+    fa: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
+}[LANG] ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+// How far each kind of pane tilts toward the pointer, in degrees
+const TILT = [
+    ['.profile-panel, .updates-panel', 2.5],
+    ['.section-header-card', 3],
+    ['.section-content-card', 1.2],
+    ['.nav-button', 4],
+    ['.lang-switch, .energy', 5],
+];
+const TILT_PERSPECTIVE = 1200;
 
 // The field renders the glass only where the layout is pinned to the viewport;
 // stacked layouts scroll, and CSS glass keeps up with scrolling better
 const GLASS_QUERY = window.matchMedia('(min-width: 1101px) and (hover: hover) and (pointer: fine)');
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Upper edges of the EEG bands, in Hz
-const BAND_LIMITS = [4, 8, 13, 30, Infinity];
 
 let field = null;
 
@@ -93,22 +89,89 @@ function initBackground() {
     });
 }
 
-// The dock's slider sets how lively the field is, read out as an EEG band
-function initEnergy() {
+// The dock's slider is the field's sampling temperature, like an LLM's:
+// at 0 every grain sits on its shape, toward 2 they wander off it
+function initTemperature() {
     const input = document.querySelector('.energy input');
     if (!input) return;
-    const band = document.querySelector('.energy b');
-    const hz = document.querySelector('.energy-hz');
+    const value = document.querySelector('.energy-value');
+    const band = document.querySelector('.energy-band');
+    const bands = UI.temperature?.bands ?? [];
+    const format = new Intl.NumberFormat(LANG, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
     const apply = () => {
-        const value = input.value / 100;
-        // Log scale from 1.5 Hz to 40 Hz
-        const frequency = 1.5 * (40 / 1.5) ** value;
-        band.textContent = TEXT.bands[BAND_LIMITS.findIndex(limit => frequency < limit)];
-        hz.textContent = TEXT.hertz(frequency);
-        field?.setEnergy(value);
+        const temperature = input.value / 100;
+        value.textContent = format.format(temperature);
+        band.textContent = (bands.find(b => temperature <= b.max) ?? bands.at(-1))?.label ?? '';
+        field?.setTemperature(temperature);
     };
     input.addEventListener('input', apply);
     apply();
+}
+
+// A gentle 3D tilt: the edge under the pointer lifts toward the viewer.
+// Each pane publishes its tilt as element.dotTilt so the glass tilts with it.
+function initTilt() {
+    if (REDUCE_MOTION || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const panes = [];
+    for (const [selector, degrees] of TILT) {
+        for (const element of document.querySelectorAll(selector)) {
+            const pane = { element, max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0 };
+            element.addEventListener('pointermove', e => {
+                const rect = element.getBoundingClientRect();
+                const u = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                const v = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+                pane.targetX = v * pane.max;
+                pane.targetY = -u * pane.max;
+            });
+            element.addEventListener('pointerleave', () => {
+                pane.targetX = 0;
+                pane.targetY = 0;
+            });
+            panes.push(pane);
+        }
+    }
+
+    const step = delta => {
+        const follow = 1 - Math.exp(-delta * 9);
+        for (const pane of panes) {
+            pane.x += (pane.targetX - pane.x) * follow;
+            pane.y += (pane.targetY - pane.y) * follow;
+            const settled = !pane.targetX && !pane.targetY && Math.abs(pane.x) < 1e-4 && Math.abs(pane.y) < 1e-4;
+            if (settled) {
+                // Back to flat: drop the transform so text renders crisp again
+                if (pane.element.dotTilt) {
+                    pane.x = pane.y = 0;
+                    pane.element.style.transform = '';
+                    pane.element.dotTilt = null;
+                }
+                continue;
+            }
+            pane.element.style.transform = `perspective(${TILT_PERSPECTIVE}px) rotateX(${pane.x}rad) rotateY(${pane.y}rad)`;
+            pane.element.dotTilt = { x: pane.x, y: pane.y, perspective: TILT_PERSPECTIVE };
+        }
+    };
+
+    // In step with the field, so the glass and the content tilt on the same frame
+    if (field) {
+        field.onFrame(step);
+        return;
+    }
+    let last = 0;
+    const loop = now => {
+        step(last ? Math.min(0.05, (now - last) / 1000) : 1 / 60);
+        last = now;
+        requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+}
+
+// Links to other sites open in a new tab
+function initExternalLinks() {
+    for (const link of document.querySelectorAll('a[href^="http"]')) {
+        if (link.host === location.host) continue;
+        link.target = '_blank';
+        link.rel = 'noopener';
+    }
 }
 
 // Letters cycle through random glyphs, then settle left to right
@@ -119,7 +182,7 @@ function scramble(element, text, duration = 600) {
         return;
     }
     const start = performance.now();
-    const glyphs = TEXT.glyphs;
+    const glyphs = GLYPHS;
     const step = now => {
         const progress = Math.min(1, (now - start) / duration);
         const settled = Math.floor(progress * text.length);
@@ -138,10 +201,10 @@ function scramble(element, text, duration = 600) {
 // Tab functionality with smooth fade transitions
 function openTab(tabName) {
     field?.morphTo(TAB_ORDER.indexOf(tabName));
+    // The header shows the same letter and name as the menu entry
     const tabButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
     if (tabButton) {
         document.getElementById('section-badge').textContent = tabButton.querySelector('.nav-letter').textContent;
-        scramble(document.getElementById('field-tag'), tabButton.dataset.field, 500);
     }
 
     // Get all tab contents and find the currently active one
@@ -185,7 +248,7 @@ function openTab(tabName) {
         if (sectionTitle && tabButton) {
             // Remove fade-out and scramble in the new title
             sectionTitle.classList.remove('fade-out');
-            scramble(sectionTitle, tabButton.dataset.title);
+            scramble(sectionTitle, tabButton.querySelector('.nav-label').textContent.trim());
         }
     }, 300); // Match this with fade-out animation duration
 }
@@ -428,11 +491,11 @@ function toggleBlogPost(button) {
     if (isExpanded) {
         // Collapse
         fullContent.style.display = 'none';
-        button.textContent = TEXT.more;
+        button.textContent = UI.show_more;
     } else {
         // Expand
         fullContent.style.display = 'block';
-        button.textContent = TEXT.less;
+        button.textContent = UI.show_less;
     }
 }
 
@@ -448,7 +511,9 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
-    initEnergy();
+    initTemperature();
+    initTilt();
+    initExternalLinks();
     initNavigation();
     initAnimations();
     initSkillTags();

@@ -1,0 +1,16 @@
+degrees:
+  - title: کارشناسی ارشد علوم و مهندسی داده
+    institution: دانشگاه پلی‌تکنیک تورین
+    institution_url: https://www.polito.it/
+    location: تورین، ایتالیا
+    period: ۲۰۲۰ – ۲۰۲۴
+    details:
+      - "**پایان‌نامه:** [«Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning»](https://webthesis.biblio.polito.it/34008/)"
+      - "**مقاله:** بر پایه‌ی همین پایان‌نامه، در [ژورنال Smart Health انتشارات Elsevier](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (۲۰۲۵) منتشر شد"
+      - "**کنفرانس:** همچنین در کنفرانس IEEE/CHASE 2025 پذیرفته شد"
+  - title: کارشناسی مهندسی کامپیوتر
+    institution: دانشگاه اراک
+    institution_url: https://www.araku.ac.ir/
+    location: اراک، ایران
+    period: ۲۰۱۵ – ۲۰۱۹
+    details: []

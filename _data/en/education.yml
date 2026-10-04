@@ -1,0 +1,16 @@
+degrees:
+  - title: M.Sc. in Data Science and Engineering
+    institution: Polytechnic University of Turin
+    institution_url: https://www.polito.it/
+    location: Turin, Italy
+    period: 2020 - 2024
+    details:
+      - "**Thesis:** [\"Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning\"](https://webthesis.biblio.polito.it/34008/)"
+      - "**Publication:** Published in [Elsevier Smart Health Journal](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (2025) based on thesis work"
+      - "**Conference:** Also accepted at IEEE/CHASE 2025 Conference"
+  - title: B.Sc. in Computer Engineering
+    institution: Arak University
+    institution_url: https://www.araku.ac.ir/
+    location: Arak, Iran
+    period: 2015 - 2019
+    details: []

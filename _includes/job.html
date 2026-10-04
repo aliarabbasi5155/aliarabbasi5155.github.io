@@ -1,0 +1,21 @@
+<div class="job">
+    <div class="job-header">
+        <h4>{{ include.job.title | escape }}</h4>
+        <div class="company-location">
+            <span class="company">
+                {%- if include.job.company_url != blank -%}
+                <a href="{{ include.job.company_url }}">{{ include.job.company | escape }}</a>
+                {%- else -%}
+                {{ include.job.company | escape }}
+                {%- endif -%}
+            </span>
+            <span class="location">{{ include.job.location | escape }}</span>
+        </div>
+        <span class="duration">{{ include.job.period | escape }}</span>
+    </div>
+    <ul class="job-description">
+        {%- for bullet in include.job.bullets %}
+        <li>{% include inline.html text=bullet %}</li>
+        {%- endfor %}
+    </ul>
+</div>

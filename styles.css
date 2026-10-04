@@ -427,51 +427,46 @@ a {
     color: var(--mint);
 }
 
-#section-title {
+/* The section's name, framed by corner brackets like the field's tags */
+.section-title {
+    --corner: rgba(255, 255, 255, 0.55);
+    --corner-size: 11px;
     position: relative;
     z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
     min-width: 0;
-    font: 400 clamp(28px, 2.9vw, 46px)/1 var(--display);
+    padding: 12px 24px 12px 20px;
+    background:
+        linear-gradient(var(--corner), var(--corner)) top left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / 1px var(--corner-size) no-repeat;
+    font: 400 clamp(28px, 2.6vw, 42px)/1 var(--display);
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--mint);
+}
+
+.section-title i {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    background: var(--mint);
+}
+
+#section-title {
+    white-space: nowrap;
     transition: opacity 0.3s ease;
 }
 
 #section-title.fade-out {
     opacity: 0;
-}
-
-/* Bracket-cornered label naming the field's current shape */
-.field-tag {
-    --corner: rgba(255, 255, 255, 0.55);
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    gap: 8px;
-    margin-inline-start: auto;
-    padding: 9px 13px;
-    background:
-        linear-gradient(var(--corner), var(--corner)) top left / 7px 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top left / 1px 7px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top right / 7px 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top right / 1px 7px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom left / 7px 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom left / 1px 7px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom right / 7px 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom right / 1px 7px no-repeat;
-    font: 700 11px/1 var(--mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.field-tag i {
-    width: 6px;
-    height: 6px;
-    background: var(--mint);
 }
 
 /* ---------- Section content ---------- */
@@ -578,6 +573,10 @@ a {
     color: var(--text);
 }
 
+.tab-contents .earlier-title {
+    margin-top: 2rem;
+}
+
 .tab-contents h3 {
     padding-bottom: 12px;
     border-bottom: 1px dashed var(--dash);
@@ -605,6 +604,13 @@ a {
 
 .tab-contents a:hover {
     border-bottom-color: var(--mint);
+}
+
+.tab-contents li a[href^="http"]::after,
+.tab-contents .company a::after {
+    content: "\f35d";
+    margin-inline-start: 0.35em;
+    font: 900 0.75em/1 "Font Awesome 6 Free";
 }
 
 .tab-contents a i {
@@ -939,6 +945,12 @@ a {
     transition: color 0.3s;
 }
 
+.lang-switch[lang="fa"] {
+    font-family: "Vazirmatn", Tahoma, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
 .lang-switch span {
     position: relative;
     z-index: 1;
@@ -964,6 +976,10 @@ a {
 .energy input {
     position: relative;
     z-index: 1;
+}
+
+.energy-value {
+    color: var(--text);
 }
 
 .energy b {
@@ -1150,8 +1166,10 @@ a {
         font-size: 22px;
     }
 
-    .field-tag {
-        margin-inline-start: 0;
+    .section-title {
+        --corner-size: 9px;
+        gap: 12px;
+        padding: 10px 18px 10px 16px;
     }
 
     .section-content-card {
@@ -1205,8 +1223,8 @@ html[lang="fa"] .updates-header h3 {
     line-height: 1.3;
 }
 
-html[lang="fa"] #section-title {
-    font-size: clamp(32px, 3.2vw, 50px);
+html[lang="fa"] .section-title {
+    font-size: clamp(32px, 3vw, 46px);
     line-height: 1.3;
 }
 
@@ -1236,7 +1254,6 @@ html[lang="fa"] .location,
 html[lang="fa"] .duration,
 html[lang="fa"] .blog-date,
 html[lang="fa"] .blog-category,
-html[lang="fa"] .field-tag,
 html[lang="fa"] .copyright,
 html[lang="fa"] .energy {
     font-size: 13px;

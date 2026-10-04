@@ -1,0 +1,2 @@
+{%- comment -%} One line of Markdown (bold, italics, links) without the paragraph around it {%- endcomment -%}
+{{- include.text | markdownify | remove: '<p>' | remove: '</p>' | strip -}}

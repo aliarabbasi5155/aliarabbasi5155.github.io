@@ -1,0 +1,84 @@
+groups:
+  - title: زبان‌های برنامه‌نویسی
+    tags:
+      - Python
+      - C++
+      - C#
+      - JavaScript
+      - TypeScript
+      - SQL
+  - title: GenAI و مهندسی LLM
+    tags:
+      - LangGraph
+      - LangChain
+      - Agentic RAG
+      - Hybrid Search
+      - Reranking
+      - Function Calling
+      - Task Decomposition
+      - Conversational & Long-term Memory
+      - MCP
+      - LoRA Fine-tuning
+      - OpenAI Fine-tuning Platform
+      - RAGAS
+      - Guardrails
+      - PII Filtering
+      - Prompt Versioning
+  - title: یادگیری ماشین
+    tags:
+      - PyTorch
+      - TensorFlow
+      - scikit-learn
+      - Hugging Face Transformers
+      - Reinforcement Learning
+      - Computer Vision
+      - NLP
+      - WandB
+      - TensorBoard
+  - title: داده و ذخیره‌سازی
+    tags:
+      - PostgreSQL
+      - Redis
+      - Weaviate
+      - MySQL
+      - SQLite
+      - ETL Pipelines
+  - title: Backend و API
+    tags:
+      - Django
+      - Django REST Framework
+      - Celery
+      - REST
+      - WebSocket
+      - Microservices
+      - Pytest
+  - title: DevOps و Cloud
+    tags:
+      - AWS (EC2, SageMaker, S3)
+      - Azure
+      - Docker
+      - Kubernetes
+      - GitHub Actions
+      - GitLab CI
+      - Nginx
+      - Prometheus
+      - Grafana
+      - Linux
+  - title: Frontend و موبایل
+    tags:
+      - React.js
+      - React Native
+      - Next.js
+      - Redux
+      - Tailwind CSS
+  - title: رهبری و همکاری
+    tags:
+      - رهبری فنی
+      - Solution Architecture
+      - مدیریت stakeholderها
+      - امکان‌سنجی
+      - منتورینگ
+      - Agile/Scrum
+      - Git
+      - Jira
+      - Confluence

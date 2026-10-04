@@ -1,0 +1,63 @@
+jobs:
+  - title: AI Engineer و Team Lead (پاره‌وقت، دورکاری)
+    company: Primentoring.AI
+    company_url: https://primentoring.ai/
+    location: لندن، بریتانیا
+    period: نوامبر ۲۰۲۵ – اکنون
+    bullets:
+      - هدایت یک تیم دونفره‌ی مهندسی از ابتدا تا انتها، با مسئولیت solution architecture، بررسی امکان‌سنجی، گزارش سلامت پروژه و هماهنگی با stakeholderها در تیم‌های محصول، QA و نرم‌افزار.
+      - "معماری [Dana AI](https://aimentor.primentoring.ai/)، یک agent چندوجهی (multimodal) و real-time با 3D talking head، صدا و متن روی WebSocket: OmniTalker برای lip-sync (fine-tune شده با LoRA برای هر منتور، روی AWS SageMaker)، GPT-4o Transcribe برای ASR با vocabulary hints، و GPT-4.1 که روی پلتفرم OpenAI برای لحن و پرسونای منتور fine-tune شده است؛ با time-to-first-frame حدود ۲٫۵ ثانیه برای پاسخ ویدیویی."
+      - "طراحی یک stack ‏agentic RAG در production روی Weaviate با مدیریت داخلی (AWS EC2): latency بازیابی حدود ۹۰۰ میلی‌ثانیه، hybrid search، query expansion، reranking، agentهای مبتنی بر function calling، task decomposition و حافظه‌ی مکالمه‌ای و بلندمدت با LangGraph (دقت بازیابی top-5 حدود ۸۷٪). همین stack بعداً ستون اصلی یک LLM Customer Support Chatbot روی اسناد شرکت شد."
+      - ساخت قابلیت Public Data Aggregation که سیگنال‌های منتورها را به‌صورت موازی از ۸ پلتفرم استخراج می‌کند؛ هر دور جمع‌آوری حدود ۳ دقیقه طول می‌کشد و محدودیت‌های ToS هر سرویس و GDPR رعایت می‌شود.
+      - ساخت یک evaluation suite مبتنی بر RAGAS با ۱۰۰ query منتخب از حوزه‌ی منتورینگ، به‌همراه guardrailها، فیلتر PII، confidence scoring، ارجاع human-in-the-loop، ردگیری prompt و نسخه، و یک Unanswered Pool با حلقه‌ی بسته که queryهای کم‌اطمینان را به منتورها می‌سپارد و پاسخ‌هایشان را دوباره به knowledge base برمی‌گرداند.
+      - ساخت یک recommender system که سیگنال‌های رفتاری (مهارت‌ها، میزان مشارکت، talk-time و احساسات) را از جلسه‌های منتورینگ استخراج می‌کند تا برای هر mentee منتور مناسب پیدا کند.
+      - عملیاتی‌کردن همه‌ی سرویس‌های AI به شکل microserviceهای Django/Celery روی EC2 با Redis، PostgreSQL، ETL pipelineها، CI/CD با GitHub Actions که زمان deploy را به حدود ۱٫۵ دقیقه رساند، و مانیتورینگ با Prometheus و Grafana.
+  - title: Machine Learning Engineer و Fullstack Developer
+    company: Nimbus SRL
+    company_url: https://www.nimbus.aero/
+    location: تورین، ایتالیا
+    period: فوریه ۲۰۲۲ – اکنون
+    bullets:
+      - ساخت و راه‌اندازی یک دستیار پشتیبانی داخلی مبتنی بر LLM (‏LangChain RAG روی Llama-3-8B که با LoRA روی AWS SageMaker به‌صورت اختصاصی fine-tune شده و به اسناد داخلی شرکت متکی است)؛ این دستیار حالا هفته‌ای بیش از ۱٬۲۰۰ query را پاسخ می‌دهد.
+      - کوتاه‌کردن onboarding مهندس‌های جدید از چند هفته به ۲ تا ۳ روز، با در دسترس گذاشتن مدل fine-tuneشده از طریق یک رابط چت داخلی متصل به knowledge base شرکت.
+      - طراحی یک کنترلر Reinforcement Learning مبتنی بر PPO برای پایدارسازی autopilot پهپادهای VTOL در آب‌وهوای نامساعد، که نرخ موفقیت recovery را در شبیه‌سازی‌های پرواز آزمایشی ۵٪ بهبود داد.
+      - هدایت یک تیم چهارنفره‌ی مهندسی برای ساخت یک سیستم cross-platform مانیتورینگ ناوگان روی AWS، با telemetry دوثانیه‌ای برای بیش از ۱۵۰ پهپاد (UAV) در سراسر اروپا.
+      - مدرن‌سازی stack نرم‌افزاری (React Native، Django REST Framework، CI/CD و deploymentهای containerized) که با کم کردن ظرفیت مهندسی لازم برای نگهداری و توسعه‌ی پلتفرم، سالانه حدود ۵۰٬۰۰۰ یورو صرفه‌جویی کرد.
+      - مشارکت در پروژه‌ی Charger Box برای خودکارسازی جابه‌جایی پهپادها جهت شارژ خودکار، با ۹۸٪ docking موفق.
+  - title: Machine Learning Engineer و Fullstack Developer
+    company: Reefilla SRL
+    company_url: https://www.reefilla.com/
+    location: تورین، ایتالیا
+    period: سپتامبر ۲۰۲۱ – فوریه ۲۰۲۲
+    bullets:
+      - طراحی و deploy یک مدل recommender که زمان بهینه‌ی درخواست power bank برقی را پیش‌بینی می‌کند و سرعت پاسخ‌گویی در تحویل را حدود ۱۸٪ بهبود داد.
+      - توسعه‌ی مشترک یک اپلیکیشن cross-platform ‏(React Native + Django) برای مدیریت شارژ خودروهای برقی (EV) که تا پایان ۲۰۲۱ به بیش از ۸۰۰ کاربر فعال رسید.
+earlier_title: سوابق قبلی
+earlier_jobs:
+  - title: Backend Developer
+    company: استارتاپ Bardal
+    company_url: ""
+    location: تهران، ایران
+    period: ژوئیه ۲۰۱۹ – ژانویه ۲۰۲۰
+    bullets:
+      - توسعه‌ی RESTful APIها با Django و Django REST Framework برای سرویس‌های backend.
+      - پیاده‌سازی containerization با Docker و orchestration با Kubernetes برای deploymentهای مقیاس‌پذیر.
+      - مدیریت دیتابیس‌های PostgreSQL و بهینه‌سازی performance کوئری‌ها.
+  - title: Frontend Developer
+    company: استارتاپ Spinzer
+    company_url: ""
+    location: تهران، ایران
+    period: نوامبر ۲۰۱۸ – ژوئن ۲۰۱۹
+    bullets:
+      - ساخت وب‌اپلیکیشن‌های responsive با ReactJS، TypeScript و Redux برای state management.
+      - پیاده‌سازی طراحی‌های مدرن UI/UX با HTML5 و CSS3.
+      - همکاری با تیم backend برای integrate کردن RESTful APIها.
+  - title: Backend Developer (کارآموزی)
+    company: Saaed Co.
+    company_url: https://www.saeedco.com/
+    location: اراک، ایران
+    period: ژوئن ۲۰۱۸ – اکتبر ۲۰۱۸
+    bullets:
+      - توسعه‌ی سرویس‌های backend با ‎.NET framework و اصول طراحی RESTful API.
+      - ساخت رابط‌های وب پویا با HTML، CSS و JavaScript.
+      - کسب تجربه‌ی عملی در توسعه‌ی full-stack و متدولوژی‌های agile.

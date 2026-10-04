@@ -1,0 +1,63 @@
+title: علی عباسی | AI / GenAI Engineer
+description: "علی عباسی، AI / GenAI Engineer و Technical Lead: سیستم‌های agentic RAG، fine-tuning، evaluation و LLM در production روی AWS."
+nav:
+  - tab: blog
+    letter: الف
+    label: بلاگ
+  - tab: about
+    letter: ب
+    label: درباره‌ی من
+  - tab: experience
+    letter: پ
+    label: سوابق کاری
+  - tab: education
+    letter: ت
+    label: تحصیلات
+  - tab: skills
+    letter: ث
+    label: مهارت‌ها
+  - tab: projects
+    letter: ج
+    label: پروژه‌ها
+  - tab: publications
+    letter: چ
+    label: مقالات
+  - tab: interests
+    letter: ح
+    label: علایق
+show_more: ادامه‌ی مطلب
+show_less: بستن
+months:
+  - ژانویه
+  - فوریه
+  - مارس
+  - آوریل
+  - مه
+  - ژوئن
+  - ژوئیه
+  - اوت
+  - سپتامبر
+  - اکتبر
+  - نوامبر
+  - دسامبر
+date_pattern: "{day} {month} {year}"
+digits: ۰۱۲۳۴۵۶۷۸۹
+temperature:
+  label: Temperature
+  hint: "همان temperature در sampling مدل‌های LLM: روی صفر هر نقطه دقیقاً سر جای خودش در شکل است؛ بالاترش ببرید تا نقطه‌ها سرگردان شوند."
+  bands:
+    - max: 0.2
+      label: قطعی
+    - max: 0.6
+      label: دقیق
+    - max: 1
+      label: متعادل
+    - max: 1.5
+      label: خلاق
+    - max: 2
+      label: آشوبناک
+lang_switch:
+  label: English
+  url: /
+  lang: en
+copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.

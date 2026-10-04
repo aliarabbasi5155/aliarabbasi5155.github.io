@@ -56,7 +56,8 @@ uniform vec3 uPlaceB;
 // -1 mirrors scenes left to right, for right-to-left pages
 uniform float uMirror;
 uniform float uIntro;
-uniform float uEnergy;
+// Sampling temperature, 0…1 (T / 2)
+uniform float uHeat;
 uniform float uHasImage;
 uniform float uPointSize;
 // xy pointer in NDC, z how present it is
@@ -331,8 +332,12 @@ void main() {
 	vec3 pos = shape.xyz + dir * bump * uHalf.y * (0.1 + 0.18 * hash(r.w * 71.3));
 	pos.xy += bump * vec2(sin(pos.y * 1.7 + t * 0.6), cos(pos.x * 1.3 - t * 0.5)) * 0.2;
 
-	// Field energy speeds time on the CPU; here it adds a nervous tremor
-	pos += vec3(sin(t * 3.1 + stagger * 40.0), cos(t * 2.7 + r.x * 40.0), 0.0) * uEnergy * uEnergy * 0.03;
+	// Temperature speeds time on the CPU; here it adds a tremor and, past the
+	// middle, lets grains stray off their shape like samples off the likeliest token
+	pos += vec3(sin(t * 3.1 + stagger * 40.0), cos(t * 2.7 + r.x * 40.0), 0.0) * uHeat * uHeat * 0.03;
+	vec3 wander = vec3(sin(t * 0.7 + stagger * 20.0), cos(t * 0.6 + r.x * 20.0), sin(t * 0.5 + r.y * 20.0));
+	float stray = pow(smoothstep(0.35, 1.0, uHeat), 1.5) * (0.3 + 0.7 * hash(stagger * 53.1 + r.w));
+	pos += mix(dir, wander, 0.5) * uHalf.y * 0.11 * stray;
 
 	// Entrance: grains gather in from a wide cloud
 	float intro = smoothstep(0.0, 1.0, clamp(uIntro * 1.6 - stagger * 0.6, 0.0, 1.0));
@@ -430,8 +435,11 @@ uniform float uGlow;
 // Glass panes, in device pixels with a bottom-left origin: center xy, half size zw
 uniform int uGlassCount;
 uniform vec4 uGlassRects[${MAX_GLASS}];
-// x corner radius (device px), y tint amount
-uniform vec2 uGlassStyle[${MAX_GLASS}];
+// x corner radius (device px), y tint amount, zw which edge a tilt lifts toward the viewer
+uniform vec4 uGlassStyle[${MAX_GLASS}];
+// Maps an offset from the pane's center on screen back onto the pane's own plane;
+// identity unless the pane is tilted in 3D
+uniform mat3 uGlassPlane[${MAX_GLASS}];
 // Where the light comes from, as a unit vector in screen space
 uniform vec2 uLight;
 uniform vec3 uTint;
@@ -464,20 +472,23 @@ float roundedBox(vec2 p, vec2 halfSize, float radius) {
 	return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - radius;
 }
 
-// Signed distance to the nearest pane (negative inside), its outward normal and tint
-float nearestGlass(vec2 frag, out vec2 normal, out float tint) {
+// Signed distance to the nearest pane (negative inside), its outward normal, tint and lift
+float nearestGlass(vec2 frag, out vec2 normal, out float tint, out vec2 lift) {
 	float best = 1e6;
 	normal = vec2(0.0, 1.0);
 	tint = 0.0;
+	lift = vec2(0.0);
 	for (int i = 0; i < ${MAX_GLASS}; i++) {
 		if (i >= uGlassCount) break;
 		vec4 rect = uGlassRects[i];
 		float radius = min(uGlassStyle[i].x, min(rect.z, rect.w));
-		vec2 p = frag - rect.xy;
+		vec3 h = uGlassPlane[i] * vec3(frag - rect.xy, 1.0);
+		vec2 p = h.xy / h.z;
 		float d = roundedBox(p, rect.zw, radius);
 		if (d < best) {
 			best = d;
 			tint = uGlassStyle[i].y;
+			lift = uGlassStyle[i].zw;
 			vec2 q = abs(p) - rect.zw + radius;
 			vec2 n = q.x > 0.0 && q.y > 0.0 ? normalize(q) : (q.x > q.y ? vec2(1.0, 0.0) : vec2(0.0, 1.0));
 			normal = n * vec2(p.x < 0.0 ? -1.0 : 1.0, p.y < 0.0 ? -1.0 : 1.0);
@@ -510,7 +521,8 @@ void main() {
 	if (uGlassCount > 0) {
 		vec2 normal;
 		float tint;
-		float d = nearestGlass(gl_FragCoord.xy, normal, tint) / uPixelRatio;
+		vec2 lift;
+		float d = nearestGlass(gl_FragCoord.xy, normal, tint, lift) / uPixelRatio;
 
 		// Panes lift off the field with a soft contact shadow
 		color *= 1.0 - 0.32 * exp(-max(d, 0.0) / 11.0);
@@ -544,7 +556,8 @@ void main() {
 
 			// Light: a hairline rim brightest where it faces the light (and its opposite),
 			// a broad sheen inside the bevel on the lit side, a shade on the far side
-			float facing = dot(normal, uLight);
+			// A tilted pane catches the light on the edge it lifts
+			float facing = dot(normal, normalize(uLight + lift * 8.0));
 			float rim = 1.0 - smoothstep(0.0, 1.5, depth);
 			float shine = rim * (0.16 + 0.75 * pow(abs(facing), 3.0));
 			shine += lens * max(facing, 0.0) * 0.1;
@@ -602,6 +615,45 @@ function randoms(length) {
 	const data = new Float32Array(length);
 	for (let i = 0; i < length; i++) data[i] = Math.random();
 	return data;
+}
+
+const IDENTITY = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
+// CSS perspective(p) rotateX(a) rotateY(b) as a homography on the pane's plane:
+// local CSS px from the center, y down, to screen CSS px from the same center (rows)
+function tiltHomography(a, b, perspective) {
+	const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+	return [
+		cb, 0, 0,
+		sa * sb, ca, 0,
+		(sb * ca) / perspective, -sa / perspective, 1,
+	];
+}
+
+function project(m, x, y) {
+	const w = m[6] * x + m[7] * y + m[8];
+	return [(m[0] * x + m[1] * y + m[2]) / w, (m[3] * x + m[4] * y + m[5]) / w];
+}
+
+// The inverse homography in device px with y up, column-major for a mat3 uniform
+function screenToPlane(m, pixelRatio) {
+	// Conjugate by diag(r, -r, 1): scale to device pixels and flip y
+	const r = pixelRatio;
+	const h = [
+		m[0], -m[1], m[2] * r,
+		-m[3], m[4], -m[5] * r,
+		m[6] / r, -m[7] / r, m[8],
+	];
+	const [a, b, c, d, e, f, g, i2, k] = h;
+	const A = e * k - f * i2, B = -(d * k - f * g), C = d * i2 - e * g;
+	const det = a * A + b * B + c * C;
+	// Rows of the inverse are the cofactor columns over the determinant
+	const inv = [
+		A / det, -(b * k - c * i2) / det, (b * f - c * e) / det,
+		B / det, (a * k - c * g) / det, -(a * f - c * d) / det,
+		C / det, -(a * i2 - b * g) / det, (a * e - b * d) / det,
+	];
+	return new Float32Array([inv[0], inv[3], inv[6], inv[1], inv[4], inv[7], inv[2], inv[5], inv[8]]);
 }
 
 function cornerRadius(element) {
@@ -739,7 +791,8 @@ export class DotField {
 		this.morph = 1;
 		this.queued = null;
 		this.intro = 0;
-		this.energy = 0.5;
+		this.heat = 0.35;
+		this.frameListeners = [];
 		this.hasImage = 0;
 		this.pointer = { x: 0, y: 0, active: 0 };
 		this.pointerTarget = { x: 0, y: 0, active: 0 };
@@ -747,7 +800,8 @@ export class DotField {
 		this.rippleSlot = 0;
 		this.panes = [];
 		this.glassRects = new Float32Array(MAX_GLASS * 4);
-		this.glassStyle = new Float32Array(MAX_GLASS * 2);
+		this.glassStyle = new Float32Array(MAX_GLASS * 4);
+		this.glassPlane = new Float32Array(MAX_GLASS * 9);
 		this.light = [-0.45, 0.9];
 		this.glassCount = 0;
 		this.width = 0;
@@ -808,8 +862,14 @@ export class DotField {
 		}
 	}
 
-	setEnergy(value) {
-		this.energy = value;
+	// Like an LLM's sampling temperature, 0 to 2: 0 keeps every grain on its shape
+	setTemperature(value) {
+		this.heat = Math.min(Math.max(value, 0), 2) / 2;
+	}
+
+	// Called every frame before the glass is measured, with the frame's delta in seconds
+	onFrame(listener) {
+		this.frameListeners.push(listener);
 	}
 
 	setPointer(clientX, clientY) {
@@ -853,7 +913,7 @@ export class DotField {
 		const delta = this.lastFrame ? Math.min(0.05, (now - this.lastFrame) / 1000) : 1 / 60;
 		this.lastFrame = now;
 
-		const speed = 2 ** ((this.energy - 0.5) * 1.6) * (this.reduceMotion ? 0.3 : 1);
+		const speed = 2 ** ((this.heat - 0.35) * 1.8) * (this.reduceMotion ? 0.3 : 1);
 		this.clock += delta;
 		this.time += delta * speed;
 		this.intro = Math.min(1, this.intro + delta / 2.6);
@@ -882,31 +942,58 @@ export class DotField {
 		const length = Math.hypot(lx, ly) || 1;
 		this.light = [lx / length, ly / length];
 
+		for (const listener of this.frameListeners) listener(delta);
 		this.measurePanes(1 - Math.exp(-delta * 8));
 		this.render();
 	};
 
-	// Read every pane's box this frame, so the glass tracks layout transitions exactly
+	// Read every pane's box this frame, so the glass tracks layout transitions exactly.
+	// A pane tilted in 3D publishes element.dotTilt = { x, y, perspective } (radians, CSS px)
+	// so the glass can tilt with it.
 	measurePanes(follow) {
-		const { pixelRatio, glassRects, glassStyle } = this;
+		const { pixelRatio, glassRects, glassStyle, glassPlane } = this;
 		const viewHeight = this.canvas.clientHeight;
 		let count = 0;
 		for (const pane of this.panes) {
-			const rect = pane.element.getBoundingClientRect();
+			const element = pane.element;
+			const rect = element.getBoundingClientRect();
 			if (rect.width < 1 || rect.height < 1) continue;
 			// The active pane is tinted, a hovered one halfway
-			const tint = pane.element.classList.contains('active') ? 1 : pane.element.matches(':hover') ? 0.45 : 0;
+			const tint = element.classList.contains('active') ? 1 : element.matches(':hover') ? 0.45 : 0;
 			pane.tint += (tint - pane.tint) * follow;
+
+			let centerX = rect.left + rect.width / 2;
+			let centerY = rect.top + rect.height / 2;
+			let halfWidth = rect.width / 2;
+			let halfHeight = rect.height / 2;
+			let plane = IDENTITY;
+			let lift = [0, 0];
+			const tilt = element.dotTilt;
+			if (tilt && (tilt.x || tilt.y)) {
+				// The box we read is the tilted outline's bounds; recover the flat pane under it
+				const style = getComputedStyle(element);
+				halfWidth = parseFloat(style.width) / 2;
+				halfHeight = parseFloat(style.height) / 2;
+				const homography = tiltHomography(tilt.x, tilt.y, tilt.perspective);
+				let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+				for (const [x, y] of [[-halfWidth, -halfHeight], [halfWidth, -halfHeight], [halfWidth, halfHeight], [-halfWidth, halfHeight]]) {
+					const [sx, sy] = project(homography, x, y);
+					minX = Math.min(minX, sx); maxX = Math.max(maxX, sx);
+					minY = Math.min(minY, sy); maxY = Math.max(maxY, sy);
+				}
+				centerX -= (minX + maxX) / 2;
+				centerY -= (minY + maxY) / 2;
+				plane = screenToPlane(homography, pixelRatio);
+				// Which edge comes toward the viewer, y up
+				lift = [-Math.sin(tilt.y), -Math.sin(tilt.x)];
+			}
+
 			glassRects.set(
-				[
-					(rect.left + rect.width / 2) * pixelRatio,
-					(viewHeight - rect.top - rect.height / 2) * pixelRatio,
-					(rect.width / 2) * pixelRatio,
-					(rect.height / 2) * pixelRatio,
-				],
+				[centerX * pixelRatio, (viewHeight - centerY) * pixelRatio, halfWidth * pixelRatio, halfHeight * pixelRatio],
 				count * 4,
 			);
-			glassStyle.set([pane.radius * pixelRatio, pane.tint], count * 2);
+			glassStyle.set([pane.radius * pixelRatio, pane.tint, lift[0], lift[1]], count * 4);
+			glassPlane.set(plane, count * 9);
 			count++;
 		}
 		this.glassCount = count;
@@ -942,7 +1029,7 @@ export class DotField {
 		gl.uniform1f(p.uMorph, this.morph);
 		gl.uniform1f(p.uMirror, this.mirror);
 		gl.uniform1f(p.uIntro, this.intro);
-		gl.uniform1f(p.uEnergy, this.energy);
+		gl.uniform1f(p.uHeat, this.heat);
 		gl.uniform1f(p.uHasImage, this.hasImage);
 		gl.uniform1f(p.uPointSize, this.pointSize * this.pixelRatio);
 		gl.uniform3f(p.uPointer, this.pointer.x, this.pointer.y, this.pointer.active);
@@ -979,7 +1066,8 @@ export class DotField {
 		gl.uniform1i(q.uGlassCount, this.glassCount);
 		if (this.glassCount > 0) {
 			gl.uniform4fv(q.uGlassRects, this.glassRects);
-			gl.uniform2fv(q.uGlassStyle, this.glassStyle);
+			gl.uniform4fv(q.uGlassStyle, this.glassStyle);
+			gl.uniformMatrix3fv(q.uGlassPlane, false, this.glassPlane);
 			gl.uniform2fv(q.uLight, this.light);
 			gl.uniform3fv(q.uTint, palette.tint);
 			gl.uniform1f(q.uBevel, this.glass.bevel);
