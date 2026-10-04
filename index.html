@@ -14,27 +14,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ali Abbasi - AI / GenAI Engineer</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#191a1e">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Xanh+Mono&display=swap">
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Canvas for Tube Background Animation -->
-    <canvas id="canvas"></canvas>
-    
-    <!-- SVG Filter for Liquid Glass Effect -->
-    <svg style="display: none;">
-        <filter id="liquidGlass">
-            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="4" seed="92" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="blurred" scale="50" xChannelSelector="B" yChannelSelector="G" />
-        </filter>
-    </svg>
+    <!-- Dot field background; on desktop it also renders the glass panes -->
+    <canvas id="canvas" aria-hidden="true"></canvas>
     
     <div class="container">
         <!-- LEFT SIDE: Profile and Updates Column -->
         <div class="left-column">
             <!-- Profile Panel with Liquid Glass -->
-            <aside class="profile-panel liquid-glass">
+            <aside class="profile-panel glass">
                 <div class="profile-content">
                     <div class="profile-header">
                         <img src="profile-photo.jpg" alt="Ali Abbasi" class="profile-photo">
@@ -69,7 +65,7 @@
             </aside>
 
             <!-- Latest Updates Panel with Liquid Glass -->
-            <aside class="updates-panel liquid-glass">
+            <aside class="updates-panel glass">
                 <div class="updates-header">
                     <h3><i class="fas fa-bolt"></i> Latest Updates</h3>
                 </div>
@@ -121,39 +117,39 @@
         </div>
         
         <!-- MIDDLE: Navigation Panel with Liquid Glass -->
-        <aside class="navigation-panel liquid-glass">
+        <aside class="navigation-panel">
             <nav class="section-nav">
-                <button class="nav-button active" data-tab="blog">
-                    <i class="fas fa-pen-alt"></i>
-                    <span>Blog</span>
+                <button class="nav-button glass active" data-tab="blog">
+                    <span class="nav-letter">A</span>
+                    <span class="nav-label">Blog</span>
                 </button>
-                <button class="nav-button" data-tab="about">
-                    <i class="fas fa-user"></i>
-                    <span>About</span>
+                <button class="nav-button glass" data-tab="about">
+                    <span class="nav-letter">B</span>
+                    <span class="nav-label">About</span>
                 </button>
-                <button class="nav-button" data-tab="experience">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Experience</span>
+                <button class="nav-button glass" data-tab="experience">
+                    <span class="nav-letter">C</span>
+                    <span class="nav-label">Experience</span>
                 </button>
-                <button class="nav-button" data-tab="education">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Education</span>
+                <button class="nav-button glass" data-tab="education">
+                    <span class="nav-letter">D</span>
+                    <span class="nav-label">Education</span>
                 </button>
-                <button class="nav-button" data-tab="skills">
-                    <i class="fas fa-code"></i>
-                    <span>Skills</span>
+                <button class="nav-button glass" data-tab="skills">
+                    <span class="nav-letter">E</span>
+                    <span class="nav-label">Skills</span>
                 </button>
-                <button class="nav-button" data-tab="projects">
-                    <i class="fas fa-folder-open"></i>
-                    <span>Projects</span>
+                <button class="nav-button glass" data-tab="projects">
+                    <span class="nav-letter">F</span>
+                    <span class="nav-label">Projects</span>
                 </button>
-                <button class="nav-button" data-tab="publications">
-                    <i class="fas fa-book"></i>
-                    <span>Publications</span>
+                <button class="nav-button glass" data-tab="publications">
+                    <span class="nav-letter">G</span>
+                    <span class="nav-label">Publications</span>
                 </button>
-                <button class="nav-button" data-tab="interests">
-                    <i class="fas fa-heart"></i>
-                    <span>Interests</span>
+                <button class="nav-button glass" data-tab="interests">
+                    <span class="nav-letter">H</span>
+                    <span class="nav-label">Interests</span>
                 </button>
             </nav>
         </aside>
@@ -161,12 +157,14 @@
         <!-- RIGHT SIDE: Content Sections -->
         <main class="content-panel">
             <!-- Section Title Card -->
-            <div class="section-header-card">
+            <div class="section-header-card glass">
+                <span class="section-badge" id="section-badge" aria-hidden="true">A</span>
                 <h2 id="section-title">Blog Posts</h2>
+                <span class="field-tag" title="Shape of the dot field behind this section"><i></i><b id="field-tag">Open book</b></span>
             </div>
             
             <!-- Content Card -->
-            <div class="section-content-card">
+            <div class="section-content-card glass">
                 <!-- Tab Contents -->
                 <div class="tab-contents">
                     <!-- About Tab -->
@@ -867,9 +865,13 @@
         </main>
     </div>
 
-    <!-- Copyright Footer -->
-    <footer class="copyright-footer">
-        <p>&copy; 2025 Ali Abbasi. All rights reserved.</p>
+    <!-- Footer dock: copyright and the dot field's energy -->
+    <footer class="dock">
+        <p class="copyright">&copy; 2025 Ali Abbasi. All rights reserved.</p>
+        <label class="energy glass">
+            <span class="energy-readout"><b>ALPHA</b> · <span class="energy-hz">9.1 HZ</span></span>
+            <input type="range" min="0" max="100" value="55" aria-label="Field energy">
+        </label>
     </footer>
 
     <script type="module" src="script.js"></script>

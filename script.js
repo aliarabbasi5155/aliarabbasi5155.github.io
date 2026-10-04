@@ -1,20 +1,28 @@
-// Dot field background: every tab morphs the dots into its own shape
+// Dot field background: every tab morphs the dots into its own shape, and on
+// desktop the same field renders the liquid-glass panes
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
 const TAB_SCENES = {
-    blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
-    about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
-    experience: { shape: 'beam', wide: [0, 0, 1] },
-    education: { shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
-    skills: { shape: 'streams', wide: [0, 0, 1] },
-    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
-    publications: { shape: 'rings', wide: [0.42, -0.08, 0.8], tall: [0, 0, 0.7] },
-    interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
+    blog: { letter: 'A', label: 'Open book', shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
+    about: { letter: 'B', label: 'Portrait', shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
+    experience: { letter: 'C', label: 'Convergence', shape: 'beam', wide: [0, 0, 1] },
+    education: { letter: 'D', label: 'Globe', shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
+    skills: { letter: 'E', label: 'Streams', shape: 'streams', wide: [0, 0, 1] },
+    projects: { letter: 'F', label: 'Terrain', shape: 'terrain', wide: [0, -0.05, 1] },
+    publications: { letter: 'G', label: 'EEG rings', shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
+    interests: { letter: 'H', label: 'Ripples', shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
 const TAB_ORDER = Object.keys(TAB_SCENES);
+
+// The field renders the glass only where the layout is pinned to the viewport;
+// stacked layouts scroll, and CSS glass keeps up with scrolling better
+const GLASS_QUERY = window.matchMedia('(min-width: 1101px) and (hover: hover) and (pointer: fine)');
+const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const BANDS = [[4, 'DELTA'], [8, 'THETA'], [13, 'ALPHA'], [30, 'BETA'], [Infinity, 'GAMMA']];
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
 
 let field = null;
 
@@ -28,12 +36,12 @@ function initBackground() {
         field = new DotField(canvas, {
             scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
             initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
-            // On phones the copy sits right on top of the shapes, so dim the bloom
-            palette: small ? { ...PALETTES.violet, glow: 0.3, gain: 1.15 } : PALETTES.violet,
+            // On phones the copy sits right on top of the shapes, so keep them quieter
+            palette: small ? { ...PALETTES.sand, gain: 1.05 } : PALETTES.sand,
             count: small ? 24000 : 42000,
             pointSize: 2.6,
             maxPixelRatio: small ? 1.25 : 1.5,
-            reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+            reduceMotion: REDUCE_MOTION,
         });
         field.start();
     } catch (error) {
@@ -45,19 +53,70 @@ function initBackground() {
         .then(points => field.setPortrait(points))
         .catch(error => console.warn('Portrait sampling failed:', error));
 
+    const applyGlass = () => {
+        document.documentElement.classList.toggle('gl-glass', GLASS_QUERY.matches);
+        field.setGlass(GLASS_QUERY.matches ? document.querySelectorAll('.glass') : []);
+    };
+    GLASS_QUERY.addEventListener('change', applyGlass);
+    applyGlass();
+
     window.addEventListener('pointermove', e => field.setPointer(e.clientX, e.clientY), { passive: true });
     document.addEventListener('pointerleave', () => field.clearPointer());
     window.addEventListener('blur', () => field.clearPointer());
     // Clicks that aren't on a control send a ripple through the dots
     document.addEventListener('pointerdown', e => {
-        if (e.target.closest('a, button, input, textarea, select')) return;
+        if (e.target.closest('a, button, input, label, textarea, select')) return;
         field.ripple(e.clientX, e.clientY);
     });
+}
+
+// The dock's slider sets how lively the field is, read out as an EEG band
+function initEnergy() {
+    const input = document.querySelector('.energy input');
+    if (!input) return;
+    const band = document.querySelector('.energy b');
+    const hz = document.querySelector('.energy-hz');
+    const apply = () => {
+        const value = input.value / 100;
+        // Log scale from 1.5 Hz to 40 Hz
+        const frequency = 1.5 * (40 / 1.5) ** value;
+        band.textContent = BANDS.find(([limit]) => frequency < limit)[1];
+        hz.textContent = `${frequency.toFixed(1)} HZ`;
+        field?.setEnergy(value);
+    };
+    input.addEventListener('input', apply);
+    apply();
+}
+
+// Letters cycle through random glyphs, then settle left to right
+function scramble(element, text, duration = 600) {
+    cancelAnimationFrame(element.scrambleFrame);
+    if (REDUCE_MOTION) {
+        element.textContent = text;
+        return;
+    }
+    const start = performance.now();
+    const step = now => {
+        const progress = Math.min(1, (now - start) / duration);
+        const settled = Math.floor(progress * text.length);
+        let out = '';
+        for (let i = 0; i < text.length; i++) {
+            out += i < settled || text[i] === ' ' ? text[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        }
+        element.textContent = out;
+        if (progress < 1) element.scrambleFrame = requestAnimationFrame(step);
+    };
+    element.scrambleFrame = requestAnimationFrame(step);
 }
 
 // Tab functionality with smooth fade transitions
 function openTab(tabName) {
     field?.morphTo(TAB_ORDER.indexOf(tabName));
+    const scene = TAB_SCENES[tabName];
+    if (scene) {
+        document.getElementById('section-badge').textContent = scene.letter;
+        scramble(document.getElementById('field-tag'), scene.label, 500);
+    }
 
     // Get all tab contents and find the currently active one
     const tabContents = document.getElementsByClassName("tab-content");
@@ -110,9 +169,9 @@ function openTab(tabName) {
         };
         
         if (sectionTitle && sectionTitles[tabName]) {
-            // Remove fade-out and update text
+            // Remove fade-out and scramble in the new title
             sectionTitle.classList.remove('fade-out');
-            sectionTitle.textContent = sectionTitles[tabName];
+            scramble(sectionTitle, sectionTitles[tabName]);
         }
     }, 300); // Match this with fade-out animation duration
 }
@@ -346,82 +405,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Glassmorphism glow effect - Mouse tracking for all panels and cards
-function addGlowEffect(element) {
-    element.addEventListener('mousemove', (e) => {
-        const rect = element.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        element.style.setProperty('--x', `${x}px`);
-        element.style.setProperty('--y', `${y}px`);
-    });
-    
-    element.addEventListener('mouseleave', () => {
-        element.style.setProperty('--x', '50%');
-        element.style.setProperty('--y', '50%');
-    });
-}
-
-// Add 3D tilt effect
-function add3DTilt(element, intensity = 5) {
-    element.addEventListener('mousemove', (e) => {
-        const rect = element.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = ((y - centerY) / centerY) * intensity;
-        const rotateY = ((x - centerX) / centerX) * -intensity;
-        
-        element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
-    
-    element.addEventListener('mouseleave', () => {
-        element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
-    });
-}
-
-// Apply effects to all panels and cards
-function initEffects() {
-    // Profile panel
-    const profilePanel = document.querySelector('.profile-panel');
-    if (profilePanel) {
-        addGlowEffect(profilePanel);
-        add3DTilt(profilePanel, 8);
-    }
-    
-    // Updates panel
-    const updatesPanel = document.querySelector('.updates-panel');
-    if (updatesPanel) {
-        addGlowEffect(updatesPanel);
-        add3DTilt(updatesPanel, 8);
-    }
-    
-    // Navigation buttons
-    const navButtons = document.querySelectorAll('.nav-button');
-    navButtons.forEach(button => {
-        addGlowEffect(button);
-        add3DTilt(button, 6);
-    });
-    
-    // Section header card
-    const headerCard = document.querySelector('.section-header-card');
-    if (headerCard) {
-        addGlowEffect(headerCard);
-        add3DTilt(headerCard, 8);
-    }
-    
-    // Section content card
-    const contentCard = document.querySelector('.section-content-card');
-    if (contentCard) {
-        addGlowEffect(contentCard);
-        add3DTilt(contentCard, 6);
-    }
-}
-
 // Blog post toggle functionality
 function toggleBlogPost(button) {
     const blogPost = button.closest('.blog-post');
@@ -451,8 +434,8 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
+    initEnergy();
     initNavigation();
-    initEffects();
     initAnimations();
     initSkillTags();
 }

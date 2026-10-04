@@ -3,36 +3,29 @@
 // ordered-dither pass turns that buffer into grainy specks, colored by a palette.
 //
 // A page hands over a list of scenes ({ shape, wide, tall }) and then jumps
-// between them with morphTo().
+// between them with morphTo(). setGlass() turns DOM elements into liquid-glass
+// panes: the same pass refracts, frosts and rims the field under each of them.
 
 export const SHAPES = ['ring', 'portrait', 'beam', 'rings', 'terrain', 'streams', 'ripples', 'book', 'globe'];
 
 export const PALETTES = {
-	// Warm grey grains on charcoal
+	// Warm grey grains on charcoal, mint for tinted glass
 	sand: {
 		background: '#191a1e',
-		low: '#b0aca2',
-		high: '#b0aca2',
+		low: '#a19d93',
+		high: '#d3cec1',
 		accent: '#b0aca2',
 		accentMix: 0,
 		glow: 0,
 		glowColor: '#000000',
 		gain: 1.35,
 		grain: 0.1,
-	},
-	// Indigo to lavender on black, with a soft violet bloom
-	violet: {
-		background: '#000000',
-		low: '#7c5cf6',
-		high: '#e4ddff',
-		accent: '#c084fc',
-		accentMix: 0.45,
-		glow: 0.6,
-		glowColor: '#6366f1',
-		gain: 1.45,
-		grain: 0.05,
+		tint: '#acffce',
 	},
 };
+
+// Up to this many DOM elements can be glass at once
+const MAX_GLASS = 16;
 
 const FOV = (45 * Math.PI) / 180;
 const CAM_Z = 6;
@@ -408,6 +401,7 @@ in vec2 vUv;
 out vec4 outColor;
 
 uniform sampler2D uTexture;
+uniform vec2 uResolution;
 uniform float uPixelRatio;
 uniform float uTime;
 // Dither cell in CSS pixels
@@ -429,6 +423,20 @@ uniform float uAccentMix;
 uniform vec3 uGlowColor;
 uniform float uGlow;
 
+// Glass panes, in device pixels with a bottom-left origin: center xy, half size zw
+uniform int uGlassCount;
+uniform vec4 uGlassRects[${MAX_GLASS}];
+// x corner radius (device px), y tint amount
+uniform vec2 uGlassStyle[${MAX_GLASS}];
+// Where the light comes from, as a unit vector in screen space
+uniform vec2 uLight;
+uniform vec3 uTint;
+// Glass look, in CSS pixels where they are lengths
+uniform float uBevel;
+uniform float uRefraction;
+uniform float uFrost;
+uniform float uGlassInk;
+
 float hash21(vec2 v) {
 	vec3 p3 = fract(vec3(v.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
@@ -439,6 +447,39 @@ float bayer4(vec2 cell) {
 	const float matrix[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);
 	ivec2 i = ivec2(mod(cell, 4.0));
 	return (matrix[i.x + i.y * 4] + 0.5) / 16.0;
+}
+
+vec3 inkAt(float signal, vec2 uv) {
+	vec3 ink = mix(uInkLow, uInkHigh, smoothstep(0.15, 0.95, signal));
+	float sweep = 0.5 + 0.5 * sin(uv.x * 3.0 - uv.y * 2.0 + uTime * 0.25);
+	return mix(ink, uAccent, sweep * uAccentMix * (1.0 - 0.5 * signal));
+}
+
+float roundedBox(vec2 p, vec2 halfSize, float radius) {
+	vec2 q = abs(p) - halfSize + radius;
+	return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - radius;
+}
+
+// Signed distance to the nearest pane (negative inside), its outward normal and tint
+float nearestGlass(vec2 frag, out vec2 normal, out float tint) {
+	float best = 1e6;
+	normal = vec2(0.0, 1.0);
+	tint = 0.0;
+	for (int i = 0; i < ${MAX_GLASS}; i++) {
+		if (i >= uGlassCount) break;
+		vec4 rect = uGlassRects[i];
+		float radius = min(uGlassStyle[i].x, min(rect.z, rect.w));
+		vec2 p = frag - rect.xy;
+		float d = roundedBox(p, rect.zw, radius);
+		if (d < best) {
+			best = d;
+			tint = uGlassStyle[i].y;
+			vec2 q = abs(p) - rect.zw + radius;
+			vec2 n = q.x > 0.0 && q.y > 0.0 ? normalize(q) : (q.x > q.y ? vec2(1.0, 0.0) : vec2(0.0, 1.0));
+			normal = n * vec2(p.x < 0.0 ? -1.0 : 1.0, p.y < 0.0 ? -1.0 : 1.0);
+		}
+	}
+	return best;
 }
 
 void main() {
@@ -452,18 +493,63 @@ void main() {
 	float dithered = clamp(floor(signal * uLevels + threshold) / uLevels, 0.0, 1.0);
 	float coverage = mix(signal, dithered, uDither);
 
-	vec3 ink = mix(uInkLow, uInkHigh, smoothstep(0.15, 0.95, signal));
-	float sweep = 0.5 + 0.5 * sin(vUv.x * 3.0 - vUv.y * 2.0 + uTime * 0.25);
-	ink = mix(ink, uAccent, sweep * uAccentMix * (1.0 - 0.5 * signal));
-
 	// Faint stepped film grain lifts the empty ground
 	float grain = hash21(grid + vec2(uGrainTime * 7.0, uGrainTime * 3.0));
 	vec3 ground = mix(uBackground, uInkLow, grain * grain * uGrain);
-	vec3 color = mix(ground, ink, coverage);
+	vec3 color = mix(ground, inkAt(signal, vUv), coverage);
 
 	if (uGlow > 0.0) {
 		float halo = textureLod(uTexture, vUv, 3.0).r * 0.7 + textureLod(uTexture, vUv, 5.0).r * 0.9;
 		color += uGlowColor * halo * uGlow;
+	}
+
+	if (uGlassCount > 0) {
+		vec2 normal;
+		float tint;
+		float d = nearestGlass(gl_FragCoord.xy, normal, tint) / uPixelRatio;
+
+		// Panes lift off the field with a soft contact shadow
+		color *= 1.0 - 0.32 * exp(-max(d, 0.0) / 11.0);
+
+		if (d < 1.0) {
+			float depth = max(-d, 0.0);
+			// 1 on the rim, easing to 0 where the bevel meets the flat face
+			float bevel = 1.0 - smoothstep(0.0, uBevel, depth);
+			float lens = bevel * bevel;
+
+			// The bevel bends the field inward like a thick lens, splitting color a little
+			vec2 shift = -normal * lens * uRefraction * uPixelRatio;
+			vec2 uvG = (gl_FragCoord.xy + shift) / uResolution;
+			vec2 uvR = (gl_FragCoord.xy + shift * 1.02) / uResolution;
+			vec2 uvB = (gl_FragCoord.xy + shift * 0.98) / uResolution;
+			// Frosted in the middle, clearer toward the rim
+			float lod = mix(uFrost, 1.4, bevel);
+			vec3 seen = vec3(
+				textureLod(uTexture, uvR, lod).r,
+				textureLod(uTexture, uvG, lod).r,
+				textureLod(uTexture, uvB, lod).r
+			);
+			seen = clamp(seen * uGain * mix(uGlassInk, 1.1, bevel), 0.0, 1.0);
+			vec3 ink = inkAt(seen.g, vUv);
+			vec3 face = uBackground + 0.025 + uTint * 0.05 * tint;
+			vec3 glass = vec3(
+				mix(face.r, ink.r, seen.r),
+				mix(face.g, ink.g, seen.g),
+				mix(face.b, ink.b, seen.b)
+			);
+
+			// Light: a hairline rim brightest where it faces the light (and its opposite),
+			// a broad sheen inside the bevel on the lit side, a shade on the far side
+			float facing = dot(normal, uLight);
+			float rim = 1.0 - smoothstep(0.0, 1.5, depth);
+			float shine = rim * (0.16 + 0.75 * pow(abs(facing), 3.0));
+			shine += lens * max(facing, 0.0) * 0.1;
+			glass += mix(vec3(1.0), uTint, 0.6 * tint) * shine;
+			glass *= 1.0 - lens * max(-facing, 0.0) * 0.22;
+			glass = mix(glass, glass + uTint * 0.06, tint * bevel);
+
+			color = mix(color, glass, clamp(0.5 - d * uPixelRatio, 0.0, 1.0));
+		}
 	}
 
 	vec2 c = vUv - 0.5;
@@ -512,6 +598,10 @@ function randoms(length) {
 	const data = new Float32Array(length);
 	for (let i = 0; i < length; i++) data[i] = Math.random();
 	return data;
+}
+
+function cornerRadius(element) {
+	return parseFloat(getComputedStyle(element).borderTopLeftRadius) || 0;
 }
 
 function rgb(hex) {
@@ -566,6 +656,7 @@ export class DotField {
 	/**
 	 * scenes: [{ shape: 'ring', wide: [x, y, scale], tall?: [x, y, scale] }, …]
 	 * x and y are offsets in half-view units (1 reaches the screen edge), scale multiplies the shape.
+	 * glass: lengths in CSS pixels; frost is the mip level the flat face samples.
 	 */
 	constructor(canvas, {
 		scenes,
@@ -577,6 +668,7 @@ export class DotField {
 		morphDuration = 1.8,
 		reduceMotion = false,
 		maxPixelRatio = 1.5,
+		glass = {},
 	}) {
 		const gl = canvas.getContext('webgl2', {
 			alpha: false,
@@ -602,7 +694,9 @@ export class DotField {
 			high: rgb(palette.high),
 			accent: rgb(palette.accent),
 			glowColor: rgb(palette.glowColor),
+			tint: rgb(palette.tint ?? palette.high),
 		};
+		this.glass = { bevel: 18, refraction: 26, frost: 2.4, ink: 0.5, ...glass };
 		this.scenes = scenes.map(scene => {
 			const shape = SHAPES.indexOf(scene.shape);
 			if (shape < 0) throw new Error(`Unknown shape: ${scene.shape}`);
@@ -625,8 +719,8 @@ export class DotField {
 
 		this.target = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, this.target);
-		// Bloom samples the mip chain, so only then does the buffer need one
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.palette.glow > 0 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+		// Glass frost and bloom both blur by sampling the mip chain
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -645,6 +739,11 @@ export class DotField {
 		this.pointerTarget = { x: 0, y: 0, active: 0 };
 		this.ripples = new Float32Array(16).fill(-100);
 		this.rippleSlot = 0;
+		this.panes = [];
+		this.glassRects = new Float32Array(MAX_GLASS * 4);
+		this.glassStyle = new Float32Array(MAX_GLASS * 2);
+		this.light = [-0.45, 0.9];
+		this.glassCount = 0;
 		this.width = 0;
 		this.height = 0;
 
@@ -681,6 +780,13 @@ export class DotField {
 		this.projection = perspective(FOV, this.aspect, 0.1, 50);
 		const halfHeight = CAM_Z * Math.tan(FOV / 2);
 		this.half = [halfHeight * this.aspect, halfHeight];
+		// Media queries may have changed the corners
+		for (const pane of this.panes) pane.radius = cornerRadius(pane.element);
+	}
+
+	// Render these elements as liquid glass; they should have no background of their own
+	setGlass(elements) {
+		this.panes = [...elements].slice(0, MAX_GLASS).map(element => ({ element, radius: cornerRadius(element), tint: 0 }));
 	}
 
 	// Dissolve from whatever is showing into scene `index`
@@ -764,8 +870,41 @@ export class DotField {
 		pointer.y += (target.y - pointer.y) * follow;
 		pointer.active += (target.active - pointer.active) * follow;
 
+		// Light swings toward the pointer, so the rims catch it as it moves
+		const lx = -0.45 + pointer.x * 0.9 * pointer.active;
+		const ly = 0.9 + pointer.y * 0.5 * pointer.active;
+		const length = Math.hypot(lx, ly) || 1;
+		this.light = [lx / length, ly / length];
+
+		this.measurePanes(1 - Math.exp(-delta * 8));
 		this.render();
 	};
+
+	// Read every pane's box this frame, so the glass tracks layout transitions exactly
+	measurePanes(follow) {
+		const { pixelRatio, glassRects, glassStyle } = this;
+		const viewHeight = this.canvas.clientHeight;
+		let count = 0;
+		for (const pane of this.panes) {
+			const rect = pane.element.getBoundingClientRect();
+			if (rect.width < 1 || rect.height < 1) continue;
+			// The active pane is tinted, a hovered one halfway
+			const tint = pane.element.classList.contains('active') ? 1 : pane.element.matches(':hover') ? 0.45 : 0;
+			pane.tint += (tint - pane.tint) * follow;
+			glassRects.set(
+				[
+					(rect.left + rect.width / 2) * pixelRatio,
+					(viewHeight - rect.top - rect.height / 2) * pixelRatio,
+					(rect.width / 2) * pixelRatio,
+					(rect.height / 2) * pixelRatio,
+				],
+				count * 4,
+			);
+			glassStyle.set([pane.radius * pixelRatio, pane.tint], count * 2);
+			count++;
+		}
+		this.glassCount = count;
+	}
 
 	render() {
 		const { gl, palette } = this;
@@ -808,11 +947,12 @@ export class DotField {
 		gl.disable(gl.BLEND);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, this.target);
-		if (palette.glow > 0) gl.generateMipmap(gl.TEXTURE_2D);
+		if (palette.glow > 0 || this.glassCount > 0) gl.generateMipmap(gl.TEXTURE_2D);
 
 		const q = this.post.uniforms;
 		gl.useProgram(this.post.program);
 		gl.uniform1i(q.uTexture, 0);
+		gl.uniform2f(q.uResolution, this.width, this.height);
 		gl.uniform1f(q.uPixelRatio, this.pixelRatio);
 		gl.uniform1f(q.uTime, this.clock);
 		gl.uniform1f(q.uCell, 1);
@@ -829,6 +969,17 @@ export class DotField {
 		gl.uniform1f(q.uAccentMix, palette.accentMix);
 		gl.uniform3fv(q.uGlowColor, palette.glowColor);
 		gl.uniform1f(q.uGlow, palette.glow);
+		gl.uniform1i(q.uGlassCount, this.glassCount);
+		if (this.glassCount > 0) {
+			gl.uniform4fv(q.uGlassRects, this.glassRects);
+			gl.uniform2fv(q.uGlassStyle, this.glassStyle);
+			gl.uniform2fv(q.uLight, this.light);
+			gl.uniform3fv(q.uTint, palette.tint);
+			gl.uniform1f(q.uBevel, this.glass.bevel);
+			gl.uniform1f(q.uRefraction, this.glass.refraction);
+			gl.uniform1f(q.uFrost, this.glass.frost);
+			gl.uniform1f(q.uGlassInk, this.glass.ink);
+		}
 		gl.bindVertexArray(this.triangle);
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
 		gl.bindVertexArray(null);
