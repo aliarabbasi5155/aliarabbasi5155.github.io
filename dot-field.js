@@ -777,8 +777,8 @@ export class DotField {
 
 		this.target = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, this.target);
-		// Glass frost and bloom both blur by sampling the mip chain
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+		// The plain field needs only level zero; glass and bloom enable mipmaps below.
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -952,12 +952,15 @@ export class DotField {
 	// so the glass can tilt with it.
 	measurePanes(follow) {
 		const { pixelRatio, glassRects, glassStyle, glassPlane } = this;
+		const viewWidth = this.canvas.clientWidth;
 		const viewHeight = this.canvas.clientHeight;
 		let count = 0;
 		for (const pane of this.panes) {
 			const element = pane.element;
 			const rect = element.getBoundingClientRect();
 			if (rect.width < 1 || rect.height < 1) continue;
+			// Scrolling layouts only shade nearby panes; retain a margin for shadows.
+			if (rect.bottom < -48 || rect.top > viewHeight + 48 || rect.right < -48 || rect.left > viewWidth + 48) continue;
 			// The active pane is tinted, a hovered one halfway
 			const tint = element.classList.contains('active') ? 1 : element.matches(':hover') ? 0.45 : 0;
 			pane.tint += (tint - pane.tint) * follow;
@@ -1041,7 +1044,11 @@ export class DotField {
 		gl.disable(gl.BLEND);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, this.target);
-		if (palette.glow > 0 || this.glassCount > 0) gl.generateMipmap(gl.TEXTURE_2D);
+		// A mipmap filter without a complete mip chain samples black; use level
+		// zero when neither visible glass nor bloom needs the blur levels.
+		const needsMipmaps = palette.glow > 0 || this.glassCount > 0;
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, needsMipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+		if (needsMipmaps) gl.generateMipmap(gl.TEXTURE_2D);
 
 		const q = this.post.uniforms;
 		gl.useProgram(this.post.program);

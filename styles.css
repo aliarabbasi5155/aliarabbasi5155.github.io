@@ -1,7 +1,7 @@
 /* Ali Abbasi · one-page CV
    Charcoal ground under a beige dot field, mint accents, liquid-glass panes.
-   On desktop the panes are rendered by the dot field itself (html.gl-glass),
-   everywhere else they fall back to CSS glass. */
+   The dot field renders the panes at every screen size (html.gl-glass),
+   with CSS glass as a fallback when WebGL is unavailable. */
 
 *,
 *::before,

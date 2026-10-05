@@ -1,5 +1,5 @@
-// Dot field background: every tab morphs the dots into its own shape, and on
-// desktop the same field renders the liquid-glass panes
+// Dot field background: every tab morphs the dots into its own shape, and the
+// same field renders the liquid-glass panes at every screen size.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 
@@ -36,9 +36,6 @@ const TILT = [
 ];
 const TILT_PERSPECTIVE = 1200;
 
-// The field renders the glass only where the layout is pinned to the viewport;
-// stacked layouts scroll, and CSS glass keeps up with scrolling better
-const GLASS_QUERY = window.matchMedia('(min-width: 1101px) and (hover: hover) and (pointer: fine)');
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let field = null;
@@ -72,21 +69,37 @@ function initBackground() {
         .then(points => field.setPortrait(points))
         .catch(error => console.warn('Portrait sampling failed:', error));
 
-    const applyGlass = () => {
-        document.documentElement.classList.toggle('gl-glass', GLASS_QUERY.matches);
-        field.setGlass(GLASS_QUERY.matches ? document.querySelectorAll('.glass') : []);
-    };
-    GLASS_QUERY.addEventListener('change', applyGlass);
-    applyGlass();
+    // Pane bounds are measured each frame, including scrolling and touch tilt.
+    // CSS glass remains the fallback if the WebGL renderer cannot initialize.
+    field.setGlass(document.querySelectorAll('.glass'));
+    document.documentElement.classList.add('gl-glass');
 
-    window.addEventListener('pointermove', e => field.setPointer(e.clientX, e.clientY), { passive: true });
-    document.addEventListener('pointerleave', () => field.clearPointer());
-    window.addEventListener('blur', () => field.clearPointer());
+    let gesturePointerId = null;
+    const clearPointer = () => {
+        gesturePointerId = null;
+        field.clearPointer();
+    };
+    window.addEventListener('pointermove', e => {
+        if (!e.isPrimary || (e.pointerType !== 'mouse' && e.pointerId !== gesturePointerId)) return;
+        field.setPointer(e.clientX, e.clientY);
+    }, { passive: true });
+    document.addEventListener('pointerleave', clearPointer);
+    window.addEventListener('blur', clearPointer);
+    const releasePointer = e => {
+        if (e.pointerId === gesturePointerId) clearPointer();
+    };
+    document.addEventListener('pointerup', releasePointer, { passive: true });
+    document.addEventListener('pointercancel', releasePointer, { passive: true });
+    document.addEventListener('lostpointercapture', releasePointer, { passive: true });
+    document.addEventListener('scroll', clearPointer, { capture: true, passive: true });
     // Clicks that aren't on a control send a ripple through the dots
     document.addEventListener('pointerdown', e => {
+        if (!e.isPrimary) return;
+        if (e.pointerType !== 'mouse') gesturePointerId = e.pointerId;
+        field.setPointer(e.clientX, e.clientY);
         if (e.target.closest('a, button, input, label, textarea, select')) return;
         field.ripple(e.clientX, e.clientY);
-    });
+    }, { passive: true });
 }
 
 // The dock's slider is the field's sampling temperature, like an LLM's:
@@ -111,25 +124,51 @@ function initTemperature() {
 // A gentle 3D tilt: the edge under the pointer lifts toward the viewer.
 // Each pane publishes its tilt as element.dotTilt so the glass tilts with it.
 function initTilt() {
-    if (REDUCE_MOTION || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (REDUCE_MOTION) return;
     const panes = [];
+    const reset = pane => {
+        pane.targetX = 0;
+        pane.targetY = 0;
+        pane.pointerId = null;
+    };
     for (const [selector, degrees] of TILT) {
         for (const element of document.querySelectorAll(selector)) {
-            const pane = { element, max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0 };
-            element.addEventListener('pointermove', e => {
+            const pane = { element, max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0, pointerId: null };
+            const move = e => {
+                if (!e.isPrimary) return;
                 const rect = element.getBoundingClientRect();
-                const u = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                const v = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+                const u = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width) * 2 - 1));
+                const v = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height) * 2 - 1));
                 pane.targetX = v * pane.max;
                 pane.targetY = -u * pane.max;
-            });
-            element.addEventListener('pointerleave', () => {
-                pane.targetX = 0;
-                pane.targetY = 0;
-            });
+            };
+            // Touch has no hover: press and drag to tilt, leaving native scrolling intact.
+            element.addEventListener('pointerdown', e => {
+                if (!e.isPrimary || e.pointerType === 'mouse' || e.target.closest('input, textarea, select')) return;
+                pane.pointerId = e.pointerId;
+                move(e);
+            }, { passive: true });
+            element.addEventListener('pointermove', e => {
+                if (e.pointerType !== 'mouse' && e.pointerId !== pane.pointerId) return;
+                move(e);
+            }, { passive: true });
+            element.addEventListener('pointerleave', e => {
+                if (e.isPrimary) reset(pane);
+            }, { passive: true });
             panes.push(pane);
         }
     }
+
+    const release = e => {
+        for (const pane of panes) {
+            if (pane.pointerId === e.pointerId) reset(pane);
+        }
+    };
+    document.addEventListener('pointerup', release, { passive: true });
+    document.addEventListener('pointercancel', release, { passive: true });
+    document.addEventListener('lostpointercapture', release, { passive: true });
+    document.addEventListener('scroll', () => panes.forEach(reset), { capture: true, passive: true });
+    window.addEventListener('blur', () => panes.forEach(reset));
 
     const step = delta => {
         const follow = 1 - Math.exp(-delta * 9);
