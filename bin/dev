@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
+
+# Keep dependencies and Bundler's configuration inside this checkout.
+export BUNDLE_GEMFILE="$PWD/Gemfile"
+export BUNDLE_PATH="$PWD/vendor/bundle"
+export BUNDLE_APP_CONFIG="$PWD/.bundle"
+
+if ! command -v ruby >/dev/null 2>&1 || ! command -v gem >/dev/null 2>&1; then
+    echo "Ruby is missing. Install Ruby, then run ./bin/dev again." >&2
+    exit 1
+fi
+
+# macOS ships Bundler 1.x, whose resolver selects gems incompatible with its
+# Ruby 2.6. Bootstrap a compatible resolver without changing the system Ruby.
+bundler_version=2.4.22
+bundler_root="$PWD/vendor/bundler"
+bundler_exe="$bundler_root/gems/bundler-$bundler_version/exe/bundle"
+if [[ ! -f "$bundler_exe" ]]; then
+    gem install bundler --version "$bundler_version" --install-dir "$bundler_root" --no-document
+fi
+bundle_command=(ruby "$bundler_exe")
+
+if ! "${bundle_command[@]}" check >/dev/null 2>&1; then
+    "${bundle_command[@]}" install --quiet
+fi
+
+# Let Jekyll render Liquid/front matter instead of serving source files raw.
+exec "${bundle_command[@]}" exec jekyll serve --host 127.0.0.1 --port 4000 --livereload "$@"

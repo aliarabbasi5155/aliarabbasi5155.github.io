@@ -6,6 +6,16 @@ url: https://aliarabbasi5155.github.io
 baseurl: ""
 timezone: UTC
 
+# Keep generated application links public even when Jekyll overrides site.url
+# with localhost while serving a development preview.
+outreach:
+  url: https://aliarabbasi5155.github.io
+
+# Only the owner's hostname sends analytics. Clones must use their own IDs/hosts.
+analytics:
+  allowed_hosts: [aliarabbasi5155.github.io]
+  measurement_ids: [G-M1XGN1K27Z, G-SN7JFYP48S]
+
 collections:
   blog:
     # Posts are shown inside the one page, not as pages of their own
@@ -25,3 +35,8 @@ defaults:
 
 exclude:
   - README.md
+  - tests
+  - bin
+  - vendor
+  - Gemfile
+  - Gemfile.lock

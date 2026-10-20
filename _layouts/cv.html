@@ -10,15 +10,9 @@
 {%- assign posts = site.blog | where: "lang", lang | sort: "date" | reverse -%}
 <html lang="{{ lang }}" dir="{{ page.direction | default: 'ltr' }}">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SN7JFYP48S"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-SN7JFYP48S');
-    </script>
+    <script defer src="{{ '/analytics.js' | relative_url }}"
+        data-hosts="{{ site.analytics.allowed_hosts | jsonify | escape }}"
+        data-measurement-ids="{{ site.analytics.measurement_ids | jsonify | escape }}"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,6 +33,7 @@
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
 </head>
 <body>
     <!-- Dot field background and liquid-glass panes at every screen size -->
@@ -181,7 +176,7 @@
                     <div id="projects" class="tab-content{% if first_tab == 'projects' %} active{% endif %}">
                         <section class="projects">
                             {%- for project in data.projects.items %}
-                            <div class="project">
+                            <div class="project" data-analytics-item="{{ project.title | slugify | escape }}">
                                 <div class="project-header">
                                     <h4>{{ project.title | escape }}</h4>
                                     {%- if project.links.size > 0 %}
@@ -212,7 +207,7 @@
                     <div id="publications" class="tab-content{% if first_tab == 'publications' %} active{% endif %}">
                         <section class="publications">
                             {%- for publication in data.publications.items %}
-                            <div class="publication">
+                            <div class="publication" data-analytics-item="{{ publication.title | slugify | escape }}">
                                 <div class="publication-header">
                                     <h4>{{ publication.title | escape }}</h4>
                                     <div class="publication-authors"><span dir="ltr">{% include inline.html text=publication.authors %}</span></div>
@@ -235,7 +230,7 @@
                     <div id="blog" class="tab-content{% if first_tab == 'blog' %} active{% endif %}">
                         <section class="blog">
                             {%- for post in posts %}
-                            <article class="blog-post">
+                            <article class="blog-post" data-analytics-item="{{ post.slug | escape }}">
                                 <div class="blog-header">
                                     <h4>{{ post.title | escape }}</h4>
                                     <div class="blog-meta">
@@ -277,7 +272,10 @@
 
     <!-- Dock: copyright, language and the dot field's temperature -->
     <footer class="dock">
-        <p class="copyright">{{ ui.copyright | escape }}</p>
+        <div class="dock-info">
+            <p class="copyright">{{ ui.copyright | escape }}</p>
+            <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
+        </div>
         <div class="dock-controls">
             <a class="lang-switch glass" href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}"><span>{{ ui.lang_switch.label | escape }}</span></a>
             <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
@@ -286,6 +284,15 @@
             </label>
         </div>
     </footer>
+
+    <section id="analytics-consent" class="analytics-consent" aria-label="{{ ui.analytics.title | escape }}" hidden>
+        <strong>{{ ui.analytics.title | escape }}</strong>
+        <p>{{ ui.analytics.description | escape }}</p>
+        <div class="consent-actions">
+            <button type="button" data-analytics-choice="denied">{{ ui.analytics.decline | escape }}</button>
+            <button type="button" data-analytics-choice="granted">{{ ui.analytics.allow | escape }}</button>
+        </div>
+    </section>
 
     <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
     <script type="module" src="{{ '/script.js' | relative_url }}"></script>

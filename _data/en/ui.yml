@@ -61,3 +61,9 @@ lang_switch:
   url: /fa/
   lang: fa
 copyright: © 2025 Ali Abbasi. All rights reserved.
+analytics:
+  settings: Privacy settings
+  title: Optional site analytics
+  description: "May I use Google Analytics to understand which sections and projects visitors explore? It uses analytics cookies. You can change your choice here at any time."
+  allow: Allow analytics
+  decline: No thanks

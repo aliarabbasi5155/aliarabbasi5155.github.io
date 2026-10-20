@@ -282,6 +282,7 @@ function openTab(tabName) {
         const newContent = document.getElementById(tabName);
         if (newContent) {
             newContent.classList.add("active");
+            document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: tabName } }));
         }
         
         if (sectionTitle && tabButton) {

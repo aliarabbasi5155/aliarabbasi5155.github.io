@@ -1,0 +1,102 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <title>لینک‌های اپلای · علی عباسی</title>
+    <link rel="stylesheet" href="./outreach.css">
+    <script type="module" src="./outreach.js"></script>
+</head>
+<body data-site-url="{{ site.outreach.url | default: site.url }}{{ site.baseurl }}">
+    <header class="topbar">
+        <a href="./">← مدیریت محتوا</a>
+        <a href="https://analytics.google.com/analytics/web/" target="_blank" rel="noopener noreferrer">باز کردن Google Analytics ↗</a>
+    </header>
+    <main>
+        <div class="intro">
+            <span class="eyebrow">APPLICATION LINKS</span>
+            <h1>هر ارسال، یک لینک.</h1>
+            <p>برای هر رزومه یا پیام یک لینک اختصاصی بساز. کد لینک در آمار ثبت می‌شود؛ نام شرکت، گیرنده و یادداشت‌ها فقط در همین مرورگر می‌مانند.</p>
+        </div>
+        <p id="notice" role="status" aria-live="polite" hidden></p>
+        <div class="workspace">
+            <section class="panel create-panel" aria-labelledby="form-title">
+                <h2 id="form-title">لینک جدید</h2>
+                <form id="link-form">
+                    <label>شرکت / عنوان ارسال <input name="company" required maxlength="140" placeholder="مثلاً اپلای شرکت A یا رزومهٔ عمومی"></label>
+                    <label>گیرنده <span class="optional">اختیاری</span><input name="recipient" maxlength="140" placeholder="فقط برای یادداشت شخصی"></label>
+                    <label>موقعیت شغلی <span class="optional">اختیاری</span><input name="role" maxlength="160" placeholder="مثلاً AI Engineer"></label>
+                    <div class="form-row">
+                        <label>محل ارسال<select name="channel"><option value="resume">رزومه / PDF</option><option value="linkedin">لینکدین</option><option value="email">ایمیل</option><option value="other">ارسال مستقیم</option></select></label>
+                        <label>زبان سایت<select name="language"><option value="en">English</option><option value="fa">فارسی</option></select></label>
+                    </div>
+                    <label>یادداشت <span class="optional">اختیاری</span><textarea name="notes" rows="3" maxlength="2000" placeholder="تاریخ ارسال، لینک آگهی، نسخهٔ رزومه…"></textarea></label>
+                    <div class="actions"><button class="primary" id="save-link" type="submit">ساخت و ذخیرهٔ لینک</button><button id="cancel-edit" type="button" hidden>انصراف</button></div>
+                </form>
+                <div id="created-link" class="created-link" hidden>
+                    <label for="result-url">لینک آمادهٔ ارسال</label>
+                    <input id="result-url" dir="ltr" readonly>
+                    <div class="actions"><button id="copy-result" type="button">کپی لینک</button><button id="copy-result-id" type="button">کپی کد برای گزارش</button></div>
+                    <p>داخل PDF می‌توانی متن کوتاه «Portfolio» را نمایش بدهی و این لینک کامل را پشت آن بگذاری.</p>
+                </div>
+            </section>
+            <section class="panel records-panel" aria-labelledby="records-title">
+                <div class="section-heading"><h2 id="records-title">ارسال‌های من</h2><span id="record-count" class="count">۰ لینک</span></div>
+                <div class="tools">
+                    <label class="search-label">جست‌وجو<input id="search" type="search" placeholder="شرکت، گیرنده، کد یا موقعیت…"></label>
+                    <div class="actions"><button id="export-json" type="button">پشتیبان JSON</button><button id="export-csv" type="button">خروجی CSV</button><button id="import-json" type="button">بازیابی پشتیبان</button></div>
+                    <input id="import-file" type="file" accept=".json,application/json" hidden>
+                </div>
+                <div id="records"></div>
+                <p id="empty-state" class="empty-state">هنوز لینکی ذخیره نشده. اولین ارسال را از فرم کنار صفحه بساز.</p>
+                <div class="local-note">
+                    <strong>رایگان و محلی</strong>
+                    <p>این فهرست به CMS، گیت‌هاب یا دیتابیس ارسال نمی‌شود. برای مرورگر یا دستگاه دیگر، پشتیبان JSON بگیر و آنجا بازیابی کن. پاک کردن داده‌های مرورگر، این فهرست را هم پاک می‌کند. فایل پشتیبان را خصوصی نگه دار.</p>
+                    <button id="owner-toggle" type="button"></button>
+                </div>
+            </section>
+        </div>
+        <section class="panel guide" aria-labelledby="guide-title">
+            <h2 id="guide-title">آمار هر لینک را کجا ببینم؟</h2>
+            <p>این صفحه لینک‌ها و یادداشت‌های تو را نگه می‌دارد. آمار بازدید در پراپرتی جدید <b dir="ltr">GitHub Pages New</b> در Google Analytics است؛ به این فهرست به‌صورت خودکار برنمی‌گردد.</p>
+            <details>
+                <summary>راه‌اندازی گزارش، فقط یک بار</summary>
+                <ol>
+                    <li>در پراپرتی جدید به <b dir="ltr">Admin → Data display → Custom definitions</b> برو.</li>
+                    <li>سه <b dir="ltr">Custom dimension</b> با <b dir="ltr">Scope: Event</b> بساز: <code>outreach_id</code> (کد ارسال)، <code>section_name</code> (بخش سایت)، <code>item_id</code> (پروژه یا مقاله). نام دلخواه است؛ Event parameter باید دقیقاً همین کد باشد.</li>
+                    <li>یک <b dir="ltr">Custom metric</b> برای پارامتر <code>active_seconds</code> با واحد <b dir="ltr">Seconds</b> و Scope رویداد بساز.</li>
+                    <li>در <b dir="ltr">Explore → Free form</b>، کد ارسال و بخش سایت را به Rows و <b dir="ltr">Event name</b> را به Columns اضافه کن. Values را روی <b dir="ltr">Event count</b> بگذار؛ برای زمان توجه، گزارش جداگانه‌ای با فیلتر <code>section_attention</code> و معیار زمان فعال بساز.</li>
+                    <li>برای یک ارسال، فیلتر کد ارسال را برابر کدی بگذار که از این صفحه کپی کردی. تعریف‌های جدید ممکن است ۲۴ تا ۴۸ ساعت زمان بخواهند و روی داده‌های قدیمی اعمال نمی‌شوند.</li>
+                </ol>
+            </details>
+            <details>
+                <summary>هر رویداد چه معنایی دارد؟</summary>
+                <dl>
+                    <dt><code>section_view</code></dt><dd>یک بخش در تب فعال مرورگر و داخل محدودهٔ قابل دیدن صفحه نمایش داده شده.</dd>
+                    <dt><code>section_attention</code></dt><dd>زمان فعال هر بخش؛ تب پنهان، پنجرهٔ غیرفعال و بیش از ۶۰ ثانیه بی‌تعاملی شمرده نمی‌شوند. این تخمین توجه است، نه اثبات خواندن.</dd>
+                    <dt><code>section_engaged</code></dt><dd>زمان فعال یک بخش به ۱۰، ۳۰، ۶۰ یا ۱۲۰ ثانیه رسیده.</dd>
+                    <dt><code>section_depth</code></dt><dd>عمق قابل مشاهدهٔ محتوا به ۲۵، ۵۰، ۷۵ یا ۱۰۰ درصد رسیده؛ روی موبایل و پنل اسکرول دسکتاپ محاسبه می‌شود.</dd>
+                    <dt><code>project_click</code> / <code>publication_click</code></dt><dd>کلیک روی لینک پروژه یا مقاله، با کد همان آیتم.</dd>
+                    <dt><code>contact_click</code></dt><dd>کلیک روی GitHub، LinkedIn یا ایمیل؛ به معنی ارسال پیام نیست.</dd>
+                    <dt><code>article_expand</code></dt><dd>متن کامل یک پست باز شده.</dd>
+                </dl>
+            </details>
+            <p class="muted">بازدید ثبت‌شده یعنی لینک استفاده شده؛ ممکن است فوروارد شده باشد. نبود آمار به معنی «باز نشده» نیست. آمار فقط پس از اجازهٔ بازدیدکننده ثبت می‌شود و مسدودکننده‌ها هم می‌توانند آن را متوقف کنند. وضعیت هر ارسال در این فهرست را خودت ثبت می‌کنی.</p>
+        </section>
+    </main>
+    <template id="record-template">
+        <article class="record">
+            <div class="record-heading"><h3></h3><select class="record-status" aria-label="وضعیت ارسال"></select></div>
+            <p class="record-description"></p>
+            <div class="record-meta"><code class="record-id" dir="ltr"></code><span class="record-date"></span><span class="record-channel"></span></div>
+            <p class="record-notes"></p>
+            <div class="actions"><button data-action="copy" type="button">کپی لینک</button><button data-action="code" type="button">کپی کد گزارش</button><button data-action="edit" type="button">ویرایش</button><button data-action="delete" class="delete" type="button">حذف</button></div>
+        </article>
+    </template>
+</body>
+</html>
