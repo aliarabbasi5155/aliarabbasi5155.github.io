@@ -248,6 +248,28 @@ a {
     color: var(--mint);
 }
 
+/* Always visible, unlike the contacts below it */
+.resume-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 9px 18px;
+    border: 1px solid var(--mint);
+    border-radius: 999px;
+    font: 700 12px/1.2 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mint);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.resume-download:hover {
+    background: var(--mint);
+    color: var(--bg);
+}
+
 /* Hovering the card folds the photo into a strip and reveals the links */
 @media (hover: hover) {
     .profile-panel:hover .profile-header,
@@ -1256,6 +1278,7 @@ html[lang="fa"] .duration,
 html[lang="fa"] .blog-date,
 html[lang="fa"] .blog-category,
 html[lang="fa"] .copyright,
+html[lang="fa"] .resume-download,
 html[lang="fa"] .energy {
     font-size: 13px;
 }

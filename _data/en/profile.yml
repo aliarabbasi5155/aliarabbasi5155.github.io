@@ -1,5 +1,8 @@
 name: Ali Abbasi
 role: AI / GenAI Engineer
+resume:
+  label: Download Resume
+  url: /Resume_Ali_Abbasi.pdf
 contacts:
   - icon: fas fa-envelope
     label: abbasialiar@gmail.com

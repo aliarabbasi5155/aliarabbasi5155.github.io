@@ -62,6 +62,14 @@ collections:
         fields:
           - { name: name, label: Name, widget: string, i18n: true }
           - { name: role, label: Role, widget: string, i18n: true }
+          - name: resume
+            label: Resume button
+            widget: object
+            i18n: true
+            required: false
+            fields:
+              - { name: label, label: Label, widget: string }
+              - { name: url, label: PDF, widget: string, hint: "Path of the PDF on this site, e.g. /Resume_Ali_Abbasi.pdf; the download keeps its file name" }
           - { name: photo_alt, label: Photo description, widget: string, i18n: true }
           - name: contacts
             label: Contacts

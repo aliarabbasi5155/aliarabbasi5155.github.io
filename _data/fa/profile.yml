@@ -1,5 +1,8 @@
 name: علی عباسی
 role: AI / GenAI Engineer
+resume:
+  label: دانلود رزومه
+  url: /fa/Resume_Ali_Abbasi.pdf
 contacts:
   - icon: fas fa-envelope
     label: abbasialiar@gmail.com

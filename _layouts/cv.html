@@ -54,6 +54,13 @@
                             <h2 class="profile-role">{{ data.profile.role | escape }}</h2>
                         </div>
 
+                        {%- if data.profile.resume.url != blank %}
+                        <a href="{{ data.profile.resume.url | relative_url }}" class="resume-download" download="{{ data.profile.resume.url | split: '/' | last }}">
+                            <i class="fas fa-download" aria-hidden="true"></i>
+                            <span>{{ data.profile.resume.label | escape }}</span>
+                        </a>
+                        {%- endif %}
+
                         <div class="profile-contacts">
                             {%- for contact in data.profile.contacts %}
                             <a href="{{ contact.url }}" class="contact-item">
