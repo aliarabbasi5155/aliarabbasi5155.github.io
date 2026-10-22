@@ -2,6 +2,7 @@
 // same field renders the liquid-glass panes at every screen size.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
+import { GlassRings } from './glass-rings.js';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
@@ -235,6 +236,72 @@ function scramble(element, text, duration = 600) {
         if (progress < 1) element.scrambleFrame = requestAnimationFrame(step);
     };
     element.scrambleFrame = requestAnimationFrame(step);
+}
+
+// The opening scene, the page's first screen (styles.css): the rings float while it is in
+// view and the name scrambles in like a section title. The field's dots gather only as
+// the page comes up from below, and leave again on the way back. A click on the scene
+// goes down to the page; on wide screens, where the page fills one screen, a scroll or
+// key turns between the two in one move instead of stopping halfway.
+function initOpening() {
+    const scene = document.querySelector('.opening');
+    if (!scene) return;
+
+    const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? rings.start() : rings.stop())).observe(scene);
+    const name = scene.querySelector('.opening-name');
+    scramble(name, name.textContent.trim(), 900);
+
+    // How far the scene has scrolled away; the dots come in over the last three quarters,
+    // at no more than their own entrance's pace
+    field?.onFrame(() => {
+        const { bottom, height } = scene.getBoundingClientRect();
+        const away = 1 - Math.min(1, Math.max(0, bottom / height));
+        field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
+    });
+
+    const page = document.querySelector('.container');
+    const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);
+    let turned = -Infinity;
+    const turn = top => {
+        turned = performance.now();
+        window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+    };
+    scene.addEventListener('click', () => turn(pageTop()));
+
+    // Whether the pointer or focus is over something that can still scroll up itself
+    const scrollsUp = element => {
+        for (let el = element; el && el !== document.body; el = el.parentElement) {
+            if (el.scrollTop > 0) return true;
+        }
+        return false;
+    };
+    const wide = window.matchMedia('(min-width: 1101px)');
+    window.addEventListener('wheel', event => {
+        if (!wide.matches || event.ctrlKey) return;
+        const top = pageTop();
+        // A turn under way, and the swipe's momentum after it, move nothing else
+        if (performance.now() - turned < 900) {
+            event.preventDefault();
+        } else if (scrollY < top - 2) {
+            event.preventDefault();
+            if (event.deltaY > 0) turn(top);
+        } else if (event.deltaY < 0 && !scrollsUp(event.target)) {
+            event.preventDefault();
+            turn(0);
+        }
+    }, { passive: false });
+    window.addEventListener('keydown', event => {
+        if (!wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
+        const top = pageTop();
+        if (scrollY < top - 2 && ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) {
+            event.preventDefault();
+            turn(top);
+        } else if (scrollY >= top - 2 && ['ArrowUp', 'PageUp', 'Home'].includes(event.key)) {
+            event.preventDefault();
+            turn(0);
+        }
+    });
 }
 
 // Tab functionality with smooth fade transitions
@@ -551,6 +618,7 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
+    initOpening();
     initTemperature();
     initTilt();
     initExternalLinks();

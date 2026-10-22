@@ -1052,6 +1052,172 @@ a {
     background: var(--mint);
 }
 
+/* ---------- Opening scene ---------- */
+
+/* The page's first screen: the name and a stack of glass rings (glass-rings.css) over the
+   bare field. Scrolling down brings the page up from below, unchanged, and the field's
+   dots gather as it comes (script.js); scrolling back up returns here. On wide screens,
+   where the page fills exactly one screen, the script turns between the two in one move,
+   and a light snap catches a scrollbar let go halfway. Nothing that holds the
+   rings fades as a whole: Chromium would then draw their glass apart from what lies
+   behind it, and the bend at their rims would break. */
+.opening {
+    position: relative;
+    flex: none;
+    height: 100vh;
+    height: 100svh;
+    /* Edge to edge, out of the body's padding */
+    margin: -24px -32px 24px;
+    overflow: hidden;
+    cursor: pointer;
+    scroll-snap-align: start;
+}
+
+@media (min-width: 1101px) {
+    html {
+        scroll-snap-type: y proximity;
+    }
+
+    .container {
+        scroll-snap-align: start;
+        scroll-margin-top: 24px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .opening {
+        margin: -16px -16px 16px;
+    }
+}
+
+@keyframes opening-in {
+    from {
+        opacity: 0;
+        translate: 0 14px;
+    }
+}
+
+@keyframes opening-float-in {
+    from {
+        translate: 0 6%;
+    }
+}
+
+@keyframes opening-show {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes opening-nudge {
+    50% {
+        translate: 0 5px;
+    }
+}
+
+/* The rings rise into place while their liquid, glints and glow appear */
+.opening-rings {
+    --size: min(68vh, 46vw);
+    position: absolute;
+    top: calc(52% - var(--size) / 2);
+    inset-inline-start: calc(61% - var(--size) / 2);
+    width: var(--size);
+    animation: opening-float-in 1.6s var(--ease) 0.1s backwards;
+}
+
+.opening-rings .gr-bloom,
+.opening-rings .gr-paint,
+.opening-rings .gr-glint {
+    animation: opening-show 1.4s var(--ease) 0.1s backwards;
+}
+
+.opening-text {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: max(24px, 8vw);
+    display: grid;
+    gap: 18px;
+    translate: 0 -50%;
+}
+
+/* One word to a line */
+.opening-name {
+    width: min-content;
+    font: 400 clamp(56px, 8.5vw, 132px)/0.9 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+    animation: opening-in 1s var(--ease) 0.2s backwards;
+}
+
+.opening-role {
+    font: 700 14px/1.4 var(--mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--soft);
+    animation: opening-in 1s var(--ease) 0.7s backwards;
+}
+
+.opening-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 22px;
+    font: 400 11px/1 var(--mono);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: opening-in 1s var(--ease) 1.3s backwards;
+}
+
+.opening-hint::after {
+    content: "↓";
+    font-size: 14px;
+    letter-spacing: 0;
+    animation: opening-nudge 1.8s ease-in-out 2.4s infinite;
+}
+
+/* Portrait screens: the name on top, the rings below it */
+@media (max-aspect-ratio: 4 / 5) {
+    .opening-rings {
+        --size: min(86vw, 52vh);
+        top: auto;
+        bottom: 14vh;
+        inset-inline-start: calc(50% - var(--size) / 2);
+    }
+
+    .opening-text {
+        top: 14vh;
+        gap: 14px;
+        translate: none;
+    }
+
+    .opening-name {
+        font-size: clamp(52px, 17vw, 96px);
+    }
+
+    .opening-role {
+        font-size: 12px;
+    }
+
+    .opening-hint {
+        margin-top: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .opening-rings,
+    .opening-rings .gr-bloom,
+    .opening-rings .gr-paint,
+    .opening-rings .gr-glint,
+    .opening-name,
+    .opening-role,
+    .opening-hint,
+    .opening-hint::after {
+        animation: none;
+    }
+}
+
 /* ---------- Stacked layout: tablets and phones ---------- */
 
 @media (max-width: 1100px) {
@@ -1286,6 +1452,10 @@ html[lang="fa"] .energy {
 html[lang="fa"] .nav-button.active .nav-letter,
 html[lang="fa"] .section-badge {
     padding-bottom: 0.15em;
+}
+
+html[lang="fa"] .opening-name {
+    line-height: 1.15;
 }
 
 @media (prefers-reduced-motion: reduce) {

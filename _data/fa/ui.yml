@@ -60,6 +60,8 @@ lang_switch:
   label: English
   url: /
   lang: en
+opening:
+  hint: برای ورود، اسکرول کنید یا ضربه بزنید
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

@@ -287,4 +287,10 @@ collections:
               - { name: label, label: Label, widget: string }
               - { name: url, label: Link, widget: string }
               - { name: lang, label: Language code, widget: string }
+          - name: opening
+            label: Opening scene
+            widget: object
+            i18n: true
+            fields:
+              - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }
