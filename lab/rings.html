@@ -314,6 +314,14 @@
             accent-color: var(--panel-ink);
         }
 
+        .control input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: var(--panel-ink);
+            cursor: pointer;
+        }
+
         .control input[type="color"] {
             width: 36px;
             height: 24px;
@@ -430,7 +438,11 @@
                     <output for="c-float" id="c-float-out">60%</output>
                     <input id="c-float" type="range" min="0" max="100" value="60">
                 </div>
-                <p class="hint">Move the pointer: the light follows it, and the rims catch it.</p>
+                <div class="control">
+                    <label for="c-bend">Bend at the rims</label>
+                    <input id="c-bend" type="checkbox">
+                </div>
+                <p class="hint">Move the pointer: the light follows it, and the rims catch it. Bending the view at the rims works in Chrome and Edge and costs a lot of rendering; the site leaves it off.</p>
             </form>
         </details>
     </main>
@@ -773,6 +785,7 @@
             const field = id => document.getElementById(id);
 
             controls.addEventListener('input', event => {
+                if (event.target.id === 'c-bend') rings.setRefract(event.target.checked);
                 if (event.target.id === 'c-paint') {
                     root.style.setProperty('--gr-paint', event.target.value);
                     rings.setPaint(event.target.value);
