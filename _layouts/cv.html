@@ -36,14 +36,13 @@
     <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
 </head>
 <body>
-    <!-- Dot field background -->
+    <!-- Dot field background and liquid-glass panes at every screen size -->
     <canvas id="canvas" aria-hidden="true"></canvas>
 
     <div class="container">
         <!-- Profile and latest updates -->
         <div class="left-column">
-            <aside class="profile-panel ember">
-                {% include ember.html %}
+            <aside class="profile-panel glass">
                 <div class="profile-content">
                     <div class="profile-header">
                         <img src="{{ '/profile-photo.jpg' | relative_url }}" alt="{{ data.profile.photo_alt | escape }}" class="profile-photo">
@@ -74,8 +73,7 @@
                 </div>
             </aside>
 
-            <aside class="updates-panel ember">
-                {% include ember.html %}
+            <aside class="updates-panel glass">
                 <div class="updates-header">
                     <h3><i class="fas fa-bolt"></i> {{ data.updates.title | escape }}</h3>
                 </div>
@@ -96,8 +94,7 @@
         <aside class="navigation-panel">
             <nav class="section-nav">
                 {%- for item in ui.nav %}
-                <button class="nav-button ember{% if forloop.first %} active{% endif %}" data-tab="{{ item.tab }}">
-                    {% include ember.html %}
+                <button class="nav-button glass{% if forloop.first %} active{% endif %}" data-tab="{{ item.tab }}">
                     <span class="nav-letter">{{ item.letter }}</span>
                     <span class="nav-label">{{ item.label | escape }}</span>
                 </button>
@@ -107,14 +104,12 @@
 
         <!-- Sections -->
         <main class="content-panel">
-            <div class="section-header-card ember">
-                {% include ember.html %}
+            <div class="section-header-card glass">
                 <span class="section-badge" id="section-badge" aria-hidden="true">{{ ui.nav.first.letter }}</span>
                 <h2 class="section-title"><i aria-hidden="true"></i><span id="section-title">{{ ui.nav.first.label | escape }}</span></h2>
             </div>
 
-            <div class="section-content-card ember">
-                {% include ember.html %}
+            <div class="section-content-card glass">
                 <div class="tab-contents">
                     <div id="about" class="tab-content{% if first_tab == 'about' %} active{% endif %}">
                         <section class="summary">
@@ -289,9 +284,8 @@
             <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
         </div>
         <div class="dock-controls">
-            <a class="lang-switch ember" href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}">{% include ember.html %}<span>{{ ui.lang_switch.label | escape }}</span></a>
-            <label class="energy ember" title="{{ ui.temperature.hint | escape }}">
-                {% include ember.html %}
+            <a class="lang-switch glass" href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}"><span>{{ ui.lang_switch.label | escape }}</span></a>
+            <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
                 <span class="energy-readout"><b>{{ ui.temperature.label | escape }}</b> <span class="energy-value"></span> · <span class="energy-band"></span></span>
                 <input type="range" min="0" max="200" step="5" value="70" aria-label="{{ ui.temperature.label | escape }}">
             </label>

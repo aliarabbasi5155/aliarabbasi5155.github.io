@@ -1,5 +1,5 @@
-// Dot field background: every tab morphs the dots into its own shape. The panes
-// over it are Ember glass (styles.css).
+// Dot field background: every tab morphs the dots into its own shape, and the
+// same field renders the liquid-glass panes at every screen size.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 
@@ -69,6 +69,11 @@ function initBackground() {
         .then(points => field.setPortrait(points))
         .catch(error => console.warn('Portrait sampling failed:', error));
 
+    // Pane bounds are measured each frame, including scrolling and touch tilt.
+    // CSS glass remains the fallback if the WebGL renderer cannot initialize.
+    field.setGlass(document.querySelectorAll('.glass'));
+    document.documentElement.classList.add('gl-glass');
+
     let gesturePointerId = null;
     const clearPointer = () => {
         gesturePointerId = null;
@@ -117,30 +122,7 @@ function initTemperature() {
 }
 
 // A gentle 3D tilt: the edge under the pointer lifts toward the viewer.
-// A pane's frost has to see the field behind it, and a transformed element hides
-// everything behind it from what it holds; so the pane itself never moves. Each layer
-// of its glass and each piece of its content tilts on its own, about the pane's centre,
-// which looks the same.
-function tiltParts(element) {
-    return [
-        ...element.querySelectorAll(':scope > .ember-material > span'),
-        ...[...element.children].filter(child => !child.classList.contains('ember-material')),
-    ];
-}
-
-function tilt(pane, transform) {
-    const width = pane.element.offsetWidth;
-    const height = pane.element.offsetHeight;
-    for (const part of pane.parts) {
-        // The glass layers share the pane's box; content is placed within it
-        const inGlass = part.parentElement !== pane.element;
-        part.style.transformOrigin = transform && !inGlass
-            ? `${width / 2 - part.offsetLeft}px ${height / 2 - part.offsetTop}px`
-            : '';
-        part.style.transform = transform;
-    }
-}
-
+// Each pane publishes its tilt as element.dotTilt so the glass tilts with it.
 function initTilt() {
     if (REDUCE_MOTION) return;
     const panes = [];
@@ -151,7 +133,7 @@ function initTilt() {
     };
     for (const [selector, degrees] of TILT) {
         for (const element of document.querySelectorAll(selector)) {
-            const pane = { element, parts: tiltParts(element), max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0, pointerId: null, tilted: false };
+            const pane = { element, max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0, pointerId: null };
             const move = e => {
                 if (!e.isPrimary) return;
                 const rect = element.getBoundingClientRect();
@@ -195,20 +177,20 @@ function initTilt() {
             pane.y += (pane.targetY - pane.y) * follow;
             const settled = !pane.targetX && !pane.targetY && Math.abs(pane.x) < 1e-4 && Math.abs(pane.y) < 1e-4;
             if (settled) {
-                // Back to flat: drop the transforms so text renders crisp again
-                if (pane.tilted) {
+                // Back to flat: drop the transform so text renders crisp again
+                if (pane.element.dotTilt) {
                     pane.x = pane.y = 0;
-                    pane.tilted = false;
-                    tilt(pane, '');
+                    pane.element.style.transform = '';
+                    pane.element.dotTilt = null;
                 }
                 continue;
             }
-            pane.tilted = true;
-            tilt(pane, `perspective(${TILT_PERSPECTIVE}px) rotateX(${pane.x}rad) rotateY(${pane.y}rad)`);
+            pane.element.style.transform = `perspective(${TILT_PERSPECTIVE}px) rotateX(${pane.x}rad) rotateY(${pane.y}rad)`;
+            pane.element.dotTilt = { x: pane.x, y: pane.y, perspective: TILT_PERSPECTIVE };
         }
     };
 
-    // In step with the field's frames when there is one
+    // In step with the field, so the glass and the content tilt on the same frame
     if (field) {
         field.onFrame(step);
         return;
@@ -220,36 +202,6 @@ function initTilt() {
         requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
-}
-
-// ?tune shows the Ember knobs, to try them on the live page
-function initTuner() {
-    if (!new URLSearchParams(location.search).has('tune')) return;
-    const root = document.documentElement;
-    const panel = document.createElement('form');
-    panel.className = 'tuner';
-    panel.setAttribute('aria-label', 'Ember glass');
-    panel.innerHTML = `
-        <label>Tint <input type="color" name="tint" value="#fa5a1a"></label>
-        <label>Tint strength <output name="strengthOut">0%</output>
-            <input type="range" name="strength" min="0" max="100" value="0"></label>
-        <label>Clarity <output name="clarityOut">50%</output>
-            <input type="range" name="clarity" min="0" max="100" value="50"></label>
-        <label>Lamp <input type="color" name="lightColor" value="#fff4e8"></label>
-        <label>Lamp strength <output name="lightOut">85%</output>
-            <input type="range" name="light" min="0" max="100" value="85"></label>`;
-    const { tint, strength, clarity, lightColor, light, strengthOut, clarityOut, lightOut } = panel.elements;
-    panel.addEventListener('input', () => {
-        root.style.setProperty('--ember-tint', tint.value);
-        root.style.setProperty('--ember-tint-strength', `${strength.value}%`);
-        root.style.setProperty('--ember-clarity', String(clarity.value / 100));
-        root.style.setProperty('--ember-light-color', lightColor.value);
-        root.style.setProperty('--ember-light', String(light.value / 100));
-        strengthOut.value = `${strength.value}%`;
-        clarityOut.value = `${clarity.value}%`;
-        lightOut.value = `${light.value}%`;
-    });
-    document.body.append(panel);
 }
 
 // Links to other sites open in a new tab
@@ -599,7 +551,6 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
-    initTuner();
     initTemperature();
     initTilt();
     initExternalLinks();
