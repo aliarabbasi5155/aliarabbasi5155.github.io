@@ -4,6 +4,7 @@
    comes from, and gathers on the far side after passing through.
 
    Tokens, on .glass-rings or any ancestor:
+     --gr-float      how far the stack floats and the liquid sways, 0 to 1 (setFloat())
      --gr-paint      the liquid (read once by the script; setPaint() changes it)
      --gr-hairline   the rim's fine edge, seen all the way round
      --gr-glint      the reflections, as r g b
@@ -16,20 +17,44 @@
     pointer-events: none;
 }
 
-/* Floats as one piece (script) */
+/* Floats as one piece, bobbing and drifting on two rhythms. The float and the liquid's
+   sway are CSS animations of transforms, which the browser runs on its compositor, off the
+   main thread; the script only pauses them (gr-paused) or leaves them out (gr-still). */
 .gr-stack {
     position: absolute;
     inset: 0;
-    will-change: transform;
+    animation:
+        gr-bob 3.75s ease-in-out infinite alternate,
+        gr-drift 5.5s ease-in-out -2s infinite alternate;
 }
 
-/* Kept to the liquid's side, so the clear side stays clear */
+@keyframes gr-bob {
+    from {
+        translate: 0 calc(-1.8% * var(--gr-float, 0.6));
+    }
+
+    to {
+        translate: 0 calc(1.8% * var(--gr-float, 0.6));
+    }
+}
+
+@keyframes gr-drift {
+    from {
+        transform: translateX(calc(-0.8% * var(--gr-float, 0.6)));
+    }
+
+    to {
+        transform: translateX(calc(0.8% * var(--gr-float, 0.6)));
+    }
+}
+
+/* Kept to the liquid's side, so the clear side stays clear. A soft gradient rather than a
+   blur filter, which would be redrawn whenever the glow moves. */
 .gr-bloom {
     position: absolute;
-    inset: 14%;
+    inset: 4%;
     border-radius: 50%;
-    background: var(--gr-bloom, color-mix(in srgb, var(--gr-paint, #f6654a) 16%, transparent));
-    filter: blur(calc(var(--D) * 0.08));
+    background: radial-gradient(closest-side, var(--gr-bloom, color-mix(in srgb, var(--gr-paint, #f6654a) 16%, transparent)) 35%, transparent);
     translate: -7% 8%;
 }
 
@@ -45,6 +70,8 @@
     border-radius: 50%;
     translate: calc(var(--x0) * var(--D)) calc(var(--y0) * var(--D));
     box-shadow: inset 0 0 0 1px var(--gr-hairline, rgb(255 255 255 / 0.12));
+    /* Moved by the script's springs: a layer of its own, so a move is never a repaint */
+    will-change: transform;
 }
 
 /* Rings that can be grabbed (the script's default, unless motion is reduced) take
@@ -69,10 +96,39 @@
     border-radius: 50%;
 }
 
-/* The liquid, drawn by the script; it sways, the light does not */
+/* The liquid, drawn by the script. It sways on its own rhythm (set per disc by the
+   script), and the script rocks it further (its transform) as the stack moves; the light
+   stays put. */
 .gr-paint {
     background: center / 100% 100% no-repeat;
-    will-change: transform;
+    animation: gr-sway var(--gr-sway-time, 3s) ease-in-out var(--gr-sway-delay, 0s) infinite alternate;
+}
+
+@keyframes gr-sway {
+    from {
+        rotate: calc(-5deg * var(--gr-float, 0.6));
+    }
+
+    to {
+        rotate: calc(5deg * var(--gr-float, 0.6));
+    }
+}
+
+.gr-paused .gr-stack,
+.gr-paused .gr-paint {
+    animation-play-state: paused;
+}
+
+.gr-still .gr-stack,
+.gr-still .gr-paint {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gr-stack,
+    .gr-paint {
+        animation: none;
+    }
 }
 
 /* Reflections, drawn facing up and turned toward the light (script) */
