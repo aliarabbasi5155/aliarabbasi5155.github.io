@@ -239,8 +239,8 @@ function scramble(element, text, duration = 600) {
 }
 
 // The opening scene (styles.css plays it): the rings float, the name scrambles in like a
-// section title, and the field's own entrance waits for the page to rise. A scroll, tap
-// or key moves the scene and the page on at once.
+// section title, and the field's own entrance waits until the scene is a third of the way
+// out. A scroll, tap or key moves the scene and the page on at once.
 function initOpening() {
     const root = document.documentElement;
     const scene = document.querySelector('.opening');
@@ -258,12 +258,16 @@ function initOpening() {
     const name = scene.querySelector('.opening-name');
     scramble(name, name.textContent.trim(), 900);
 
+    const isMove = event => event.target === scene && ['opening-leave', 'opening-cut'].includes(event.animationName);
+    const leave = scene.getAnimations().find(animation => ['opening-leave', 'opening-cut'].includes(animation.animationName));
     let holding = Boolean(field);
     field?.onFrame(() => {
-        if (holding) field.intro = 0;
+        if (!holding) return;
+        const { delay, duration } = leave?.effect.getTiming() ?? {};
+        if (!leave || leave.currentTime === null || leave.currentTime >= delay + duration * 0.3) holding = false;
+        else field.intro = 0;
     });
 
-    const isMove = event => event.target === scene && ['opening-leave', 'opening-cut'].includes(event.animationName);
     // Looked up at the time, as the consent notice may only just have appeared
     const skip = () => {
         const moves = [scene, ...document.querySelectorAll('.container, .dock, .analytics-consent')]
@@ -277,11 +281,9 @@ function initOpening() {
     const SKIPS = ['wheel', 'touchmove', 'pointerdown', 'keydown'];
     for (const type of SKIPS) window.addEventListener(type, skip, { passive: true });
 
-    scene.addEventListener('animationstart', event => {
-        if (isMove(event)) holding = false;
-    });
     scene.addEventListener('animationend', event => {
         if (!isMove(event)) return;
+        holding = false;
         for (const type of SKIPS) window.removeEventListener(type, skip);
         rings.destroy();
         scene.remove();
