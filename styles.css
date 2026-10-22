@@ -1,7 +1,6 @@
 /* Ali Abbasi · one-page CV
-   Charcoal ground under a beige dot field, mint accents, liquid-glass panes.
-   The dot field renders the panes at every screen size (html.gl-glass),
-   with CSS glass as a fallback when WebGL is unavailable. */
+   Charcoal ground under a beige dot field, mint accents, panes of Ember glass:
+   clear frosted acrylic that takes every colour from what lies behind it. */
 
 *,
 *::before,
@@ -20,7 +19,7 @@
     --muted: #a3a39d;
     --line: rgba(255, 255, 255, 0.14);
     --dash: rgba(255, 255, 255, 0.24);
-    --radius: 28px;
+    --radius: 40px;
     --gap: 22px;
     --dock: 76px;
     --display: "Xanh Mono", "Courier New", monospace;
@@ -69,57 +68,155 @@ a {
     pointer-events: none;
 }
 
-/* ---------- Glass ---------- */
+/* ---------- Ember glass ---------- */
 
-/* CSS liquid glass: frosted fill, lit rim, soft lift */
-.glass {
-    position: relative;
-    border-radius: var(--radius);
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.04));
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.16),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-        0 18px 40px rgba(0, 0, 0, 0.35);
+/* Each pane is a slab of clear frosted acrylic over the dot field, with a lamp at the
+   upper right (lab/button.html is the measured reference). The material has no colour of
+   its own. The face is the background, frosted; the rim deepens it; the lamp's light,
+   and any the slab catches from what lies behind, runs through it and leaks out along
+   the lower-left rim, gathers in a crescent inside that corner, and catches on the
+   polished bevel as two fine lines; the slab's shadow falls to the lower left.
+   The layers come from _includes/ember.html.
+
+   Knobs, on :root or any pane:
+     --ember-tint            the colour the acrylic is dyed
+     --ember-tint-strength   how much dye: 0% clear (default) to 100%
+     --ember-clarity         how clearly the background shows through: 0 heavily frosted,
+                             0.5 (default), 1 clear as a window
+     --ember-light           the lamp: 0 off (only what lies behind lights the glass) to 1
+     --ember-light-color     the lamp's colour */
+:root {
+    --ember-tint: #fa5a1a;
+    --ember-tint-strength: 0%;
+    --ember-clarity: 0.5;
+    --ember-light: 0.85;
+    --ember-light-color: #fff4e8;
 }
 
-/* Specular rim: bright on two opposite corners, fading along the sides */
-.glass::before {
-    content: "";
+/* Must not form a stacking context, or its layers could not blend with each other's
+   result. Its shadow darkens the field by the share of the lamp's light it blocks:
+   darkest where the rim bends the light away, falling to the lower left. */
+.ember {
+    --ember-radius: var(--radius);
+    --ember-transmit: color-mix(in srgb, var(--ember-tint) var(--ember-tint-strength), #fff);
+    --ember-lamp: color-mix(in srgb, var(--ember-light-color) calc(var(--ember-light) * 100%), transparent);
+    position: relative;
+    border-radius: var(--ember-radius);
+    background: none;
+    box-shadow:
+        -20px 22px 14px -6px rgba(0, 0, 0, 0.78),
+        -9px 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Soft polished corners: a superellipse, like the reference's slab */
+@supports (corner-shape: squircle) {
+    .ember,
+    .ember-material,
+    .ember-material > span,
+    .ember-material > span::after {
+        corner-shape: superellipse(2.12);
+    }
+}
+
+/* Each layer is laid over the one before rather than inside it: an element with a
+   backdrop filter is an isolated group, so only siblings painted after it can blend
+   with its result. The pane's content sits above them all (z-index 1). */
+.ember-material,
+.ember-material > span {
     position: absolute;
     inset: 0;
-    z-index: 0;
-    padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 28%, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.24) 92%);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
     pointer-events: none;
 }
 
-.glass.active {
-    background: linear-gradient(160deg, rgba(172, 255, 206, 0.16), rgba(172, 255, 206, 0.05) 50%, rgba(172, 255, 206, 0.1));
+/* A ring just inside the rim, `--inset` in from it */
+.ember-material > span::after {
+    content: "";
+    position: absolute;
+    inset: var(--inset);
+    border-radius: calc(var(--ember-radius) - var(--inset));
 }
 
-/* The dot field draws the glass: the elements only carry their content */
-.gl-glass .glass {
-    background: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    box-shadow: none;
+/* Face: what lies behind, frosted (up to 24px of blur, none when fully clear). The
+   frost also scatters a little of the lamp's light, most near the side it enters,
+   which leaves the corner away from the lamp in a pool of shade. */
+.ember-face {
+    background: linear-gradient(to bottom left, color-mix(in srgb, var(--ember-lamp) 9%, transparent), transparent 75%);
+    -webkit-backdrop-filter: blur(calc((1 - var(--ember-clarity)) * 24px));
+    backdrop-filter: blur(calc((1 - var(--ember-clarity)) * 24px));
 }
 
-.gl-glass .glass::before {
-    display: none;
+/* Burn: seen edge-on, the rounded rim shows light that has bounced inside it, so it
+   deepens whatever colour the face has (colour-burn by grey), most at its outer line */
+.ember-burn {
+    mix-blend-mode: color-burn;
+    box-shadow:
+        inset 0 0 0 1px rgb(184 184 184),
+        inset 0 0 2.5px 3px rgb(207 207 207),
+        inset 0 0 18px rgb(235 235 235);
+}
+
+/* Glow from behind: whatever light lies behind the slab, brightened along the rim it
+   leaks from (colour-dodge by grey, so it scales with what lies behind and is nothing
+   over darkness). Like all the rim light, it fades from the lower-left corner to nothing
+   by the two corners beside it. (The lab's gathered glow needs a second backdrop
+   filter per pane, which halves the frame rate here.) */
+.ember-glow {
+    mix-blend-mode: color-dodge;
+    box-shadow: inset 4px -4px 6px -2px rgb(150 150 150);
+    mask: linear-gradient(to top right, #000 45%, transparent 75%);
+}
+
+/* Lamp light, which enters the face and leaks out of the rim facing away from the lamp
+   (an inset shadow cast toward the lower left, added as light), and gathers in a
+   crescent just inside that corner */
+.ember-light {
+    --inset: 7px;
+    mix-blend-mode: plus-lighter;
+    box-shadow:
+        inset 3px -3px 2px -1px var(--ember-lamp),
+        inset 7px -7px 10px -6px var(--ember-lamp);
+    mask: linear-gradient(to top right, #000 45%, transparent 75%);
+}
+
+.ember-light::after {
+    box-shadow: inset 9px -9px 14px -8px var(--ember-lamp);
+    mask: radial-gradient(circle 90px at 0 100%, #000, transparent);
+}
+
+/* Glint: the polished bevel catches that light as two fine lines, one at the edge and
+   one just inside it */
+.ember-glint {
+    --inset: 3.5px;
+    mix-blend-mode: plus-lighter;
+    box-shadow: inset 1.5px -1.5px 0 var(--ember-lamp);
+    mask: linear-gradient(to top right, #000 20%, transparent 50%);
+}
+
+.ember-glint::after {
+    box-shadow: inset 1.2px -1.2px 0 color-mix(in srgb, var(--ember-lamp) 60%, transparent);
+}
+
+/* Tint: the dye in the acrylic, if any (white, so nothing, when clear); everything the
+   glass lets through passes it */
+.ember-tint {
+    mix-blend-mode: multiply;
+    background: var(--ember-transmit);
+}
+
+/* High-contrast modes drop the material and keep the content on the system colours */
+@media (forced-colors: active) {
+    .ember-material {
+        display: none;
+    }
 }
 
 /* ---------- Layout ---------- */
 
+/* Above the field by paint order alone: a z-index would make it a stacking context, and
+   the panes' frost would see only what is inside it, not the field */
 .container {
     position: relative;
-    z-index: 1;
     display: grid;
     flex: none;
     grid-template-columns: minmax(290px, 360px) minmax(190px, 230px) minmax(0, 1fr);
@@ -177,7 +274,8 @@ a {
     width: 100%;
     height: 100%;
     min-height: 0;
-    border-radius: 20px;
+    border-radius: calc(var(--radius) - 10px);
+    corner-shape: superellipse(2.12);
     object-fit: cover;
     object-position: 50% 24%;
     filter: grayscale(1) contrast(1.05) brightness(0.92);
@@ -375,7 +473,8 @@ a {
     min-height: 0;
     padding: 0 18px;
     border: 0;
-    border-radius: 26px;
+    /* A full superellipse, like the reference's slab */
+    --ember-radius: 50%;
     font: 700 13px/1 var(--mono);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -933,9 +1032,9 @@ a {
 
 /* ---------- Dock ---------- */
 
+/* No z-index, like .container */
 .dock {
     position: relative;
-    z-index: 1;
     display: flex;
     flex: none;
     align-items: center;
@@ -961,7 +1060,7 @@ a {
     display: inline-flex;
     align-items: center;
     padding: 14px 20px;
-    border-radius: 999px;
+    --ember-radius: 999px;
     font: 700 13px/1 var(--mono);
     color: var(--text);
     text-decoration: none;
@@ -974,7 +1073,7 @@ a {
     letter-spacing: 0;
 }
 
-.lang-switch span {
+.lang-switch > span:not(.ember-material) {
     position: relative;
     z-index: 1;
 }
@@ -989,7 +1088,7 @@ a {
     gap: 18px;
     padding-block: 10px;
     padding-inline: 24px 20px;
-    border-radius: 999px;
+    --ember-radius: 999px;
     font: 400 12px/1 var(--mono);
     letter-spacing: 0.08em;
     color: var(--muted);
@@ -1050,6 +1149,42 @@ a {
     border: 0;
     border-radius: 7px;
     background: var(--mint);
+}
+
+/* ---------- Ember knobs (?tune) ---------- */
+
+.tuner {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    z-index: 10;
+    display: grid;
+    gap: 12px;
+    width: 220px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(12, 12, 14, 0.85);
+    font: 400 11px/1.3 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.tuner label {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 6px 10px;
+}
+
+.tuner output {
+    color: var(--muted);
+}
+
+.tuner input[type="range"] {
+    grid-column: 1 / -1;
+    width: 100%;
+    accent-color: var(--mint);
 }
 
 /* ---------- Stacked layout: tablets and phones ---------- */
@@ -1115,7 +1250,6 @@ a {
         gap: 10px;
         min-height: 88px;
         padding: 14px 8px;
-        border-radius: 22px;
     }
 
     .nav-button.active .nav-letter {

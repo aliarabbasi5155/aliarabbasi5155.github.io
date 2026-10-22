@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Ember Button</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400&display=swap">
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@600&display=swap">
+    <style>
+        /* Ember: a slab of clear frosted acrylic floating over whatever is behind it. The
+           material has no colour of its own; every colour on it comes from the background.
+           The face is that background, frosted (backdrop-filter); the shadow darkens and
+           deepens whatever it falls on; the rim glow is light the slab catches from behind
+           and lets out at its edge, so it is as bright as what lies behind and goes dark in
+           the dark. The script only tells it where the lamp is.
+
+           Optional knobs, on .ember or any ancestor:
+             --ember-tint            the colour the acrylic is dyed (default orange)
+             --ember-tint-strength   how much dye: 0% clear (default) to 100%
+             --ember-clarity         how clearly the background shows through: 0 heavily
+                                     frosted, 0.5 (default), 1 clear as a window */
+
+        :root {
+            --backdrop: #fa5a1a;
+        }
+
+        body {
+            margin: 0;
+            background: var(--backdrop);
+        }
+
+        /* This page's backdrop, nothing to do with the button: a studio lamp at the upper
+           right lights a pool with a soft edge, and the floor beyond it is in the dark.
+           The shade only deepens (colour-burn) and darkens (multiply) --backdrop with
+           greys, so it works for any colour. Sized to the stage (container units), softer
+           on bigger screens. */
+        .stage {
+            position: relative;
+            isolation: isolate;
+            container-type: size;
+            display: grid;
+            place-items: center;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        .stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 100% 0, rgb(232 232 232), #fff 150px),
+                linear-gradient(208deg, #fff calc(50% - 11cqmin), rgb(232 232 232) calc(50% + 1cqmin), rgb(158 158 158) calc(50% + 13cqmin), rgb(77 77 77) calc(50% + 25cqmin), rgb(32 32 32) calc(50% + 37cqmin)),
+                linear-gradient(208deg, #fff calc(50% - 11cqmin), rgb(242 242 242) calc(50% + 1cqmin), rgb(189 189 189) calc(50% + 13cqmin), rgb(189 189 189) calc(50% + 25cqmin), rgb(173 173 173) calc(50% + 37cqmin)),
+                var(--backdrop);
+            background-blend-mode: color-burn, multiply, color-burn, normal;
+        }
+
+        .backdrop-text {
+            position: absolute;
+            right: 0;
+            left: 0;
+            margin: 0;
+            color: color-mix(in srgb, var(--backdrop), #000 12%);
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .backdrop-name {
+            top: 38%;
+            font: 600 clamp(56px, 13vw, 200px) / 1 "General Sans", "Helvetica Neue", Arial, sans-serif;
+            letter-spacing: -0.045em;
+            translate: 0 -50%;
+        }
+
+        .backdrop-role {
+            top: 71%;
+            color: color-mix(in srgb, var(--backdrop), #000 22%);
+            font: 400 14px / 1 "Space Mono", ui-monospace, Menlo, monospace;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        /* ---------- The button ---------- */
+
+        /* Must not form a stacking context, so the shadow blends with the page behind it.
+           --lx, --ly: unit direction toward the lamp; --lift: 0 resting, 1 picked up;
+           --ember-transmit: what the dye lets through (white when clear). */
+        .ember {
+            --lx: 0.669;
+            --ly: -0.743;
+            --lift: 0;
+            --reach: calc(37.5px * (1 + var(--lift) * 0.8));
+            --ember-transmit: color-mix(in srgb, var(--ember-tint, #fa5a1a) var(--ember-tint-strength, 0%), #fff);
+            position: relative;
+            width: 221.5px;
+            height: 204.5px;
+        }
+
+        /* Cast shadow: darkens whatever it falls on by the share of light the slab blocks
+           (multiply by greys). Masked off under the slab, where its face shows what lies
+           behind rather than its own shadow. */
+        .ember-shadow {
+            --footprint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 221.5 204.5' preserveAspectRatio='none'%3E%3Cpath d='M221.5 102.2 221.4 131.4 221.1 142.3 220.5 150.5 219.7 157.2 218.8 162.9 217.5 168.0 216.1 172.5 214.4 176.6 212.5 180.3 210.3 183.6 207.9 186.7 205.2 189.4 202.2 191.9 198.9 194.2 195.3 196.2 191.3 198.0 186.9 199.5 182.0 200.8 176.5 202.0 170.2 202.9 163.0 203.6 154.2 204.1 142.4 204.4 110.8 204.5 79.1 204.4 67.3 204.1 58.5 203.6 51.3 202.9 45.0 202.0 39.5 200.8 34.6 199.5 30.2 198.0 26.2 196.2 22.6 194.2 19.3 191.9 16.3 189.4 13.6 186.7 11.2 183.6 9.0 180.3 7.1 176.6 5.4 172.5 4.0 168.0 2.7 162.9 1.8 157.2 1.0 150.5 0.4 142.3 0.1 131.4 0.0 102.3 0.1 73.1 0.4 62.2 1.0 54.0 1.8 47.3 2.7 41.6 4.0 36.5 5.4 32.0 7.1 27.9 9.0 24.2 11.2 20.9 13.6 17.8 16.3 15.1 19.3 12.6 22.6 10.3 26.2 8.3 30.2 6.5 34.6 5.0 39.5 3.7 45.0 2.5 51.3 1.6 58.5 0.9 67.3 0.4 79.1 0.1 110.7 0.0 142.4 0.1 154.2 0.4 163.0 0.9 170.2 1.6 176.5 2.5 182.0 3.7 186.9 5.0 191.3 6.5 195.3 8.3 198.9 10.3 202.2 12.6 205.2 15.1 207.9 17.8 210.3 20.9 212.5 24.2 214.4 27.9 216.1 32.0 217.5 36.5 218.8 41.6 219.7 47.3 220.5 54.0 221.1 62.2 221.4 73.1Z'/%3E%3C/svg%3E");
+            position: absolute;
+            inset: -90px;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+            -webkit-mask: linear-gradient(#000 0 0), var(--footprint) 90px 90px / 221.5px 204.5px no-repeat;
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0), var(--footprint) 90px 90px / 221.5px 204.5px no-repeat;
+            mask-composite: exclude;
+        }
+
+        .ember-shadow::before,
+        .ember-shadow::after {
+            content: "";
+            position: absolute;
+            top: 90px;
+            left: 90px;
+            box-sizing: border-box;
+            width: 221.5px;
+            height: 204.5px;
+            border-radius: 54px;
+        }
+
+        /* Light that passes through the slab (and its dye, if any) */
+        .ember-shadow::before {
+            background: color-mix(in srgb, var(--ember-transmit) 78%, #000);
+            translate: calc(var(--lx) * var(--reach) * -1) calc(var(--ly) * var(--reach) * -1);
+            filter: blur(calc(10px + var(--lift) * 6px));
+        }
+
+        /* The rounded rim bends the lamp's light away, so its projection is the darkest band */
+        .ember-shadow::after {
+            border: 16px solid rgb(40 40 40);
+            translate: calc(var(--lx) * var(--reach) * -1) calc(var(--ly) * var(--reach) * -1);
+            filter: blur(calc(7px + var(--lift) * 5px));
+        }
+
+        /* The slab: what lies behind, frosted (up to 24px of blur, none when fully clear) */
+        .ember-glass {
+            position: absolute;
+            inset: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 54px;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            background: transparent;
+            -webkit-backdrop-filter: blur(calc((1 - var(--ember-clarity, 0.5)) * 24px));
+            backdrop-filter: blur(calc((1 - var(--ember-clarity, 0.5)) * 24px));
+            scale: calc(1 + var(--lift) * 0.02);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ember-glass.dragging {
+            cursor: grabbing;
+        }
+
+        /* Rim lighting, tint and icon, laid over the glass rather than inside it: an element
+           with a backdrop filter is an isolated group, so only siblings painted after it can
+           blend with its frosted face (and so scale with whatever lies behind). The icon comes
+           last so the glow does not take its white for light. */
+        .ember-burn,
+        .ember-glow,
+        .ember-glint,
+        .ember-tint,
+        .ember-icon {
+            position: absolute;
+            inset: 0;
+            border-radius: 54px;
+            pointer-events: none;
+            scale: calc(1 + var(--lift) * 0.02);
+        }
+
+        /* Burn: seen edge-on, the rounded rim shows light that has bounced inside it, so it
+           deepens whatever colour the face has (colour-burn by grey), most at its outer line */
+        .ember-burn {
+            mix-blend-mode: color-burn;
+            box-shadow:
+                inset 0 0 0 1px rgb(184 184 184),
+                inset 0 0 2.5px 3px rgb(207 207 207),
+                inset 0 0 18px rgb(235 235 235);
+        }
+
+        /* Glow: lamp light caught across the slab runs through it and leaks out of the edge
+           facing away from the lamp, gathering in the curve there. Without SVG backdrop
+           filters, a dodge stands in: its colours stay below full strength in every
+           channel, so it scales with what lies behind instead of lighting up the dark. */
+        .ember-glow {
+            mix-blend-mode: color-dodge;
+            background: radial-gradient(circle at calc(50% - var(--lx) * 40%) calc(50% - var(--ly) * 40%), rgb(115 115 115 / 0.7), rgb(115 115 115 / 0) 22%);
+            box-shadow:
+                inset calc(var(--lx) * 3.5px) calc(var(--ly) * 3.5px) 1px -0.5px rgb(130 130 130 / 0.9),
+                inset calc(var(--lx) * -2px) calc(var(--ly) * -2px) 3px -1px rgb(80 80 80 / 0.3);
+        }
+
+        /* Glint: where the glow leaves the polished bevel, two fine lines catch it brighter
+           still (colour-dodge by grey, so it only brightens what is already lit) */
+        .ember-glint {
+            display: none;
+            mix-blend-mode: color-dodge;
+            background: rgb(170 170 170);
+        }
+
+        /* With them, the glow is the light actually caught: the slab's light, gathered and
+           let out along the rim (#ember-rim) */
+        @supports (backdrop-filter: url(#ember-glow)) {
+            .ember-glow {
+                mix-blend-mode: normal;
+                background: none;
+                box-shadow: none;
+                backdrop-filter: url(#ember-glow);
+                mask: url(#ember-rim);
+            }
+
+            .ember-glint {
+                display: block;
+                mask: url(#ember-glint);
+            }
+        }
+
+        /* Tint: the dye in the acrylic, if any (white, so nothing, when clear) */
+        .ember-tint {
+            mix-blend-mode: multiply;
+            background: var(--ember-transmit);
+        }
+
+        @supports (corner-shape: squircle) {
+            .ember-shadow::before,
+            .ember-shadow::after,
+            .ember-glass,
+            .ember-burn,
+            .ember-glow,
+            .ember-glint,
+            .ember-tint {
+                border-radius: 50%;
+                corner-shape: superellipse(2.12);
+            }
+        }
+
+        .ember-icon {
+            display: grid;
+            place-items: center;
+            color: #fff;
+        }
+
+        .ember-icon svg {
+            grid-area: 1 / 1;
+            width: 82px;
+            height: 90px;
+            fill: currentColor;
+            stroke: currentColor;
+            stroke-width: 24;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Optical centre of the triangle */
+        .ember-icon .play {
+            translate: 2.75px 0;
+        }
+
+        .ember-icon .pause {
+            fill: none;
+        }
+
+        .ember-glass[aria-pressed="true"] ~ .ember-icon .play,
+        .ember-glass:not([aria-pressed="true"]) ~ .ember-icon .pause {
+            visibility: hidden;
+        }
+
+        /* White beside the slab, near-black outside it: one of the two always contrasts */
+        .ember-glass:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px #fff, 0 0 0 6.5px #141210;
+        }
+
+        /* High-contrast modes drop the material; keep a plain system button */
+        @media (forced-colors: active) {
+            .ember-shadow,
+            .ember-burn,
+            .ember-glow,
+            .ember-glint,
+            .ember-tint {
+                display: none;
+            }
+
+            .ember-glass {
+                border: 1px solid ButtonText;
+                background: ButtonFace;
+                backdrop-filter: none;
+            }
+
+            .ember-icon {
+                color: ButtonText;
+            }
+        }
+
+        /* ---------- Lab controls: not part of the button; they only set custom properties ---------- */
+
+        .controls {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1;
+            width: 252px;
+            border-radius: 14px;
+            background: rgb(20 18 16 / 0.78);
+            color: #f4f1ec;
+            font: 400 11px / 1.3 "Space Mono", ui-monospace, Menlo, monospace;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }
+
+        .controls summary {
+            padding: 12px 16px;
+            cursor: pointer;
+        }
+
+        .controls form {
+            display: grid;
+            gap: 14px;
+            padding: 0 16px 16px;
+        }
+
+        .control {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 6px 12px;
+        }
+
+        .control output {
+            font-variant-numeric: tabular-nums;
+            opacity: 0.7;
+        }
+
+        .control input[type="range"] {
+            grid-column: 1 / -1;
+            width: 100%;
+            margin: 0;
+            accent-color: #f4f1ec;
+        }
+
+        .control input[type="color"] {
+            width: 36px;
+            height: 24px;
+            padding: 0;
+            border: 1px solid rgb(244 241 236 / 0.35);
+            border-radius: 6px;
+            background: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 520px) {
+            .controls {
+                left: 16px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="stage">
+        <h1 class="backdrop-text backdrop-name">Ali Abbasi</h1>
+        <p class="backdrop-text backdrop-role">AI / GenAI Engineer</p>
+        <div class="ember">
+            <span class="ember-shadow" aria-hidden="true"></span>
+            <button class="ember-glass" type="button" aria-label="Play" aria-pressed="false"></button>
+            <span class="ember-burn" aria-hidden="true"></span>
+            <span class="ember-glow" aria-hidden="true"></span>
+            <span class="ember-glint" aria-hidden="true"></span>
+            <span class="ember-tint" aria-hidden="true"></span>
+            <span class="ember-icon" aria-hidden="true">
+                <svg class="play" viewBox="0 0 82 90">
+                    <path d="M12 12 70 45 12 78Z"/>
+                </svg>
+                <svg class="pause" viewBox="0 0 82 90">
+                    <path d="M22 22v46M60 22v46"/>
+                </svg>
+            </span>
+        </div>
+    </main>
+
+    <details class="controls" open>
+        <summary>Material</summary>
+        <form>
+            <div class="control">
+                <label for="c-backdrop">Background</label>
+                <input id="c-backdrop" type="color" value="#fa5a1a">
+            </div>
+            <div class="control">
+                <label for="c-tint">Tint</label>
+                <input id="c-tint" type="color" value="#fa5a1a">
+            </div>
+            <div class="control">
+                <label for="c-tint-strength">Tint strength</label>
+                <output for="c-tint-strength" id="c-tint-strength-out">0%</output>
+                <input id="c-tint-strength" type="range" min="0" max="100" value="0">
+            </div>
+            <div class="control">
+                <label for="c-clarity">Clarity</label>
+                <output for="c-clarity" id="c-clarity-out">50%</output>
+                <input id="c-clarity" type="range" min="0" max="100" value="50">
+            </div>
+        </form>
+    </details>
+
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+        <!-- The glow: light caught across the whole slab (a wide average of what lies behind)
+             runs through it and leaves at the rim. On the way it deepens, the way light does
+             after bouncing between coloured surfaces: each channel is raised to the power 1.5,
+             the same for every channel, so the hue comes only from what lies behind (orange
+             turns red-orange, blue deep blue, white stays white). Dim light also fades faster
+             than it dims, so the dark barely glows. At the rim, that light outshines most of
+             the face. -->
+        <filter id="ember-glow" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="100" edgeMode="duplicate"/>
+            <feColorMatrix type="matrix" result="caught"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1"/>
+            <feComponentTransfer in="caught" result="glow">
+                <feFuncR type="gamma" amplitude="2" exponent="1.5"/>
+                <feFuncG type="gamma" amplitude="2" exponent="1.5"/>
+                <feFuncB type="gamma" amplitude="2" exponent="1.5"/>
+            </feComponentTransfer>
+            <feComposite in="SourceGraphic" in2="glow" operator="arithmetic" k1="0" k2="0.3" k3="1" k4="0"/>
+        </filter>
+
+        <!-- Where it leaks: along the rim, fading toward the lamp, and in a crescent just inside
+             the corner facing away from it. The polished bevel catches it as two fine lines,
+             one at the edge and one just inside. All follow the lamp (set by the script; these
+             defaults match the lamp at the stage's centre). Insets scale the outline about its
+             centre. -->
+        <path id="ember-squircle" d="M221.5 102.2 221.4 131.4 221.1 142.3 220.5 150.5 219.7 157.2 218.8 162.9 217.5 168.0 216.1 172.5 214.4 176.6 212.5 180.3 210.3 183.6 207.9 186.7 205.2 189.4 202.2 191.9 198.9 194.2 195.3 196.2 191.3 198.0 186.9 199.5 182.0 200.8 176.5 202.0 170.2 202.9 163.0 203.6 154.2 204.1 142.4 204.4 110.8 204.5 79.1 204.4 67.3 204.1 58.5 203.6 51.3 202.9 45.0 202.0 39.5 200.8 34.6 199.5 30.2 198.0 26.2 196.2 22.6 194.2 19.3 191.9 16.3 189.4 13.6 186.7 11.2 183.6 9.0 180.3 7.1 176.6 5.4 172.5 4.0 168.0 2.7 162.9 1.8 157.2 1.0 150.5 0.4 142.3 0.1 131.4 0.0 102.3 0.1 73.1 0.4 62.2 1.0 54.0 1.8 47.3 2.7 41.6 4.0 36.5 5.4 32.0 7.1 27.9 9.0 24.2 11.2 20.9 13.6 17.8 16.3 15.1 19.3 12.6 22.6 10.3 26.2 8.3 30.2 6.5 34.6 5.0 39.5 3.7 45.0 2.5 51.3 1.6 58.5 0.9 67.3 0.4 79.1 0.1 110.7 0.0 142.4 0.1 154.2 0.4 163.0 0.9 170.2 1.6 176.5 2.5 182.0 3.7 186.9 5.0 191.3 6.5 195.3 8.3 198.9 10.3 202.2 12.6 205.2 15.1 207.9 17.8 210.3 20.9 212.5 24.2 214.4 27.9 216.1 32.0 217.5 36.5 218.8 41.6 219.7 47.3 220.5 54.0 221.1 62.2 221.4 73.1Z"/>
+        <linearGradient id="ember-leak" gradientUnits="userSpaceOnUse" x1="10.4" y1="213.7" x2="211.1" y2="-9.2">
+            <stop offset="0" stop-color="#fff"/>
+            <stop offset="0.45" stop-color="#fff"/>
+            <stop offset="0.75" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <!-- The glint keeps to the far side: the same line, a shorter reach -->
+        <linearGradient id="ember-glint-leak" href="#ember-leak">
+            <stop offset="0" stop-color="#fff"/>
+            <stop offset="0.2" stop-color="#fff"/>
+            <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="ember-pool" gradientUnits="userSpaceOnUse" cx="29.1" cy="192.9" r="48">
+            <stop offset="0" stop-color="#fff"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="ember-soften-fine" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="0.5"/>
+        </filter>
+        <filter id="ember-soften" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="2"/>
+        </filter>
+        <filter id="ember-soften-mid" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="3"/>
+        </filter>
+        <filter id="ember-soften-wide" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="4"/>
+        </filter>
+        <mask id="ember-rim" maskUnits="userSpaceOnUse" x="0" y="0" width="221.5" height="204.5">
+            <use href="#ember-squircle" fill="none" stroke="url(#ember-leak)" stroke-width="10" filter="url(#ember-soften)"/>
+            <use href="#ember-squircle" transform="translate(8 8) scale(0.92777 0.92176)"
+                fill="none" stroke="url(#ember-pool)" stroke-width="20" filter="url(#ember-soften-wide)"/>
+        </mask>
+        <mask id="ember-glint" maskUnits="userSpaceOnUse" x="0" y="0" width="221.5" height="204.5">
+            <use href="#ember-squircle" fill="none" stroke="url(#ember-glint-leak)" stroke-width="3" filter="url(#ember-soften-fine)"/>
+            <use href="#ember-squircle" transform="translate(3.5 3.5) scale(0.96840 0.96577)"
+                fill="none" stroke="url(#ember-glint-leak)" stroke-opacity="0.75" stroke-width="1.5" filter="url(#ember-soften-fine)"/>
+            <use href="#ember-squircle" transform="translate(8 8) scale(0.92777 0.92176)"
+                fill="none" stroke="url(#ember-pool)" stroke-opacity="0.5" stroke-width="10" filter="url(#ember-soften-mid)"/>
+        </mask>
+    </svg>
+
+    <script>
+        (() => {
+            const stage = document.querySelector('.stage');
+            const ember = document.querySelector('.ember');
+            const glass = ember.querySelector('.ember-glass');
+            const leak = document.getElementById('ember-leak');
+            const pool = document.getElementById('ember-pool');
+            const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // The lamp, up and to the right of the stage's centre (CSS px). Only the
+            // direction from the button toward it matters.
+            const LAMP = { x: 401, y: -446 };
+
+            function aim() {
+                const s = stage.getBoundingClientRect();
+                const b = ember.getBoundingClientRect();
+                const dx = s.left + s.width / 2 + LAMP.x - (b.left + b.width / 2);
+                const dy = s.top + s.height / 2 + LAMP.y - (b.top + b.height / 2);
+                const d = Math.hypot(dx, dy) || 1;
+                const lx = dx / d;
+                const ly = dy / d;
+                ember.style.setProperty('--lx', lx.toFixed(4));
+                ember.style.setProperty('--ly', ly.toFixed(4));
+
+                // The rim glow leaks out on the far side from the lamp (slab coordinates)
+                const cx = 110.75;
+                const cy = 102.25;
+                leak.setAttribute('x1', (cx - lx * 150).toFixed(1));
+                leak.setAttribute('y1', (cy - ly * 150).toFixed(1));
+                leak.setAttribute('x2', (cx + lx * 150).toFixed(1));
+                leak.setAttribute('y2', (cy + ly * 150).toFixed(1));
+                pool.setAttribute('cx', (cx - lx * 122).toFixed(1));
+                pool.setAttribute('cy', (cy - ly * 122).toFixed(1));
+            }
+
+            // Lift springs toward its target: resting, hovered, pressed or carried
+            const LIFT = { rest: 0, hover: 0.35, press: -0.25, carry: 1 };
+            let lift = 0;
+            let velocity = 0;
+            let target = 0;
+            let frame = 0;
+            let last = 0;
+
+            function step(now) {
+                frame = 0;
+                const dt = last ? Math.min((now - last) / 1000, 1 / 30) : 0;
+                last = now;
+                if (reduceMotion) {
+                    lift = target;
+                    velocity = 0;
+                } else {
+                    velocity += (170 * (target - lift) - 22 * velocity) * dt;
+                    lift += velocity * dt;
+                }
+                ember.style.setProperty('--lift', lift.toFixed(4));
+                if (Math.abs(target - lift) > 0.001 || Math.abs(velocity) > 0.001) frame = requestAnimationFrame(step);
+                else last = 0;
+            }
+
+            function liftTo(value) {
+                target = value;
+                if (!frame) frame = requestAnimationFrame(step);
+            }
+
+            // Position: offset from the centre of the stage, kept inside it
+            const offset = { x: 0, y: 0 };
+
+            function place() {
+                const maxX = Math.max(0, (stage.clientWidth - ember.offsetWidth) / 2 - 12);
+                const maxY = Math.max(0, (stage.clientHeight - ember.offsetHeight) / 2 - 12);
+                offset.x = Math.min(maxX, Math.max(-maxX, offset.x));
+                offset.y = Math.min(maxY, Math.max(-maxY, offset.y));
+                ember.style.left = `${offset.x}px`;
+                ember.style.top = `${offset.y}px`;
+                aim();
+            }
+
+            let drag = null;
+            let hovering = false;
+            let dragged = false;
+
+            glass.addEventListener('pointerdown', event => {
+                if (event.button !== 0) return;
+                drag = { id: event.pointerId, x: event.clientX, y: event.clientY, from: { ...offset }, moved: false };
+                glass.setPointerCapture(event.pointerId);
+                liftTo(LIFT.press);
+            });
+
+            glass.addEventListener('pointermove', event => {
+                if (!drag || event.pointerId !== drag.id) return;
+                const dx = event.clientX - drag.x;
+                const dy = event.clientY - drag.y;
+                if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+                if (!drag.moved) {
+                    drag.moved = true;
+                    glass.classList.add('dragging');
+                    liftTo(LIFT.carry);
+                }
+                offset.x = drag.from.x + dx;
+                offset.y = drag.from.y + dy;
+                place();
+            });
+
+            const release = event => {
+                if (!drag || event.pointerId !== drag.id) return;
+                dragged = drag.moved;
+                drag = null;
+                glass.classList.remove('dragging');
+                liftTo(hovering ? LIFT.hover : LIFT.rest);
+            };
+            glass.addEventListener('pointerup', release);
+            glass.addEventListener('pointercancel', release);
+
+            glass.addEventListener('pointerenter', event => {
+                if (event.pointerType !== 'mouse') return;
+                hovering = true;
+                if (!drag) liftTo(LIFT.hover);
+            });
+            glass.addEventListener('pointerleave', event => {
+                if (event.pointerType !== 'mouse') return;
+                hovering = false;
+                if (!drag) liftTo(LIFT.rest);
+            });
+
+            // A drag is not a press
+            glass.addEventListener('click', () => {
+                if (dragged) {
+                    dragged = false;
+                    return;
+                }
+                glass.setAttribute('aria-pressed', String(glass.getAttribute('aria-pressed') !== 'true'));
+            });
+
+            // Arrow keys move it too; Shift for bigger steps
+            glass.addEventListener('keydown', event => {
+                const stepSize = event.shiftKey ? 48 : 12;
+                const moves = { ArrowLeft: [-stepSize, 0], ArrowRight: [stepSize, 0], ArrowUp: [0, -stepSize], ArrowDown: [0, stepSize] };
+                const move = moves[event.key];
+                if (!move) return;
+                event.preventDefault();
+                offset.x += move[0];
+                offset.y += move[1];
+                place();
+            });
+
+            window.addEventListener('resize', place);
+            place();
+
+            // Lab controls: they only set the custom properties the page and the button read
+            const controls = document.querySelector('.controls');
+            const field = id => document.getElementById(id);
+
+            function material() {
+                document.documentElement.style.setProperty('--backdrop', field('c-backdrop').value);
+                ember.style.setProperty('--ember-tint', field('c-tint').value);
+                ember.style.setProperty('--ember-tint-strength', `${field('c-tint-strength').value}%`);
+                ember.style.setProperty('--ember-clarity', String(field('c-clarity').value / 100));
+                field('c-tint-strength-out').value = `${field('c-tint-strength').value}%`;
+                field('c-clarity-out').value = `${field('c-clarity').value}%`;
+            }
+
+            controls.addEventListener('input', material);
+            if (matchMedia('(max-width: 520px)').matches) controls.open = false;
+            material();
+        })();
+    </script>
+</body>
+</html>
