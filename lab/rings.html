@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex">
+    <title>Glass Rings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400&family=Space+Mono:wght@400&display=swap">
+    <style>
+        /* Glass Rings: a stack of coral-stained glass discs floating in front of a pale wall,
+           each at its own depth. Every disc frosts whatever lies behind it (the discs further
+           back, the wall and its dots); the paint inside each one slowly sloshes; light from
+           the upper left catches their bevels and throws their shadows down to the right.
+           The theme and sound controls are clear lenses of the same glass, bobbing on their
+           own and bending the dots behind them.
+
+           Layout: one screen. The name on the left, the stack in the middle, the lenses in
+           the right-hand corners. */
+        :root {
+            --ground: #e3e2e0;
+            --ink: #ffffff;
+            --ink-lift: rgb(96 84 78 / 0.18);
+            --dot: rgb(255 255 255 / 0.95);
+            --paint: #f6654a;
+            --paint-deep: #e02f29;
+            --glass: rgb(255 255 255 / 0.22);
+            --bevel: rgb(255 255 255 / 0.9);
+            --caustic: color-mix(in srgb, var(--paint) 12%, rgb(255 255 255 / 0.65));
+            --rim-shade: rgb(130 30 20 / 0.22);
+            --cast: color-mix(in srgb, var(--paint) 35%, rgb(60 40 36 / 0.3));
+            --halo: color-mix(in srgb, var(--paint) 10%, rgb(110 84 78 / 0.15));
+            --halo-blend: multiply;
+            --lens-ink: #ffffff;
+            --lens-fill: rgb(255 255 255 / 0);
+            --lens-rim: rgb(255 255 255 / 0.95);
+            --lens-rim-off: rgb(255 255 255 / 0.6);
+            --lens-glow: rgb(255 255 255 / 0.4);
+            --icon-shade: rgb(60 44 40 / 0.22);
+            --lens-drop: rgb(70 52 46 / 0.26);
+            --smoke: rgb(36 35 36 / 0.82);
+            --focus: #141210;
+            --panel: rgb(20 18 16 / 0.8);
+            --panel-ink: #f4f1ec;
+            --panel-edge: transparent;
+            --display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+            --mono: "Space Mono", ui-monospace, Menlo, monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --ground: #111112;
+                --ink: #f6f3f1;
+                --ink-lift: transparent;
+                --dot: rgb(255 255 255 / 0.2);
+                --glass: rgb(255 255 255 / 0.05);
+                --bevel: rgb(255 255 255 / 0.6);
+                --caustic: color-mix(in srgb, var(--paint) 40%, rgb(255 255 255 / 0.45));
+                --rim-shade: rgb(0 0 0 / 0.35);
+                --cast: rgb(0 0 0 / 0.55);
+                --halo: color-mix(in srgb, var(--paint) 30%, transparent);
+                --halo-blend: screen;
+                --lens-fill: rgb(255 255 255 / 0.04);
+                --lens-rim: rgb(255 255 255 / 0.85);
+                --lens-rim-off: rgb(255 255 255 / 0.4);
+                --lens-glow: rgb(255 255 255 / 0.5);
+                --icon-shade: transparent;
+                --lens-drop: rgb(0 0 0 / 0.6);
+                --smoke: rgb(255 255 255 / 0.12);
+                --focus: #ffffff;
+                --panel-edge: rgb(255 255 255 / 0.14);
+                color-scheme: dark;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --ground: #111112;
+            --ink: #f6f3f1;
+            --ink-lift: transparent;
+            --dot: rgb(255 255 255 / 0.2);
+            --glass: rgb(255 255 255 / 0.05);
+            --bevel: rgb(255 255 255 / 0.6);
+            --caustic: color-mix(in srgb, var(--paint) 40%, rgb(255 255 255 / 0.45));
+            --rim-shade: rgb(0 0 0 / 0.35);
+            --cast: rgb(0 0 0 / 0.55);
+            --halo: color-mix(in srgb, var(--paint) 30%, transparent);
+            --halo-blend: screen;
+            --lens-fill: rgb(255 255 255 / 0.04);
+            --lens-rim: rgb(255 255 255 / 0.85);
+            --lens-rim-off: rgb(255 255 255 / 0.4);
+            --lens-glow: rgb(255 255 255 / 0.5);
+            --icon-shade: transparent;
+            --lens-drop: rgb(0 0 0 / 0.6);
+            --smoke: rgb(255 255 255 / 0.12);
+            --focus: #ffffff;
+            --panel-edge: rgb(255 255 255 / 0.14);
+            color-scheme: dark;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background: var(--ground);
+            color: var(--ink);
+            font-family: var(--display);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* The new theme spreads out from the lens that chose it (script) */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+
+        .stage {
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Dots on the wall, gathered at the right; the lenses bend them */
+        .dots {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle, var(--dot) 0 1.3px, transparent 1.9px) right 24px bottom 24px / 52px 52px;
+            -webkit-mask: radial-gradient(ellipse 62% 95% at 100% 68%, #000 30%, transparent 75%);
+            mask: radial-gradient(ellipse 62% 95% at 100% 68%, #000 30%, transparent 75%);
+        }
+
+        /* ---------- Type ---------- */
+
+        .intro {
+            position: absolute;
+            top: 30%;
+            left: max(16px, 7.9vw, calc(env(safe-area-inset-left, 0px) + 16px));
+            display: grid;
+            gap: clamp(24px, 6vh, 48px);
+            margin: 0;
+            text-shadow: 0 1px 1px rgb(0 0 0 / 0.02), 0 4px 24px var(--ink-lift);
+        }
+
+        .title {
+            margin: 0;
+            font-size: clamp(44px, min(6.6vw, 12vh), 108px);
+            font-weight: 400;
+            line-height: 0.94;
+            letter-spacing: -0.045em;
+        }
+
+        .title span {
+            display: block;
+        }
+
+        .lede {
+            margin: 0;
+            font-size: clamp(14px, 1.25vw, 17px);
+            line-height: 1.4;
+            letter-spacing: 0.005em;
+        }
+
+        /* ---------- The stack ---------- */
+
+        /* --D is the largest disc's diameter. Each disc gives its own diameter (--d) and its
+           resting offset from the stack's centre (--x0, --y0), all as fractions of --D, and
+           where its paint was sprayed from (--sx, --sy) and how far it reaches (--s1 solid,
+           --s2 half, --s3 gone). No transform here: it would isolate the shadows' multiply
+           from the wall. */
+        .sculpture {
+            --D: min(64vh, 46vw, 720px);
+            --frost: 14px;
+            position: absolute;
+            top: calc(57% - var(--D) / 2);
+            left: calc(53% - var(--D) / 2);
+            width: var(--D);
+            height: var(--D);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .halo,
+        .cast,
+        .disc {
+            position: absolute;
+            top: calc(50% - var(--d) * var(--D) / 2);
+            left: calc(50% - var(--d) * var(--D) / 2);
+            width: calc(var(--d) * var(--D));
+            height: calc(var(--d) * var(--D));
+            border-radius: 50%;
+            pointer-events: none;
+            translate: calc(var(--x0, 0) * var(--D)) calc(var(--y0, 0) * var(--D));
+            will-change: transform;
+        }
+
+        /* The light the whole stack holds back from the wall (light) or lets through, stained
+           the paint's colour (dark) */
+        .halo {
+            --d: 0.98;
+            --x0: 0.05;
+            --y0: 0.07;
+            background: var(--halo);
+            filter: blur(calc(var(--D) * 0.06));
+            mix-blend-mode: var(--halo-blend);
+            will-change: transform, opacity;
+        }
+
+        /* A disc's shadow on the one behind it: light through stained glass, so a shade of
+           the paint's colour */
+        .cast {
+            background: var(--cast);
+            filter: blur(calc(var(--D) * 0.014));
+            mix-blend-mode: multiply;
+            translate: calc(var(--x0) * var(--D) + var(--D) * 0.02) calc(var(--y0) * var(--D) + var(--D) * 0.03);
+            will-change: transform, opacity;
+        }
+
+        /* The glass: what lies behind, frosted */
+        .disc {
+            background: var(--glass);
+            -webkit-backdrop-filter: blur(var(--frost)) saturate(1.35);
+            backdrop-filter: blur(var(--frost)) saturate(1.35);
+        }
+
+        .paint,
+        .sheen {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+        }
+
+        /* The paint inside it, sprayed from the lower left; it turns, the light does not.
+           The script swaps this smooth gradient for the same one airbrushed. */
+        .paint {
+            background: radial-gradient(circle at var(--sx) var(--sy),
+                var(--paint-deep),
+                var(--paint) var(--s1),
+                color-mix(in oklab, var(--paint) 45%, transparent) var(--s2),
+                transparent var(--s3)) center / 100% 100%;
+            will-change: transform;
+        }
+
+        /* Light from the upper left: it catches the bevel there, runs through the glass and
+           gathers on the far rim; the edge facing away from it is in shade */
+        .sheen {
+            background: radial-gradient(ellipse 50% 34% at 30% 18%, rgb(255 255 255 / 0.14), transparent 70%);
+            box-shadow:
+                inset 0 0 0 1px rgb(255 255 255 / 0.28),
+                inset 2px 2.5px 1.5px -1px var(--bevel),
+                inset -3px -4px 9px -3px var(--caustic),
+                inset -1px -1.5px 1px -0.5px var(--rim-shade);
+        }
+
+        /* The pin at the front disc's centre */
+        .nub {
+            background:
+                radial-gradient(circle at calc(50% - 1px) calc(50% - 1.5px), rgb(255 255 255 / 0.4) 0 2.5px, transparent 4px),
+                radial-gradient(circle at calc(50% + 1.5px) calc(50% + 2px), var(--rim-shade) 0 4px, transparent 6.5px),
+                radial-gradient(ellipse 50% 34% at 30% 18%, rgb(255 255 255 / 0.14), transparent 70%);
+        }
+
+        /* ---------- Lenses ---------- */
+
+        /* Each lens floats in a holder that carries its bob and its shadow (--lift: how high
+           it floats). The lens itself casts no outer shadow: Chromium would then measure the
+           refraction from the shadow's edge instead of the lens's. Always a stacking
+           context, so the shadow sits under the lens. */
+        .float {
+            --lift: 0.5;
+            position: relative;
+            display: grid;
+            translate: 0 0;
+            will-change: transform;
+        }
+
+        .drop {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 calc(10px + var(--lift) * 12px) calc(16px + var(--lift) * 16px) -10px var(--lens-drop);
+        }
+
+        /* Clear glass that bends what lies behind it (script, Chromium) or just clears it a
+           little elsewhere */
+        .lens {
+            --size: 58px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: var(--size);
+            height: var(--size);
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: var(--lens-fill);
+            color: var(--lens-ink);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-backdrop-filter: blur(2px) saturate(1.6);
+            backdrop-filter: blur(2px) saturate(1.6);
+            box-shadow:
+                inset 0 0 0 1.5px var(--lens-rim),
+                inset 2px 3px 2px -1.5px rgb(255 255 255 / 0.85),
+                inset -2px -4px 6px -3px var(--lens-glow);
+            will-change: transform;
+        }
+
+        .lens svg {
+            width: 46%;
+            height: 46%;
+            filter: drop-shadow(0 1px 2px var(--icon-shade));
+            pointer-events: none;
+        }
+
+        /* The ring goes on the holder's shadow layer, for the same reason as the shadow */
+        .lens:focus-visible {
+            outline: none;
+        }
+
+        .lens:focus-visible + .drop {
+            outline: 2px solid var(--focus);
+            outline-offset: 5px;
+        }
+
+        .theme {
+            position: absolute;
+            top: calc(10% + env(safe-area-inset-top, 0px));
+            right: calc(11% + env(safe-area-inset-right, 0px));
+            display: flex;
+            gap: 12px;
+        }
+
+        .theme .lens[aria-pressed="false"] {
+            --lens-rim: var(--lens-rim-off);
+        }
+
+        .sound-spot {
+            position: absolute;
+            right: calc(3% + env(safe-area-inset-right, 0px));
+            bottom: calc(5% + env(safe-area-inset-bottom, 0px));
+        }
+
+        .sound {
+            --size: 72px;
+            --lens-rim: rgb(255 255 255 / 0.16);
+            background: var(--smoke);
+        }
+
+        .sound[aria-pressed="true"] .muted {
+            display: none;
+        }
+
+        /* High-contrast modes drop the glass and keep plain system buttons */
+        @media (forced-colors: active) {
+            .lens {
+                border: 1px solid ButtonText;
+                background: ButtonFace;
+                color: ButtonText;
+                backdrop-filter: none !important;
+            }
+
+            .drop {
+                display: none;
+            }
+        }
+
+        /* ---------- Lab controls: not part of the design; they only set custom properties ---------- */
+
+        .controls {
+            position: absolute;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            left: calc(16px + env(safe-area-inset-left, 0px));
+            z-index: 1;
+            width: 236px;
+            border-radius: 14px;
+            background: var(--panel);
+            box-shadow: inset 0 0 0 1px var(--panel-edge);
+            color: var(--panel-ink);
+            font: 400 11px / 1.3 var(--mono);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }
+
+        .controls summary {
+            padding: 12px 16px;
+            cursor: pointer;
+        }
+
+        .controls form {
+            display: grid;
+            gap: 14px;
+            padding: 0 16px 16px;
+        }
+
+        .control {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 6px 12px;
+        }
+
+        .control output {
+            font-variant-numeric: tabular-nums;
+            opacity: 0.7;
+        }
+
+        .control input[type="range"] {
+            grid-column: 1 / -1;
+            width: 100%;
+            margin: 0;
+            accent-color: var(--panel-ink);
+        }
+
+        .control input[type="color"] {
+            width: 36px;
+            height: 24px;
+            padding: 0;
+            border: 1px solid rgb(244 241 236 / 0.35);
+            border-radius: 6px;
+            background: none;
+            cursor: pointer;
+        }
+
+        .hint {
+            margin: 0;
+            opacity: 0.7;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+
+        /* ---------- Phones and portrait tablets: name on top, the stack below it ---------- */
+
+        @media (max-width: 720px), (max-aspect-ratio: 4 / 5) {
+            .intro {
+                top: calc(12% + env(safe-area-inset-top, 0px));
+                left: max(16px, 6vw, calc(env(safe-area-inset-left, 0px) + 16px));
+                gap: 20px;
+            }
+
+            .title {
+                font-size: clamp(44px, 14vw, 72px);
+            }
+
+            .lede {
+                font-size: 15px;
+            }
+
+            .sculpture {
+                --D: min(88vw, 52vh);
+                top: calc(63% - var(--D) / 2);
+                left: calc(50% - var(--D) / 2);
+            }
+
+            .theme {
+                top: calc(16px + env(safe-area-inset-top, 0px));
+                right: calc(16px + env(safe-area-inset-right, 0px));
+                gap: 10px;
+            }
+
+            .theme .lens {
+                --size: 48px;
+            }
+
+            .sound-spot {
+                right: calc(16px + env(safe-area-inset-right, 0px));
+                bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .sound {
+                --size: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="stage">
+        <div class="dots" aria-hidden="true"></div>
+
+        <!-- Back to front. Each disc after the first casts a shadow on the one behind it. -->
+        <div class="sculpture" aria-hidden="true">
+            <span class="halo"></span>
+            <span class="disc" style="--d: 1; --x0: -0.014; --y0: 0.042; --sx: 9%; --sy: 91%; --s1: 7%; --s2: 27%; --s3: 45%"><span class="paint"></span><span class="sheen"></span></span>
+            <span class="cast" style="--d: 0.83; --x0: -0.006; --y0: 0.02"></span>
+            <span class="disc" style="--d: 0.83; --x0: -0.006; --y0: 0.02; --sx: 11%; --sy: 89%; --s1: 13%; --s2: 40%; --s3: 62%"><span class="paint"></span><span class="sheen"></span></span>
+            <span class="cast" style="--d: 0.68; --x0: 0.002; --y0: -0.004"></span>
+            <span class="disc" style="--d: 0.68; --x0: 0.002; --y0: -0.004; --sx: 13%; --sy: 87%; --s1: 22%; --s2: 56%; --s3: 80%"><span class="paint"></span><span class="sheen"></span></span>
+            <span class="cast" style="--d: 0.52; --x0: 0.01; --y0: -0.028"></span>
+            <span class="disc" style="--d: 0.52; --x0: 0.01; --y0: -0.028; --sx: 16%; --sy: 84%; --s1: 42%; --s2: 82%; --s3: 104%"><span class="paint"></span><span class="sheen"></span></span>
+            <span class="cast" style="--d: 0.35; --x0: 0.017; --y0: -0.05"></span>
+            <span class="disc" style="--d: 0.35; --x0: 0.017; --y0: -0.05; --sx: 22%; --sy: 78%; --s1: 45%; --s2: 120%; --s3: 140%"><span class="paint"></span><span class="sheen nub"></span></span>
+        </div>
+
+        <header class="intro">
+            <h1 class="title"><span>Ali</span> <span>Abbasi</span></h1>
+            <p class="lede">AI / GenAI Engineer.</p>
+        </header>
+
+        <div class="theme" role="group" aria-label="Theme">
+            <span class="float">
+                <button class="lens" type="button" data-theme-choice="dark" aria-pressed="false" aria-label="Dark">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M20.4 15.2A8.6 8.6 0 0 1 8.8 3.6a8.6 8.6 0 1 0 11.6 11.6Z"/>
+                    </svg>
+                </button>
+                <span class="drop" aria-hidden="true"></span>
+            </span>
+            <span class="float">
+                <button class="lens" type="button" data-theme-choice="light" aria-pressed="false" aria-label="Light">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4.6" fill="currentColor"/>
+                        <path fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"
+                            d="M12 1.8v1.4M12 20.8v1.4M22.2 12h-1.4M3.2 12H1.8M19.2 4.8l-1 1M5.8 18.2l-1 1M19.2 19.2l-1-1M5.8 5.8l-1-1"/>
+                    </svg>
+                </button>
+                <span class="drop" aria-hidden="true"></span>
+            </span>
+        </div>
+
+        <span class="float sound-spot">
+            <button class="lens sound" type="button" aria-pressed="false" aria-label="Sound">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M3 9.2h3.6L11.4 5v14l-4.8-4.2H3Z"/>
+                    <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15 9a4.2 4.2 0 0 1 0 6M17.8 6.4a8 8 0 0 1 0 11.2"/>
+                    <path class="muted" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M3.4 3.4l17.2 17.2"/>
+                </svg>
+            </button>
+            <span class="drop" aria-hidden="true"></span>
+        </span>
+
+        <details class="controls">
+            <summary>Material</summary>
+            <form>
+                <div class="control">
+                    <label for="c-paint">Paint</label>
+                    <input id="c-paint" type="color" value="#f6654a">
+                </div>
+                <div class="control">
+                    <label for="c-float">Float</label>
+                    <output for="c-float" id="c-float-out">60%</output>
+                    <input id="c-float" type="range" min="0" max="100" value="60">
+                </div>
+                <div class="control">
+                    <label for="c-frost">Frost</label>
+                    <output for="c-frost" id="c-frost-out">50%</output>
+                    <input id="c-frost" type="range" min="0" max="100" value="50">
+                </div>
+                <p class="hint">Tap the rings to send a pulse through them. With sound on, they pulse with each note.</p>
+            </form>
+        </details>
+    </main>
+
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position: absolute">
+        <!-- One refraction filter per lens size, made by the script -->
+        <defs id="lens-filters"></defs>
+    </svg>
+
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+            const TAU = Math.PI * 2;
+            const settings = { float: 0.6 };
+
+            // Writes a style only when it changes, so a still page does no work
+            const written = new WeakMap();
+            function put(el, property, value) {
+                let last = written.get(el);
+                if (!last) written.set(el, last = {});
+                if (last[property] === value) return;
+                last[property] = value;
+                el.style.setProperty(property, value);
+            }
+
+            // ---------- Theme: the moon and sun lenses ----------
+
+            const THEME_KEY = 'lab-rings-theme';
+            const themeButtons = [...document.querySelectorAll('[data-theme-choice]')];
+            const systemDark = matchMedia('(prefers-color-scheme: dark)');
+            const currentTheme = () => root.dataset.theme || (systemDark.matches ? 'dark' : 'light');
+
+            function syncTheme() {
+                const theme = currentTheme();
+                for (const button of themeButtons) button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+            }
+
+            function chooseTheme(theme, from) {
+                try {
+                    localStorage.setItem(THEME_KEY, theme);
+                } catch {}
+                const apply = () => {
+                    root.dataset.theme = theme;
+                    syncTheme();
+                };
+                if (theme === currentTheme() || !document.startViewTransition || reduceMotion.matches) {
+                    apply();
+                    return;
+                }
+                const r = from.getBoundingClientRect();
+                const x = r.left + r.width / 2;
+                const y = r.top + r.height / 2;
+                const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+                document.startViewTransition(apply).ready.then(() => {
+                    root.animate(
+                        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+                        { duration: 600, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+                    );
+                }).catch(() => {});
+            }
+
+            try {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved === 'dark' || saved === 'light') root.dataset.theme = saved;
+            } catch {}
+            for (const button of themeButtons) button.addEventListener('click', () => chooseTheme(button.dataset.themeChoice, button));
+            systemDark.addEventListener('change', syncTheme);
+            new MutationObserver(syncTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+            syncTheme();
+
+            // ---------- The stack ----------
+
+            const sculpture = document.querySelector('.sculpture');
+            const halo = sculpture.querySelector('.halo');
+            const casts = [...sculpture.querySelectorAll('.cast')];
+            const discs = [...sculpture.querySelectorAll('.disc')];
+            const style = (el, name) => parseFloat(el.style.getPropertyValue(name));
+
+            // Back to front: z is the depth (0 at the back, 1 at the front). Smaller discs
+            // float a little faster; s and w are the springs a pulse sets ringing (swell and
+            // squash).
+            const layers = discs.map((disc, i) => ({
+                disc,
+                paint: disc.querySelector('.paint'),
+                d: style(disc, '--d'),
+                cast: i ? casts[i - 1] : null,
+                z: i / (discs.length - 1),
+                x0: style(disc, '--x0'),
+                y0: style(disc, '--y0'),
+                period: 9.4 - i * 0.9,
+                phase: i * 1.37,
+                s: 0,
+                sv: 0,
+                w: 0,
+                wv: 0,
+                kicks: []
+            }));
+
+            // Airbrush: where the paint thins out it breaks into grain instead of fading
+            // smoothly. The paint's opacity a and a noise n (about 0.3 to 0.7) give a mask
+            // 6a + 2.4n - 4.2: solid paint stays solid, bare glass stays bare, and the band
+            // where a is about 0.25 to 0.6 is stippled. Each disc's paint is drawn once, as
+            // an image; as a filter on the page the noise would be worked out every frame.
+            const AIRBRUSH = `
+                <filter id="a" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+                    <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="grain"/>
+                    <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="noise"/>
+                    <feComposite in="SourceAlpha" in2="noise" operator="arithmetic" k1="0" k2="6" k3="2.4" k4="-4.2" result="stipple"/>
+                    <feComposite in="SourceGraphic" in2="stipple" operator="in"/>
+                </filter>`;
+
+            // The stylesheet's gradient (a circle reaching the farthest corner), drawn at the
+            // disc's size in CSS pixels so the grain is the same on every disc
+            function airbrush(layer) {
+                const size = Math.max(1, Math.round(layer.d * D));
+                const [sx, sy, s1, s2, s3] = ['--sx', '--sy', '--s1', '--s2', '--s3'].map(name => style(layer.disc, name) / 100);
+                const far = Math.max(1, s3);
+                const reach = Math.hypot(Math.max(sx, 1 - sx), Math.max(sy, 1 - sy)) * far * size;
+                const tokens = getComputedStyle(root);
+                const paint = tokens.getPropertyValue('--paint').trim();
+                const deep = tokens.getPropertyValue('--paint-deep').trim();
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
+                    <radialGradient id="g" gradientUnits="userSpaceOnUse" cx="${sx * size}" cy="${sy * size}" r="${reach}">
+                        <stop offset="0" stop-color="${deep}"/>
+                        <stop offset="${s1 / far}" stop-color="${paint}"/>
+                        <stop offset="${s2 / far}" stop-color="${paint}" stop-opacity="0.45"/>
+                        <stop offset="${s3 / far}" stop-color="${paint}" stop-opacity="0"/>
+                    </radialGradient>${AIRBRUSH}
+                    <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="url(#g)" filter="url(#a)"/>
+                </svg>`;
+                return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+            }
+
+            let paintQueued = false;
+            function repaint() {
+                if (paintQueued) return;
+                paintQueued = true;
+                requestAnimationFrame(() => {
+                    paintQueued = false;
+                    for (const layer of layers) layer.paint.style.backgroundImage = airbrush(layer);
+                });
+            }
+
+            // Shadows fall down and to the right of whatever casts them
+            const LIGHT = { x: 0.55, y: 0.83 };
+            let D = sculpture.offsetWidth;
+            let glow = 0;
+            let clock = performance.now() / 1000;
+
+            // A pulse starts at the front disc and runs out to the back one
+            function pulse(strength) {
+                glow = Math.min(1.5, glow + strength * 0.6);
+                if (reduceMotion.matches) return;
+                layers.forEach((layer, i) => layer.kicks.push({ at: clock + (layers.length - 1 - i) * 0.07, v: strength }));
+            }
+
+            function drawStack(t, dt, float, pointer) {
+                for (const [i, layer] of layers.entries()) {
+                    layer.kicks = layer.kicks.filter(kick => {
+                        if (kick.at > t) return true;
+                        layer.sv += 0.5 * kick.v;
+                        layer.wv += 0.3 * kick.v * (i % 2 ? 1 : -1);
+                        return false;
+                    });
+                    layer.sv += (-150 * layer.s - 8 * layer.sv) * dt;
+                    layer.s += layer.sv * dt;
+                    layer.wv += (-230 * layer.w - 7 * layer.wv) * dt;
+                    layer.w += layer.wv * dt;
+
+                    // Bob, drift, and a gap to the disc behind that opens and closes
+                    const a = TAU * t / layer.period + layer.phase;
+                    const x = layer.x0 * D + Math.sin(a * 0.73 + 1.1) * D * 0.012 * float + pointer.x * D * 0.04 * layer.z;
+                    const y = layer.y0 * D + Math.sin(a) * D * 0.026 * float + pointer.y * D * 0.04 * layer.z;
+                    const gap = D * (0.03 + 0.02 * layer.z) + Math.sin(a * 1.21 + 2) * D * 0.016 * float;
+                    const scale = `${(1 + layer.s + layer.w).toFixed(4)} ${(1 + layer.s - layer.w).toFixed(4)}`;
+
+                    put(layer.disc, 'translate', `${x.toFixed(2)}px ${y.toFixed(2)}px`);
+                    put(layer.disc, 'scale', scale);
+                    // The paint sloshes, and leans toward the pointer
+                    put(layer.paint, 'rotate', `${(Math.sin(a * 0.61 + 0.4) * 11 * float + pointer.x * 10 * layer.z).toFixed(2)}deg`);
+
+                    if (layer.cast) {
+                        put(layer.cast, 'translate', `${(x + gap * LIGHT.x).toFixed(2)}px ${(y + gap * LIGHT.y).toFixed(2)}px`);
+                        put(layer.cast, 'scale', scale);
+                        put(layer.cast, 'opacity', Math.max(0.2, 1 - gap / (D * 0.12)).toFixed(3));
+                    }
+                }
+
+                glow *= Math.exp(-dt * 2.2);
+                const lift = Math.sin(TAU * t / 8.2) * D * 0.012 * float;
+                put(halo, 'translate', `${(D * 0.05 + lift * LIGHT.x).toFixed(2)}px ${(D * 0.07 + lift * LIGHT.y).toFixed(2)}px`);
+                put(halo, 'opacity', Math.min(1, 0.75 + glow * 0.4).toFixed(3));
+            }
+
+            sculpture.addEventListener('pointerdown', event => {
+                const r = sculpture.getBoundingClientRect();
+                if (Math.hypot(event.clientX - r.left - r.width / 2, event.clientY - r.top - r.height / 2) > r.width / 2) return;
+                pulse(1);
+                if (sound.on) chime(1);
+            });
+
+            // ---------- Lenses ----------
+
+            const lensFilters = document.getElementById('lens-filters');
+            const refracts = CSS.supports('backdrop-filter', 'url(#a)');
+
+            // How the lens bends the view, as a displacement map: a slight magnification over
+            // the middle, then a rounded bevel that pulls the view in harder toward the rim,
+            // never so hard that it folds over itself. Red and green carry the x and y shift
+            // (128 is none), with a neutral margin so the map still covers the lens while it
+            // swells.
+            function lensMap(size, margin) {
+                const full = size + margin * 2;
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = full;
+                const context = canvas.getContext('2d');
+                const image = context.createImageData(full, full);
+                const radius = size / 2;
+                for (let py = 0; py < full; py++) {
+                    for (let px = 0; px < full; px++) {
+                        const dx = (px + 0.5 - full / 2) / radius;
+                        const dy = (py + 0.5 - full / 2) / radius;
+                        const r = Math.hypot(dx, dy);
+                        let ox = 0;
+                        let oy = 0;
+                        if (r < 1 && r > 0) {
+                            const bevel = Math.max(0, (r - 0.3) / 0.7);
+                            const bend = 0.08 * r + 0.92 * bevel * bevel;
+                            ox = -dx / r * bend;
+                            oy = -dy / r * bend;
+                        }
+                        const i = (py * full + px) * 4;
+                        image.data[i] = 128 + ox * 127;
+                        image.data[i + 1] = 128 + oy * 127;
+                        image.data[i + 2] = 128;
+                        image.data[i + 3] = 255;
+                    }
+                }
+                context.putImageData(image, 0, 0);
+                return canvas.toDataURL();
+            }
+
+            function lensFilter(size) {
+                const id = `lens-${size}`;
+                if (document.getElementById(id)) return id;
+                const margin = Math.round(size * 0.25);
+                const box = `x="${-margin}" y="${-margin}" width="${size + margin * 2}" height="${size + margin * 2}"`;
+                lensFilters.insertAdjacentHTML('beforeend', `
+                    <filter id="${id}" ${box} filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feImage href="${lensMap(size, margin)}" ${box} preserveAspectRatio="none" result="map"/>
+                        <feDisplacementMap in="SourceGraphic" in2="map" scale="${(size * 0.26).toFixed(1)}" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>`);
+                return id;
+            }
+
+            // h: hover lift (1 hovered, below 0 pressed); s: squash after a click; p: the
+            // pull toward a nearby pointer
+            const lenses = [...document.querySelectorAll('.lens')].map((el, i) => ({
+                el,
+                holder: el.parentElement,
+                period: 4.8 + i * 0.7,
+                phase: i * 2.3,
+                h: 0,
+                hv: 0,
+                target: 0,
+                hovering: false,
+                s: 0,
+                sv: 0,
+                px: 0,
+                py: 0,
+                cx: 0,
+                cy: 0,
+                r: 0,
+                size: 0
+            }));
+
+            for (const lens of lenses) {
+                const { el } = lens;
+                el.addEventListener('pointerenter', event => {
+                    if (event.pointerType !== 'mouse') return;
+                    lens.hovering = true;
+                    lens.target = 1;
+                });
+                el.addEventListener('pointerleave', event => {
+                    if (event.pointerType !== 'mouse') return;
+                    lens.hovering = false;
+                    lens.target = 0;
+                });
+                el.addEventListener('pointerdown', () => {
+                    lens.target = -0.6;
+                });
+                const release = () => {
+                    lens.target = lens.hovering ? 1 : 0;
+                };
+                el.addEventListener('pointerup', release);
+                el.addEventListener('pointercancel', release);
+                el.addEventListener('click', () => {
+                    if (!reduceMotion.matches) lens.sv += 1.6;
+                });
+            }
+
+            function drawLenses(t, dt, float, mouse) {
+                const still = reduceMotion.matches;
+                for (const lens of lenses) {
+                    if (still) {
+                        lens.h = lens.target;
+                        lens.hv = 0;
+                    } else {
+                        lens.hv += (170 * (lens.target - lens.h) - 20 * lens.hv) * dt;
+                        lens.h += lens.hv * dt;
+                        lens.sv += (-320 * lens.s - 10 * lens.sv) * dt;
+                        lens.s += lens.sv * dt;
+                    }
+
+                    // Drawn a little toward a pointer that comes close
+                    let tx = 0;
+                    let ty = 0;
+                    if (mouse && !still) {
+                        const dx = mouse.x - lens.cx;
+                        const dy = mouse.y - lens.cy;
+                        const d = Math.hypot(dx, dy);
+                        const reach = lens.r * 3.2;
+                        if (d < reach && d > 0) {
+                            const k = (1 - d / reach) ** 2 * lens.r * 0.26;
+                            tx = dx / d * k;
+                            ty = dy / d * k;
+                        }
+                    }
+                    const ease = 1 - Math.exp(-dt * 10);
+                    lens.px += (tx - lens.px) * ease;
+                    lens.py += (ty - lens.py) * ease;
+
+                    const bob = Math.sin(TAU * t / lens.period + lens.phase) * 3.2 * float;
+                    const scale = 1 + 0.06 * Math.max(-0.6, lens.h);
+                    put(lens.holder, 'translate', `${lens.px.toFixed(2)}px ${(lens.py + bob - lens.h * 2.5).toFixed(2)}px`);
+                    put(lens.holder, '--lift', (0.5 - bob / 8 + lens.h * 0.5).toFixed(3));
+                    put(lens.el, 'scale', `${(scale * (1 + lens.s)).toFixed(4)} ${(scale * (1 - lens.s)).toFixed(4)}`);
+                }
+            }
+
+            // ---------- Sound: a soft drone, and a chime that rings the stack ----------
+
+            const soundButton = document.querySelector('.sound');
+            const sound = { on: false, audio: null, next: 0 };
+            const NOTES = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
+
+            function startAudio() {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const out = context.createGain();
+                out.gain.value = 0;
+                const tone = context.createBiquadFilter();
+                tone.type = 'lowpass';
+                tone.frequency.value = 2200;
+                const echo = context.createDelay(1);
+                echo.delayTime.value = 0.42;
+                const feedback = context.createGain();
+                feedback.gain.value = 0.35;
+                tone.connect(out);
+                tone.connect(echo);
+                echo.connect(feedback);
+                feedback.connect(echo);
+                feedback.connect(out);
+                out.connect(context.destination);
+                for (const [frequency, level] of [[110, 0.05], [164.81, 0.03]]) {
+                    const oscillator = context.createOscillator();
+                    oscillator.frequency.value = frequency;
+                    const gain = context.createGain();
+                    gain.gain.value = level;
+                    oscillator.connect(gain).connect(tone);
+                    oscillator.start();
+                }
+                return { context, out, tone };
+            }
+
+            function chime(strength) {
+                const { context, tone } = sound.audio;
+                const now = context.currentTime;
+                const frequency = NOTES[Math.floor(Math.random() * NOTES.length)];
+                for (const [harmonic, level] of [[1, 0.16], [2, 0.05], [3.01, 0.02]]) {
+                    const oscillator = context.createOscillator();
+                    oscillator.frequency.value = frequency * harmonic;
+                    const gain = context.createGain();
+                    gain.gain.setValueAtTime(0.0001, now);
+                    gain.gain.exponentialRampToValueAtTime(level * strength, now + 0.015);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4 + 2.6 / harmonic);
+                    oscillator.connect(gain).connect(tone);
+                    oscillator.start(now);
+                    oscillator.stop(now + 3.2);
+                }
+            }
+
+            soundButton.addEventListener('click', () => {
+                sound.on = soundButton.getAttribute('aria-pressed') !== 'true';
+                soundButton.setAttribute('aria-pressed', String(sound.on));
+                if (sound.on) {
+                    sound.audio ??= startAudio();
+                    sound.audio.context.resume();
+                    sound.audio.out.gain.setTargetAtTime(0.5, sound.audio.context.currentTime, 0.3);
+                    sound.next = clock + 0.4;
+                } else if (sound.audio) {
+                    const { context, out } = sound.audio;
+                    out.gain.setTargetAtTime(0, context.currentTime, 0.12);
+                    setTimeout(() => {
+                        if (!sound.on) context.suspend();
+                    }, 900);
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (!sound.audio) return;
+                if (document.hidden) sound.audio.context.suspend();
+                else if (sound.on) sound.audio.context.resume();
+            });
+
+            // ---------- Pointer, layout, loop ----------
+
+            const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+            let mouse = null;
+            addEventListener('pointermove', event => {
+                if (event.pointerType !== 'mouse') return;
+                mouse = { x: event.clientX, y: event.clientY };
+                pointer.tx = (event.clientX / innerWidth - 0.5) * 2;
+                pointer.ty = (event.clientY / innerHeight - 0.5) * 2;
+            });
+            document.documentElement.addEventListener('pointerleave', () => {
+                mouse = null;
+                pointer.tx = 0;
+                pointer.ty = 0;
+            });
+
+            let paintedAt = 0;
+            function measure() {
+                D = sculpture.offsetWidth;
+                if (D !== paintedAt) {
+                    paintedAt = D;
+                    repaint();
+                }
+                for (const lens of lenses) {
+                    const r = lens.holder.getBoundingClientRect();
+                    lens.cx = r.left + r.width / 2 - lens.px;
+                    lens.cy = r.top + r.height / 2 - lens.py;
+                    lens.r = lens.el.offsetWidth / 2;
+                    const size = lens.el.offsetWidth;
+                    if (refracts && size !== lens.size) {
+                        lens.size = size;
+                        lens.el.style.backdropFilter = `url(#${lensFilter(size)}) saturate(1.5)`;
+                    }
+                }
+            }
+
+            let last = 0;
+            function frame(now) {
+                clock = now / 1000;
+                const dt = last ? Math.min(clock - last, 1 / 30) : 0;
+                last = clock;
+                const still = reduceMotion.matches;
+                const float = still ? 0 : settings.float;
+
+                const ease = still ? 1 : 1 - Math.exp(-dt * 3);
+                pointer.x += ((still ? 0 : pointer.tx) - pointer.x) * ease;
+                pointer.y += ((still ? 0 : pointer.ty) - pointer.y) * ease;
+
+                if (sound.on && clock >= sound.next) {
+                    const strength = 0.55 + Math.random() * 0.45;
+                    chime(strength);
+                    pulse(strength);
+                    sound.next = clock + 1.6 + Math.random() * 2.2;
+                }
+
+                drawStack(clock, dt, float, pointer);
+                drawLenses(clock, dt, float, mouse);
+                requestAnimationFrame(frame);
+            }
+
+            addEventListener('resize', measure);
+            measure();
+            requestAnimationFrame(frame);
+
+            // ---------- Lab controls: they only set what the design reads ----------
+
+            const controls = document.querySelector('.controls');
+            const field = id => document.getElementById(id);
+
+            // The deep shade the paint gathers into where it is thickest: darker, a little less
+            // grey, its hue turned a few degrees (the coral turns red). Through HSL, back to hex
+            // for the airbrushed image.
+            function deepen(hex) {
+                const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const d = max - min;
+                const l = (max + min) / 2;
+                const s = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+                let h = 0;
+                if (d) h = max === r ? (g - b) / d : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+                const hue = (h * 60 - 6 + 720) % 360;
+                const sat = Math.min(1, s * 0.82);
+                const light = l * 0.83;
+                const a = sat * Math.min(light, 1 - light);
+                const channel = n => {
+                    const k = (n + hue / 30) % 12;
+                    return light - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+                };
+                return `#${[0, 8, 4].map(n => Math.round(channel(n) * 255).toString(16).padStart(2, '0')).join('')}`;
+            }
+
+            controls.addEventListener('input', event => {
+                if (event.target.id === 'c-paint') {
+                    root.style.setProperty('--paint', event.target.value);
+                    root.style.setProperty('--paint-deep', deepen(event.target.value));
+                    repaint();
+                }
+                settings.float = field('c-float').value / 100;
+                sculpture.style.setProperty('--frost', `${field('c-frost').value * 0.28}px`);
+                field('c-float-out').value = `${field('c-float').value}%`;
+                field('c-frost-out').value = `${field('c-frost').value}%`;
+            });
+        })();
+    </script>
+</body>
+</html>
