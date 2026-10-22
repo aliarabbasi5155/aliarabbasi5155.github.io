@@ -47,6 +47,19 @@
     box-shadow: inset 0 0 0 1px var(--gr-hairline, rgb(255 255 255 / 0.12));
 }
 
+/* Rings that can be grabbed (the script's default, unless motion is reduced) take
+   presses on their discs; the rest of the element still lets them through */
+.gr-grab .gr-disc {
+    pointer-events: auto;
+    cursor: grab;
+}
+
+/* While the mouse pulls the stack, wherever it goes */
+.gr-grabbing,
+.gr-grabbing * {
+    cursor: grabbing !important;
+}
+
 .gr-paint,
 .gr-glint,
 .gr-glint::before,

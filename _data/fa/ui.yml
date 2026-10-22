@@ -62,6 +62,7 @@ lang_switch:
   lang: en
 opening:
   hint: برای ورود، اسکرول کنید یا ضربه بزنید
+  enter: ورود به سایت
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

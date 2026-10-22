@@ -62,6 +62,7 @@ lang_switch:
   lang: fa
 opening:
   hint: Scroll or tap to enter
+  enter: Enter the site
 copyright: © 2025 Ali Abbasi. All rights reserved.
 analytics:
   settings: Privacy settings

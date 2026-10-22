@@ -244,8 +244,9 @@ function scramble(element, text, duration = 600) {
 
 // The opening scene, the page's first screen (styles.css): the rings float while it is in
 // view and the name scrambles in like a section title. The field's dots gather only as
-// the page comes up from below, and leave again on the way back. A click on the scene
-// goes down to the page; on wide screens, where the page fills one screen, a scroll or
+// the page comes up from below, and leave again on the way back. A click on the scene or
+// on the arrow on the front ring goes down to the page (a mouse press on the other rings
+// is theirs to play with); on wide screens, where the page fills one screen, a scroll or
 // key turns between the two in one move instead of stopping halfway.
 function initOpening() {
     const scene = document.querySelector('.opening');

@@ -293,4 +293,5 @@ collections:
             i18n: true
             fields:
               - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
+              - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }

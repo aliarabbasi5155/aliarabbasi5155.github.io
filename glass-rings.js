@@ -4,10 +4,17 @@
 // what lies behind it at its edge, like real glass. The discs never slide over each other
 // and cast no shadows. Used by the page's opening scene (script.js).
 //
+// The stack answers the mouse: it leans toward the pointer, its front discs more than its
+// back ones, as if it turned to face it, and opens out while the pointer is over it. A
+// press squeezes it; held, it can be pulled about, and let go it springs back and rings.
+// The liquid leans toward the pointer and rocks with every move.
+//
 //   const rings = new GlassRings(element, { float: 0.6 });
 //   rings.start();
 //
-// The element sets the size (its width); glass-rings.css holds the material.
+// The element sets the size (its width); glass-rings.css holds the material. Anything
+// already inside the element is placed on the front disc and moves with it; presses on
+// links and buttons there stay theirs.
 
 const TAU = Math.PI * 2;
 
@@ -24,6 +31,15 @@ const DISCS = [
 
 // Where the light sits when the pointer is away: upper left, in degrees clockwise from up
 const REST_LIGHT = -45;
+
+// How the stack answers the pointer, in fractions of the largest disc: how far the whole
+// stack leans toward it and how much farther the front disc goes, at rest and when the
+// pointer is over the stack; how far a pull can take it; and how far a disc may stray from
+// the one behind it, which keeps every rim clear of its neighbours
+const LEAN = [0.015, 0.03];
+const FACE = [0.05, 0.09];
+const PULL = 0.2;
+const STRAY = 0.035;
 
 // Airbrush: where the liquid thins out it breaks into grain instead of fading smoothly.
 // The paint's opacity a and a noise n (about 0.3 to 0.7) give a mask 6a + 2.4n - 4.2:
@@ -129,8 +145,28 @@ function bevelMap(size, margin, bevel) {
     return canvas.toDataURL();
 }
 
+// Moves a damped spring { p, v } toward a target: stiffness k, damping ratio z. Short
+// substeps keep the stiffest springs steady at any frame rate.
+function spring(s, target, k, z, dt) {
+    const steps = Math.ceil(dt * 240);
+    const h = dt / steps;
+    for (let i = 0; i < steps; i++) {
+        s.v += (k * (target - s.p) - 2 * z * Math.sqrt(k) * s.v) * h;
+        s.p += s.v * h;
+    }
+}
+
+// Shortens a shift that strays past half a limit, easing it so it never reaches the limit
+function rein(x, y, limit) {
+    const length = Math.hypot(x, y);
+    const half = limit / 2;
+    if (length <= half) return [x, y];
+    const k = (half + half * Math.tanh((length - half) / half)) / length;
+    return [x * k, y * k];
+}
+
 export class GlassRings {
-    constructor(element, { float = 0.6, followPointer = true, reduceMotion } = {}) {
+    constructor(element, { float = 0.6, followPointer = true, grab = true, reduceMotion } = {}) {
         this.element = element;
         this.float = float;
         this.reduceMotion = reduceMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -143,11 +179,20 @@ export class GlassRings {
         // Light: the angle the glints face and where it is heading
         this.light = { angle: REST_LIGHT, target: REST_LIGHT, active: false };
         this.refracts = CSS.supports('backdrop-filter', 'url(#a)');
+        // The mouse, while it is on the page; how far the stack has opened out toward it;
+        // and the press holding the stack, if any
+        this.pointer = { x: 0, y: 0, active: false };
+        this.open = 0;
+        this.held = null;
+        // Reduced motion keeps only the light
+        this.moves = !this.reduceMotion;
 
         element.classList.add('glass-rings');
+        this.content = [...element.childNodes];
         this.stack = document.createElement('span');
         this.stack.className = 'gr-stack';
         this.stack.innerHTML = '<span class="gr-bloom"></span>';
+        this.bloom = this.stack.firstChild;
         this.discs = DISCS.map((spec, i) => {
             const disc = document.createElement('span');
             disc.className = 'gr-disc';
@@ -164,8 +209,16 @@ export class GlassRings {
                 // Each disc's liquid sways on its own rhythm
                 period: 6.2 + i * 0.75,
                 phase: i * 1.37,
+                // Springs: the disc's shift and size, and how far its liquid has rocked
+                ox: { p: 0, v: 0 },
+                oy: { p: 0, v: 0 },
+                scale: { p: 1, v: 0 },
+                slosh: { p: 0, v: 0 },
+                // When a press's ripple reaches it
+                kick: Infinity,
             };
         });
+        this.discs.at(-1).disc.append(...this.content);
         element.append(this.stack);
 
         this.defs = document.createElementNS(SVG_NS, 'svg');
@@ -182,11 +235,24 @@ export class GlassRings {
 
         if (followPointer) {
             this.onPointer = event => {
-                if (event.pointerType === 'mouse') this.lightToward(event.clientX, event.clientY);
+                if (event.pointerType !== 'mouse') return;
+                this.lightToward(event.clientX, event.clientY);
+                Object.assign(this.pointer, { x: event.clientX, y: event.clientY, active: true });
             };
             this.onLeave = () => this.restLight();
             addEventListener('pointermove', this.onPointer, { passive: true });
             document.documentElement.addEventListener('pointerleave', this.onLeave);
+        }
+        // A press on the discs is the stack's. The mouse holds on and can pull; a touch
+        // only squeezes it, so it can still scroll the page or tap through to it.
+        this.grabs = grab && this.moves;
+        if (this.grabs) {
+            element.classList.add('gr-grab');
+            this.stack.addEventListener('pointerdown', this.onPress);
+            this.stack.addEventListener('pointermove', this.onPull);
+            for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+                this.stack.addEventListener(type, this.onRelease);
+            }
         }
         // A hidden tab pauses the stack; stop() keeps it stopped
         this.onVisibility = () => (document.hidden ? this.pause() : this.resume());
@@ -205,6 +271,51 @@ export class GlassRings {
 
     restLight() {
         this.light.active = false;
+        this.pointer.active = false;
+    }
+
+    onPress = event => {
+        if (this.held || !event.isPrimary || event.button || event.target.closest('a, button')) return;
+        this.lightToward(event.clientX, event.clientY);
+        const mouse = event.pointerType === 'mouse';
+        this.held = { id: event.pointerId, mouse, x: event.clientX, y: event.clientY, dx: 0, dy: 0, pulled: false };
+        if (!mouse) return;
+        // No text selection while pulling, and the pull goes on outside the stack
+        event.preventDefault();
+        event.target.setPointerCapture(event.pointerId);
+        document.documentElement.classList.add('gr-grabbing');
+    };
+
+    onPull = event => {
+        const held = this.held;
+        if (!held?.mouse || event.pointerId !== held.id) return;
+        held.dx = event.clientX - held.x;
+        held.dy = event.clientY - held.y;
+        held.pulled ||= Math.hypot(held.dx, held.dy) > 4;
+    };
+
+    onRelease = event => {
+        const held = this.held;
+        if (!held || event.pointerId !== held.id) return;
+        this.held = null;
+        document.documentElement.classList.remove('gr-grabbing');
+        // A cancelled touch became a scroll
+        if (event.type !== 'pointerup') return;
+        if (!held.pulled) this.poke();
+        if (!held.mouse) return;
+        // The click that ends a mouse press is the stack's too, wherever it lands
+        const swallow = click => click.stopPropagation();
+        addEventListener('click', swallow, { capture: true, once: true });
+        setTimeout(() => removeEventListener('click', swallow, { capture: true }));
+    };
+
+    // A ripple from the front disc to the back one, and the liquid set rocking
+    poke() {
+        const now = performance.now() / 1000;
+        for (const [i, disc] of this.discs.entries()) {
+            disc.kick = now + (this.discs.length - 1 - i) * 0.06;
+            disc.slosh.v += (i % 2 ? -1 : 1) * (50 + i * 15);
+        }
     }
 
     setFloat(value) {
@@ -294,8 +405,66 @@ export class GlassRings {
             removeEventListener('pointermove', this.onPointer);
             document.documentElement.removeEventListener('pointerleave', this.onLeave);
         }
+        document.documentElement.classList.remove('gr-grabbing');
+        this.element.classList.remove('gr-grab');
         this.defs.remove();
         this.stack.remove();
+        this.element.append(...this.content);
+    }
+
+    // Each disc follows the pointer and the press on springs, nearer discs on stiffer ones,
+    // so the stack moves like one soft piece; each is then kept clear of the one behind it
+    move(t, dt) {
+        const D = this.size;
+        const box = this.element.getBoundingClientRect();
+        const pointer = this.pointer;
+        let ux = 0;
+        let uy = 0;
+        let over = false;
+        if (pointer.active) {
+            const px = pointer.x - (box.left + box.width / 2);
+            const py = pointer.y - (box.top + box.height / 2);
+            ux = Math.tanh(px / D);
+            uy = Math.tanh(py / D);
+            over = Math.hypot(px, py) < D / 2;
+        }
+        const held = this.held;
+        this.open += ((over || held ? 1 : 0) - this.open) * (1 - Math.exp(-dt * 6));
+        // A pull gives less the farther it goes
+        const reach = D * PULL;
+        const gx = held?.mouse ? reach * Math.tanh(held.dx / reach) : 0;
+        const gy = held?.mouse ? reach * Math.tanh(held.dy / reach) : 0;
+        const lean = D * (LEAN[0] + (LEAN[1] - LEAN[0]) * this.open);
+        const face = D * (FACE[0] + (FACE[1] - FACE[0]) * this.open);
+
+        const last = this.discs.length - 1;
+        let backX = 0;
+        let backY = 0;
+        for (const [i, disc] of this.discs.entries()) {
+            const depth = i / last;
+            const k = 70 + 90 * depth;
+            const vx = disc.ox.v;
+            spring(disc.ox, gx + ux * (lean + face * depth), k, 0.45, dt);
+            spring(disc.oy, gy + uy * (lean + face * depth), k, 0.45, dt);
+            if (t >= disc.kick) {
+                disc.scale.v += 0.7;
+                disc.kick = Infinity;
+            }
+            // Squeezed while held, the front discs most
+            spring(disc.scale, held ? 0.985 - 0.035 * depth : 1, 320, 0.2, dt);
+            // The liquid leans toward the pointer and lags behind the disc's moves
+            disc.slosh.v += 70 * (disc.ox.v - vx) / D;
+            spring(disc.slosh, -ux * 22 * (0.5 + 0.5 * this.open), 20 + 40 * depth, 0.15, dt);
+
+            let x = disc.ox.p;
+            let y = disc.oy.p;
+            if (i) [x, y] = rein(x - backX, y - backY, D * STRAY).map((d, axis) => d + (axis ? backY : backX));
+            [backX, backY] = [x, y];
+            this.put(disc.disc, 'transform', `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) scale(${disc.scale.p.toFixed(4)})`);
+        }
+        // The liquid's glow follows the stack and spreads as it opens
+        const glow = this.discs[0];
+        this.put(this.bloom, 'transform', `translate(${glow.ox.p.toFixed(2)}px, ${glow.oy.p.toFixed(2)}px) scale(${(1 + 0.1 * this.open).toFixed(3)})`);
     }
 
     frame = now => {
@@ -305,6 +474,7 @@ export class GlassRings {
         this.last = t;
         const float = this.reduceMotion ? 0 : this.float;
         const D = this.size;
+        if (this.moves) this.move(t, dt);
 
         // The whole stack floats as one piece
         const x = Math.sin(TAU * t / 11 + 1) * D * 0.008 * float;
@@ -320,7 +490,7 @@ export class GlassRings {
 
         for (const disc of this.discs) {
             // The liquid sways a little as the stack floats; the light stays where it is
-            const sway = Math.sin(TAU * t / disc.period + disc.phase) * 5 * float;
+            const sway = Math.sin(TAU * t / disc.period + disc.phase) * 5 * float + disc.slosh.p;
             this.put(disc.paint, 'rotate', `${sway.toFixed(2)}deg`);
             this.put(disc.glint, 'rotate', glint);
         }
