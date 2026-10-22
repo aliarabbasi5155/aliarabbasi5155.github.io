@@ -3,6 +3,7 @@
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
+import { DeviceTilt } from './device-tilt.js?v=2';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
@@ -244,36 +245,35 @@ function scramble(element, text, duration = 600) {
 
 // The opening scene, the page's first screen (styles.css): the rings float while it is in
 // view and the name scrambles in like a section title. The field's dots gather only as
-// the page comes up from below, and leave again on the way back. A click on the scene
-// goes down to the page; on wide screens, where the page fills one screen, a scroll or
+// the page comes up from below, and leave again on the way back. A click on the scene or
+// on the arrow on the front ring goes down to the page (a mouse press on the other rings
+// is theirs to play with); on wide screens, where the page fills one screen, a scroll or
 // key turns between the two in one move instead of stopping halfway.
 function initOpening() {
     const scene = document.querySelector('.opening');
     if (!scene) return;
 
     const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
-    new IntersectionObserver(([entry]) => (entry.isIntersecting ? rings.start() : rings.stop())).observe(scene);
+    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-rings'));
+    new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+            rings.start();
+            tilt.start();
+        } else {
+            rings.stop();
+            tilt.stop();
+        }
+    }).observe(scene);
     const name = scene.querySelector('.opening-name');
     scramble(name, name.textContent.trim(), 900);
 
     // How far the scene has scrolled away; the dots come in over the last three quarters,
-    // at no more than their own entrance's pace. While the scene fills the screen the
-    // field has nothing to show, so after drawing that frame it rests until the page moves.
-    const covering = () => {
-        const { top, bottom } = scene.getBoundingClientRect();
-        return top > -1 && bottom >= innerHeight - 1;
-    };
+    // at no more than their own entrance's pace
     field?.onFrame(() => {
         const { bottom, height } = scene.getBoundingClientRect();
         const away = 1 - Math.min(1, Math.max(0, bottom / height));
         field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
-        if (covering()) field.stop();
     });
-    const wake = () => {
-        if (!covering()) field?.start();
-    };
-    window.addEventListener('scroll', wake, { passive: true });
-    window.addEventListener('resize', wake);
 
     const page = document.querySelector('.container');
     const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);

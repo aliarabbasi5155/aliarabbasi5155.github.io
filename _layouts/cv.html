@@ -40,10 +40,16 @@
     <!-- Dot field background and liquid-glass panes at every screen size -->
     <canvas id="canvas" aria-hidden="true"></canvas>
 
-    <!-- Opening scene: the first screen, the name and the glass rings; the page follows below -->
-    <div class="opening" aria-hidden="true">
-        <div class="opening-rings"></div>
-        <div class="opening-text">
+    <!-- Opening scene: the first screen, the name and the glass rings; the page follows below.
+         The arrow down rides on the front ring (glass-rings.js moves it there). Only the
+         arrow is read out; the name repeats the profile's. -->
+    <div class="opening">
+        <div class="opening-rings">
+            <button class="opening-down" type="button" aria-label="{{ ui.opening.enter | escape }}">
+                <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
+            </button>
+        </div>
+        <div class="opening-text" aria-hidden="true">
             <p class="opening-name">{{ data.profile.name | escape }}</p>
             <p class="opening-role">{{ data.profile.role | escape }}</p>
             <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
@@ -313,6 +319,6 @@
     </section>
 
     <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
-    <script type="module" src="{{ '/script.js' | relative_url }}"></script>
+    <script type="module" src="{{ '/script.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 </body>
 </html>

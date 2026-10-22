@@ -1116,9 +1116,37 @@ a {
     }
 }
 
-@keyframes opening-nudge {
-    50% {
-        translate: 0 5px;
+/* The arrow rests, drops out of the bottom, and the next one drops in from the top (in
+   the arrow's own units) */
+@keyframes opening-drop {
+    0%,
+    24% {
+        translate: 0 0;
+        animation-timing-function: cubic-bezier(0.55, 0, 0.8, 0.3);
+    }
+    60% {
+        translate: 0 44px;
+    }
+    60.01% {
+        translate: 0 -44px;
+        animation-timing-function: cubic-bezier(0.2, 0.75, 0.3, 1);
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+/* As each arrow lands, a ring spreads out from the front disc across the others */
+@keyframes opening-ripple {
+    0% {
+        opacity: 1;
+        scale: 1;
+        animation-timing-function: cubic-bezier(0.2, 0.55, 0.4, 1);
+    }
+    80%,
+    100% {
+        opacity: 0;
+        scale: 2.8;
     }
 }
 
@@ -1178,11 +1206,76 @@ a {
     animation: opening-in 1s var(--ease) 1.3s backwards;
 }
 
-.opening-hint::after {
-    content: "↓";
-    font-size: 14px;
-    letter-spacing: 0;
-    animation: opening-nudge 1.8s ease-in-out 2.4s infinite;
+/* The way down: the front ring's coral disc, with a white arrow dropping through it and
+   a ripple spreading over the rings each time it lands. It moves with the ring (the
+   script places it there); a click goes down like one anywhere on the scene, while the
+   rings around it can still be grabbed. */
+.opening-down {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0);
+    color: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background-color 0.4s;
+    animation: opening-show 1.4s var(--ease) 0.6s backwards;
+}
+
+/* Two ripples, the second fainter and just behind, keeping time with the arrow from its
+   first landing */
+.opening-down::before,
+.opening-down::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgb(255 255 255 / 0.7);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: opening-ripple 2.8s 5.6s infinite;
+}
+
+.opening-down::after {
+    border-color: rgb(255 255 255 / 0.35);
+    animation-delay: 5.85s;
+}
+
+/* The arrow fades in at the top of its window and out at the bottom */
+.opening-down svg {
+    height: 46%;
+    aspect-ratio: 20 / 54;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgb(255 255 255 / 0.35));
+    -webkit-mask: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+    mask: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+    transition: scale 0.4s var(--ease);
+}
+
+.opening-down path {
+    stroke-width: 2.5px;
+    vector-effect: non-scaling-stroke;
+    animation: opening-drop 2.8s 2.8s infinite;
+}
+
+@media (hover: hover) {
+    .opening-down:hover {
+        background-color: rgb(255 255 255 / 0.08);
+    }
+
+    .opening-down:hover svg {
+        scale: 1.08;
+    }
+}
+
+.opening-down:active svg {
+    scale: 0.92;
 }
 
 /* Portrait screens: the name on top, the rings below it */
@@ -1221,7 +1314,10 @@ a {
     .opening-name,
     .opening-role,
     .opening-hint,
-    .opening-hint::after {
+    .opening-down,
+    .opening-down::before,
+    .opening-down::after,
+    .opening-down path {
         animation: none;
     }
 }

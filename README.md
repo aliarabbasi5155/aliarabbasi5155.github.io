@@ -28,6 +28,23 @@ Use `./bin/dev` for the complete local preview. To use a different port, run
 The launcher keeps its compatible Bundler in `vendor/bundler` as well, so the
 old Bundler bundled with macOS does not need to be changed.
 
+## Phone and tablet tilt
+
+The opening rings follow device tilt automatically on supported touch devices over
+HTTPS, with no enable/disable control. The presence of a permission API does not block
+already-allowed readings. If a browser requires explicit permission before sending
+readings, clicking the rings requests it through the browser's own prompt; permission
+cannot be bypassed. Denied access leaves the usual floating animation. The first sensor
+reading sets the neutral holding position, with recalibration after screen rotation
+or returning to the opening. Reduced motion disables sensor input, and sensors pause
+while the opening is offscreen or the tab is hidden. Sensor data stays on the device.
+
+For a physical-device check, use an HTTPS preview (a phone opening a plain HTTP LAN
+address cannot use the sensors). Check left/right and forward/back tilt, landscape,
+permission denial, scrolling into the page and back, and the phone's reduced-motion
+setting. Desktop mouse interaction remains available. Run the automated checks with
+`node --test tests/*.test.mjs`.
+
 ## Editing content
 
 All text lives in data files; the page layout is `_layouts/cv.html`.
