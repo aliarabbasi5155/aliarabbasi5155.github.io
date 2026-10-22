@@ -15,6 +15,12 @@
     --bg: #191a1e;
     --panel: #25262b;
     --mint: #acffce;
+    /* The second colour, for heat and for what is current: the opening's rings, the
+       temperature and the warmth it gives the field, the current section's mark. Mint
+       stays the colour of the interface. About a third of the way round the colour wheel
+       from mint and much darker, so the two never blur together; coral is the stronger,
+       so it stays rare. */
+    --coral: #f6654a;
     --text: #f5f5f2;
     --soft: #d6d5cf;
     --muted: #a3a39d;
@@ -320,6 +326,7 @@ a {
 
 .updates-header h3 i {
     font-size: 14px;
+    color: var(--coral);
 }
 
 .updates-content {
@@ -480,7 +487,7 @@ a {
     flex: none;
     width: 9px;
     height: 9px;
-    background: var(--mint);
+    background: var(--coral);
 }
 
 #section-title {
@@ -1039,7 +1046,7 @@ a {
     height: 24px;
     border: 0;
     border-radius: 7px;
-    background: var(--mint);
+    background: var(--coral);
     -webkit-appearance: none;
     appearance: none;
 }
@@ -1049,7 +1056,7 @@ a {
     height: 24px;
     border: 0;
     border-radius: 7px;
-    background: var(--mint);
+    background: var(--coral);
 }
 
 /* ---------- Opening scene ---------- */
@@ -1117,6 +1124,7 @@ a {
 
 /* The rings rise into place while their liquid, glints and glow appear */
 .opening-rings {
+    --gr-paint: var(--coral);
     --size: min(68vh, 46vw);
     position: absolute;
     top: calc(52% - var(--size) / 2);
