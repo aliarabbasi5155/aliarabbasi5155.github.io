@@ -1206,31 +1206,6 @@ a {
     animation: opening-in 1s var(--ease) 1.3s backwards;
 }
 
-/* Sensor permission / opt-out stays separate from the tap-to-enter scene. */
-.opening-tilt {
-    position: absolute;
-    inset-inline-end: max(20px, env(safe-area-inset-right));
-    bottom: max(18px, env(safe-area-inset-bottom));
-    max-width: calc(100% - 40px);
-    min-height: 44px;
-    padding: 10px 16px;
-    border: 1px solid var(--muted);
-    border-radius: 24px;
-    background: var(--bg);
-    color: var(--soft);
-    font: 400 11px/1.5 var(--mono);
-    cursor: pointer;
-}
-
-.opening-tilt:focus-visible {
-    outline: 2px solid var(--mint);
-    outline-offset: 4px;
-}
-
-.opening-tilt:disabled {
-    cursor: default;
-}
-
 /* The way down: the front ring's coral disc, with a white arrow dropping through it and
    a ripple spreading over the rings each time it lands. It moves with the ring (the
    script places it there); a click goes down like one anywhere on the scene, while the

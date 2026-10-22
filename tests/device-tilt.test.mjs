@@ -10,9 +10,7 @@ function harness({ permission, secure = true, touch = 1, supported = true, reduc
     const motion = Object.assign(new EventTarget(), { matches: reduced });
     const orientation = Object.assign(new EventTarget(), { angle: 0 });
     const document = Object.assign(new EventTarget(), { hidden: false });
-    const button = Object.assign(new EventTarget(), {
-        dataset: { enable: 'Enable tilt', disable: 'Disable tilt', unavailable: 'Tilt unavailable' },
-    });
+    const rings = new EventTarget();
     let requests = 0;
     const device = permission ? { requestPermission() { requests++; return permission(); } } : {};
     const window = Object.assign(new EventTarget(), {
@@ -21,10 +19,10 @@ function harness({ permission, secure = true, touch = 1, supported = true, reduc
     });
     const context = vm.createContext({ window, document, navigator: { maxTouchPoints: touch }, matchMedia: () => motion });
     vm.runInContext(source.replace('export class', 'class') + '\nthis.DeviceTilt = DeviceTilt;', context);
-    const tilt = new context.DeviceTilt((x, y) => readings.push([x, y]), button);
+    const tilt = new context.DeviceTilt((x, y) => readings.push([x, y]), rings);
     const dispatch = (target, type, values = {}) => target.dispatchEvent(Object.assign(new Event(type), values));
     return {
-        tilt, button, document, window, readings, requests: () => requests,
+        tilt, rings, document, window, readings, requests: () => requests,
         latest: () => readings.at(-1),
         sample: (beta, gamma) => dispatch(window, 'deviceorientation', { beta, gamma }),
         rotate(angle) {
@@ -33,7 +31,7 @@ function harness({ permission, secure = true, touch = 1, supported = true, reduc
         },
         reduce(value) { motion.matches = value; dispatch(motion, 'change'); },
         hide(value) { document.hidden = value; dispatch(document, 'visibilitychange'); },
-        click: () => tilt.toggle({ stopPropagation() {} }),
+        click: () => tilt.requestPermission(),
     };
 }
 
@@ -87,39 +85,47 @@ test('pitch crossing the angle boundary takes the short route', () => {
     assert.ok(page.latest()[1] > 0 && page.latest()[1] < 0.1);
 });
 
-test('permission is requested from a click only, and toggling off does not request again', async () => {
+test('permission API presence does not block already-allowed Chrome readings', async () => {
     const page = harness({ permission: async () => 'granted' });
     page.tilt.start();
     assert.equal(page.requests(), 0);
-    assert.equal(page.button.textContent, 'Enable tilt');
-    page.sample(45, 0);
-    assert.equal(page.readings.length, 0);
-    await page.click();
-    assert.equal(page.requests(), 1);
-    assert.equal(page.button.textContent, 'Disable tilt');
     page.sample(45, 0);
     page.sample(45, 25);
     assert.ok(page.latest()[0] > 0.7);
     await page.click();
-    assert.deepEqual(page.latest(), [0, 0]);
-    const count = page.readings.length;
-    page.sample(0, -25);
-    assert.equal(page.readings.length, count);
+    assert.equal(page.requests(), 0, 'working sensors must not trigger a redundant prompt');
+});
+
+test('browsers withholding readings request permission on a ring click without intercepting it', async () => {
+    const page = harness({ permission: async () => 'granted' });
+    page.tilt.start();
+    assert.equal(page.requests(), 0);
+    let entered = false;
+    page.rings.addEventListener('click', () => { entered = true; });
+    const click = new Event('click', { cancelable: true });
+    page.rings.dispatchEvent(click);
+    assert.equal(page.requests(), 1, 'request must run synchronously during the gesture');
+    assert.equal(click.defaultPrevented, false);
+    assert.equal(entered, true);
+    await Promise.resolve();
+    page.sample(45, 0);
+    page.sample(45, 25);
+    assert.ok(page.latest()[0] > 0.7);
     await page.click();
     assert.equal(page.requests(), 1);
 });
 
-test('denied and rejected permissions leave sensors off without unhandled rejections', async () => {
+test('denied and rejected permissions detach sensors without repeated prompts', async () => {
     for (const permission of [async () => 'denied', async () => { throw new Error('blocked'); }]) {
         const page = harness({ permission });
         page.tilt.start();
         await page.click();
-        assert.equal(page.button.textContent, 'Tilt unavailable');
-        assert.equal(page.button.disabled, true);
+        const count = page.readings.length;
         page.sample(45, 25);
-        assert.equal(page.readings.length, 0);
+        assert.equal(page.readings.length, count);
         await page.click();
         assert.equal(page.requests(), 1);
+        assert.equal(page.tilt.listening, false);
     }
 });
 
@@ -141,11 +147,12 @@ test('offscreen, hidden and reduced-motion states detach sensors and resume with
     }
 });
 
-test('unsupported, insecure, non-touch and reduced-motion devices show no control', () => {
+test('unsupported, insecure, non-touch and reduced-motion devices do not listen or prompt', async () => {
     for (const options of [{ supported: false }, { secure: false }, { touch: 0 }, { reduced: true }]) {
-        const page = harness(options);
+        const page = harness({ ...options, permission: async () => 'granted' });
         page.tilt.start();
-        assert.equal(page.button.hidden, true);
+        await page.click();
+        assert.equal(page.requests(), 0);
         page.sample(45, 25);
         assert.equal(page.readings.length, 0);
     }
@@ -156,18 +163,20 @@ test('pending permission cannot duplicate requests or restart sensors after dest
     const page = harness({ permission: () => new Promise(resolve => { grant = resolve; }) });
     page.tilt.start();
     const pending = page.click();
-    assert.equal(page.button.disabled, true);
+    assert.equal(page.tilt.pending, true);
     await page.click();
     assert.equal(page.requests(), 1);
     page.tilt.destroy();
+    const count = page.readings.length;
     grant('granted');
     await pending;
     page.tilt.start();
     page.hide(true);
     page.hide(false);
     page.sample(45, 25);
-    assert.equal(page.readings.length, 0);
-    assert.equal(page.button.hidden, true);
+    assert.equal(page.readings.length, count);
+    page.rings.dispatchEvent(new Event('click'));
+    assert.equal(page.requests(), 1);
 });
 
 test('permission resolving while offscreen waits for the scene to return', async () => {
@@ -176,10 +185,11 @@ test('permission resolving while offscreen waits for the scene to return', async
     page.tilt.start();
     const pending = page.click();
     page.tilt.stop();
+    const count = page.readings.length;
     grant('granted');
     await pending;
     page.sample(45, 25);
-    assert.equal(page.readings.length, 0);
+    assert.equal(page.readings.length, count);
     page.tilt.start();
     page.sample(45, 25);
     assert.deepEqual(page.latest(), [0, 0]);

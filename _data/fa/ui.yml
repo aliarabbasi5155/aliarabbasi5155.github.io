@@ -63,9 +63,6 @@ lang_switch:
 opening:
   hint: برای ورود، اسکرول کنید یا ضربه بزنید
   enter: ورود به سایت
-  tilt_enable: فعال‌سازی حرکت با کج‌کردن گوشی
-  tilt_disable: غیرفعال‌سازی حرکت با کج‌کردن گوشی
-  tilt_unavailable: حرکت با کج‌کردن گوشی در دسترس نیست
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

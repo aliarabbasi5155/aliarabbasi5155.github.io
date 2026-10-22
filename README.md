@@ -30,9 +30,11 @@ old Bundler bundled with macOS does not need to be changed.
 
 ## Phone and tablet tilt
 
-The opening rings follow device tilt on supported touch devices over HTTPS. Browsers
-that require motion permission show **Enable tilt**; other supported browsers start
-automatically. **Disable tilt** turns it off for the current page. The first sensor
+The opening rings follow device tilt automatically on supported touch devices over
+HTTPS, with no enable/disable control. The presence of a permission API does not block
+already-allowed readings. If a browser requires explicit permission before sending
+readings, clicking the rings requests it through the browser's own prompt; permission
+cannot be bypassed. Denied access leaves the usual floating animation. The first sensor
 reading sets the neutral holding position, with recalibration after screen rotation
 or returning to the opening. Reduced motion disables sensor input, and sensors pause
 while the opening is offscreen or the tab is hidden. Sensor data stays on the device.

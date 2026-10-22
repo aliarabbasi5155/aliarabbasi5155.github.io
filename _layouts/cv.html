@@ -54,10 +54,6 @@
             <p class="opening-role">{{ data.profile.role | escape }}</p>
             <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
         </div>
-        <button class="opening-tilt" type="button" hidden
-            data-enable="{{ ui.opening.tilt_enable | escape }}"
-            data-disable="{{ ui.opening.tilt_disable | escape }}"
-            data-unavailable="{{ ui.opening.tilt_unavailable | escape }}">{{ ui.opening.tilt_enable | escape }}</button>
     </div>
 
     <div class="container">
@@ -323,6 +319,6 @@
     </section>
 
     <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
-    <script type="module" src="{{ '/script.js' | relative_url }}"></script>
+    <script type="module" src="{{ '/script.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 </body>
 </html>

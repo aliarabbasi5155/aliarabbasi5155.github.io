@@ -3,7 +3,7 @@
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
-import { DeviceTilt } from './device-tilt.js';
+import { DeviceTilt } from './device-tilt.js?v=2';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
@@ -254,7 +254,7 @@ function initOpening() {
     if (!scene) return;
 
     const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
-    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-tilt'));
+    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-rings'));
     new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) {
             rings.start();
