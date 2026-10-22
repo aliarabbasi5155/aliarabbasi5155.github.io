@@ -1,15 +1,18 @@
 // Glass rings: a stack of clear glass discs with coral liquid pooled at their lower left,
 // floating as one piece. Where the liquid thins out the glass turns milky, then clear.
-// The rims catch a light that turns toward the pointer, and in Chromium every disc bends
-// what lies behind it at its edge, like real glass. The discs never slide over each other
+// The rims catch a light that turns toward the pointer; on request, in Chromium, every
+// disc also bends what lies behind it at its edge. The discs never slide over each other
 // and cast no shadows. Used by the page's opening scene and by lab/rings.html.
 //
 //   const rings = new GlassRings(element, { float: 0.6 });
 //   rings.start();
 //
-// The element sets the size (its width); glass-rings.css holds the material.
-
-const TAU = Math.PI * 2;
+// The element sets the size (its width); glass-rings.css holds the material. Kept light
+// enough to leave the page smooth: the float and the sway are CSS animations, which the
+// browser runs off the main thread; the paint is drawn once; the script only works while
+// the glints are turning toward the pointer. The bend at the rims (refract) is the costly
+// part, a filter on everything behind each disc redone every frame, so it is off unless
+// asked for.
 
 // Back to front: diameter and resting offset from the stack's centre (fractions of the
 // largest disc), then where the liquid gathers (sx, sy) and how far it reaches before it
@@ -130,21 +133,21 @@ function bevelMap(size, margin, bevel) {
 }
 
 export class GlassRings {
-    constructor(element, { float = 0.6, followPointer = true, reduceMotion } = {}) {
+    constructor(element, { float = 0.6, followPointer = true, refract = false, reduceMotion } = {}) {
         this.element = element;
-        this.float = float;
         this.reduceMotion = reduceMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.id = `gr${++instances}`;
         this.size = 0;
         this.running = false;
         this.frameId = 0;
         this.last = 0;
-        this.written = new WeakMap();
-        // Light: the angle the glints face and where it is heading
-        this.light = { angle: REST_LIGHT, target: REST_LIGHT, active: false };
-        this.refracts = CSS.supports('backdrop-filter', 'url(#a)');
+        // Light: the angle the glints face, and the pointer it turns toward (none: at rest)
+        this.light = { angle: REST_LIGHT, shown: null, pointer: null };
+        this.refracts = false;
 
-        element.classList.add('glass-rings');
+        element.classList.add('glass-rings', 'gr-paused');
+        element.classList.toggle('gr-still', this.reduceMotion);
+        this.setFloat(float);
         this.stack = document.createElement('span');
         this.stack.className = 'gr-stack';
         this.stack.innerHTML = '<span class="gr-bloom"></span>';
@@ -155,16 +158,12 @@ export class GlassRings {
             disc.style.setProperty('--x0', spec.x);
             disc.style.setProperty('--y0', spec.y);
             disc.innerHTML = '<span class="gr-paint"></span><span class="gr-glint"></span>';
+            // Each disc's liquid sways on its own rhythm
+            const paint = disc.querySelector('.gr-paint');
+            paint.style.animationDuration = `${(3.1 + i * 0.375).toFixed(2)}s`;
+            paint.style.animationDelay = `${(-i * 1.37).toFixed(2)}s`;
             this.stack.append(disc);
-            return {
-                ...spec,
-                disc,
-                paint: disc.querySelector('.gr-paint'),
-                glint: disc.querySelector('.gr-glint'),
-                // Each disc's liquid sways on its own rhythm
-                period: 6.2 + i * 0.75,
-                phase: i * 1.37,
-            };
+            return { ...spec, disc, paint, glint: disc.querySelector('.gr-glint') };
         });
         element.append(this.stack);
 
@@ -179,6 +178,8 @@ export class GlassRings {
         this.resizeObserver = new ResizeObserver(() => this.measure());
         this.resizeObserver.observe(element);
         this.measure();
+        this.setRefract(refract);
+        this.turnGlints();
 
         if (followPointer) {
             this.onPointer = event => {
@@ -188,33 +189,39 @@ export class GlassRings {
             addEventListener('pointermove', this.onPointer, { passive: true });
             document.documentElement.addEventListener('pointerleave', this.onLeave);
         }
-        // A hidden tab pauses the stack; stop() keeps it stopped
-        this.onVisibility = () => (document.hidden ? this.pause() : this.resume());
-        document.addEventListener('visibilitychange', this.onVisibility);
     }
 
-    // Turn the light toward a point on screen
+    // Turn the light toward a point on screen; the angle is worked out on the next frame
     lightToward(clientX, clientY) {
-        const r = this.element.getBoundingClientRect();
-        const dx = clientX - (r.left + r.width / 2);
-        const dy = clientY - (r.top + r.height / 2);
-        if (!dx && !dy) return;
-        this.light.target = Math.atan2(dx, -dy) * 180 / Math.PI;
-        this.light.active = true;
+        this.light.pointer = { x: clientX, y: clientY };
+        this.request();
     }
 
     restLight() {
-        this.light.active = false;
+        this.light.pointer = null;
+        this.request();
     }
 
+    // How far the stack floats and the liquid sways, 0 to 1 (glass-rings.css reads it)
     setFloat(value) {
-        this.float = value;
+        this.element.style.setProperty('--gr-float', value);
     }
 
     setPaint(hex) {
         this.paintColor = hex;
         this.element.style.setProperty('--gr-paint', hex);
         this.paintDiscs();
+    }
+
+    // The bend at the rims, where the browser can draw it
+    setRefract(on) {
+        this.refracts = on && CSS.supports('backdrop-filter', 'url(#a)');
+        if (this.refracts) {
+            this.bevelDiscs();
+        } else {
+            this.defs.replaceChildren();
+            for (const disc of this.discs) disc.disc.style.backdropFilter = '';
+        }
     }
 
     measure() {
@@ -256,39 +263,22 @@ export class GlassRings {
         }
     }
 
-    // Writes a style only when it changes, so a still stack does no work
-    put(element, property, value) {
-        let last = this.written.get(element);
-        if (!last) this.written.set(element, last = {});
-        if (last[property] === value) return;
-        last[property] = value;
-        element.style.setProperty(property, value);
-    }
-
+    // Float and sway run while started; stopping freezes them where they are
     start() {
         this.running = true;
-        this.resume();
+        this.element.classList.remove('gr-paused');
+        this.request();
     }
 
     stop() {
         this.running = false;
-        this.pause();
-    }
-
-    resume() {
-        if (!this.running || this.frameId || document.hidden) return;
-        this.last = 0;
-        this.frameId = requestAnimationFrame(this.frame);
-    }
-
-    pause() {
+        this.element.classList.add('gr-paused');
         cancelAnimationFrame(this.frameId);
         this.frameId = 0;
     }
 
     destroy() {
         this.stop();
-        document.removeEventListener('visibilitychange', this.onVisibility);
         this.resizeObserver.disconnect();
         if (this.onPointer) {
             removeEventListener('pointermove', this.onPointer);
@@ -298,31 +288,36 @@ export class GlassRings {
         this.stack.remove();
     }
 
+    request() {
+        if (this.running && !this.frameId) this.frameId = requestAnimationFrame(this.frame);
+    }
+
+    // The glints are drawn facing up and turned toward the light, as one transform each
+    turnGlints() {
+        const angle = Math.round(this.light.angle * 10) / 10;
+        if (angle === this.light.shown) return;
+        this.light.shown = angle;
+        for (const disc of this.discs) disc.glint.style.rotate = `${angle}deg`;
+    }
+
+    // Only while the light is turning: it eases the short way round to the pointer (or back
+    // to rest), and the loop ends once it is there
     frame = now => {
-        this.frameId = requestAnimationFrame(this.frame);
-        const t = now / 1000;
-        const dt = this.last ? Math.min(t - this.last, 1 / 30) : 1 / 60;
-        this.last = t;
-        const float = this.reduceMotion ? 0 : this.float;
-        const D = this.size;
-
-        // The whole stack floats as one piece
-        const x = Math.sin(TAU * t / 11 + 1) * D * 0.008 * float;
-        const y = Math.sin(TAU * t / 7.5) * D * 0.018 * float;
-        this.put(this.stack, 'translate', `${x.toFixed(2)}px ${y.toFixed(2)}px`);
-
-        // The light turns the short way round toward its target; at rest it drifts a little
+        this.frameId = 0;
+        const dt = this.last ? Math.min((now - this.last) / 1000, 1 / 30) : 1 / 60;
+        this.last = now;
         const light = this.light;
-        const target = light.active ? light.target : REST_LIGHT + Math.sin(t * 0.35) * 16 * (this.reduceMotion ? 0 : 1);
-        const turn = ((target - light.angle + 540) % 360) - 180;
-        light.angle += turn * (this.reduceMotion ? 1 : 1 - Math.exp(-dt * 5));
-        const glint = `${light.angle.toFixed(1)}deg`;
-
-        for (const disc of this.discs) {
-            // The liquid sways a little as the stack floats; the light stays where it is
-            const sway = Math.sin(TAU * t / disc.period + disc.phase) * 5 * float;
-            this.put(disc.paint, 'rotate', `${sway.toFixed(2)}deg`);
-            this.put(disc.glint, 'rotate', glint);
+        let target = REST_LIGHT;
+        if (light.pointer) {
+            const r = this.element.getBoundingClientRect();
+            const dx = light.pointer.x - (r.left + r.width / 2);
+            const dy = light.pointer.y - (r.top + r.height / 2);
+            if (dx || dy) target = Math.atan2(dx, -dy) * 180 / Math.PI;
         }
+        const turn = ((target - light.angle + 540) % 360) - 180;
+        light.angle += this.reduceMotion || Math.abs(turn) < 0.1 ? turn : turn * (1 - Math.exp(-dt * 5));
+        this.turnGlints();
+        if (Math.abs(turn) >= 0.1) this.request();
+        else this.last = 0;
     };
 }
