@@ -38,6 +38,7 @@ const TILT = [
 const TILT_PERSPECTIVE = 1200;
 
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CORAL = getComputedStyle(document.documentElement).getPropertyValue('--coral').trim() || '#f6654a';
 
 let field = null;
 
@@ -52,7 +53,8 @@ function initBackground() {
             scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
             initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
             // On phones the copy sits right on top of the shapes, so keep them quieter
-            palette: small ? { ...PALETTES.sand, gain: 1.05 } : PALETTES.sand,
+            // Coral, the site's second colour, warms the grains as the temperature rises
+            palette: { ...PALETTES.sand, accent: CORAL, ...(small && { gain: 1.05 }) },
             // Right-to-left pages mirror the shapes along with the layout
             mirror: document.documentElement.dir === 'rtl',
             count: small ? 24000 : 42000,
@@ -117,6 +119,8 @@ function initTemperature() {
         value.textContent = format.format(temperature);
         band.textContent = (bands.find(b => temperature <= b.max) ?? bands.at(-1))?.label ?? '';
         field?.setTemperature(temperature);
+        // The field stays as it is up to the default 0.7, then warms toward chaotic
+        field?.setAccent(Math.max(0, temperature - 0.7) * 0.6);
     };
     input.addEventListener('input', apply);
     apply();

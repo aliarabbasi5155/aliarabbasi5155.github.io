@@ -867,6 +867,11 @@ export class DotField {
 		this.heat = Math.min(Math.max(value, 0), 2) / 2;
 	}
 
+	// How much of the palette's accent sweeps through the grains, 0 to 1
+	setAccent(mix) {
+		this.palette.accentMix = Math.min(Math.max(mix, 0), 1);
+	}
+
 	// Called every frame before the glass is measured, with the frame's delta in seconds
 	onFrame(listener) {
 		this.frameListeners.push(listener);
