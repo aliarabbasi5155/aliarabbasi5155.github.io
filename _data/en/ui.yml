@@ -60,6 +60,8 @@ lang_switch:
   label: فارسی
   url: /fa/
   lang: fa
+opening:
+  hint: Scroll or tap to enter
 copyright: © 2025 Ali Abbasi. All rights reserved.
 analytics:
   settings: Privacy settings

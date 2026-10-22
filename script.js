@@ -2,6 +2,7 @@
 // same field renders the liquid-glass panes at every screen size.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
+import { GlassRings } from './glass-rings.js';
 
 // [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
 // `tall` is used on portrait screens, where everything stacks in one column.
@@ -235,6 +236,57 @@ function scramble(element, text, duration = 600) {
         if (progress < 1) element.scrambleFrame = requestAnimationFrame(step);
     };
     element.scrambleFrame = requestAnimationFrame(step);
+}
+
+// The opening scene (styles.css plays it): the rings float, the name scrambles in like a
+// section title, and the field's own entrance waits for the page to rise. A scroll, tap
+// or key moves the scene and the page on at once.
+function initOpening() {
+    const root = document.documentElement;
+    const scene = document.querySelector('.opening');
+    if (!scene) return;
+    if (!root.classList.contains('opening-on')) {
+        scene.remove();
+        return;
+    }
+    try {
+        sessionStorage.setItem('opening-seen', '1');
+    } catch {}
+
+    const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
+    rings.start();
+    const name = scene.querySelector('.opening-name');
+    scramble(name, name.textContent.trim(), 900);
+
+    let holding = Boolean(field);
+    field?.onFrame(() => {
+        if (holding) field.intro = 0;
+    });
+
+    const isMove = event => event.target === scene && ['opening-leave', 'opening-cut'].includes(event.animationName);
+    // Looked up at the time, as the consent notice may only just have appeared
+    const skip = () => {
+        const moves = [scene, ...document.querySelectorAll('.container, .dock, .analytics-consent')]
+            .flatMap(element => element.getAnimations())
+            .filter(animation => ['opening-leave', 'opening-cut', 'opening-rise'].includes(animation.animationName));
+        for (const move of moves) {
+            const { delay } = move.effect.getTiming();
+            if (move.currentTime < delay) move.currentTime = delay;
+        }
+    };
+    const SKIPS = ['wheel', 'touchmove', 'pointerdown', 'keydown'];
+    for (const type of SKIPS) window.addEventListener(type, skip, { passive: true });
+
+    scene.addEventListener('animationstart', event => {
+        if (isMove(event)) holding = false;
+    });
+    scene.addEventListener('animationend', event => {
+        if (!isMove(event)) return;
+        for (const type of SKIPS) window.removeEventListener(type, skip);
+        rings.destroy();
+        scene.remove();
+        root.classList.remove('opening-on');
+    });
 }
 
 // Tab functionality with smooth fade transitions
@@ -551,6 +603,7 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
+    initOpening();
     initTemperature();
     initTilt();
     initExternalLinks();

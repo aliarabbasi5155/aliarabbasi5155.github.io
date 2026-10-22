@@ -1052,6 +1052,178 @@ a {
     background: var(--mint);
 }
 
+/* ---------- Opening scene ---------- */
+
+/* Once per visit (html.opening-on, set in the head): the name and a stack of glass rings
+   (glass-rings.css) over the bare field, then the scene lifts away like a screen scrolled
+   past and the page rises in under it, unchanged. The timing is all here, so the page
+   arrives even if the script never runs; the script floats the rings, keeps the field's
+   dots back until the page comes, and skips ahead on a scroll, tap or key. Nothing that
+   holds the rings fades as a whole: Chromium would then draw their glass apart from
+   what lies behind it, and the bend at their rims would break. */
+:root {
+    --opening-hold: 3s;
+    --opening-move: 1.1s;
+    --opening-ease: cubic-bezier(0.65, 0, 0.25, 1);
+}
+
+.opening {
+    display: none;
+}
+
+.opening-on .opening {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    animation: opening-leave var(--opening-move) var(--opening-ease) var(--opening-hold) both;
+}
+
+.opening-on .container,
+.opening-on .dock,
+.opening-on .analytics-consent {
+    animation: opening-rise var(--opening-move) var(--opening-ease) var(--opening-hold) both;
+}
+
+@keyframes opening-leave {
+    to {
+        translate: 0 -100vh;
+        visibility: hidden;
+    }
+}
+
+@keyframes opening-rise {
+    from {
+        translate: 0 100vh;
+    }
+}
+
+@keyframes opening-in {
+    from {
+        opacity: 0;
+        translate: 0 14px;
+    }
+}
+
+@keyframes opening-float-in {
+    from {
+        translate: 0 6%;
+    }
+}
+
+@keyframes opening-show {
+    from {
+        opacity: 0;
+    }
+}
+
+/* The rings rise into place while their liquid, glints and glow appear */
+.opening-rings {
+    --size: min(68vh, 46vw);
+    position: absolute;
+    top: calc(52% - var(--size) / 2);
+    inset-inline-start: calc(61% - var(--size) / 2);
+    width: var(--size);
+    animation: opening-float-in 1.6s var(--ease) 0.1s backwards;
+}
+
+.opening-rings .gr-bloom,
+.opening-rings .gr-paint,
+.opening-rings .gr-glint {
+    animation: opening-show 1.4s var(--ease) 0.1s backwards;
+}
+
+.opening-text {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: max(24px, 8vw);
+    display: grid;
+    gap: 18px;
+    translate: 0 -50%;
+}
+
+/* One word to a line */
+.opening-name {
+    width: min-content;
+    font: 400 clamp(56px, 8.5vw, 132px)/0.9 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+    animation: opening-in 1s var(--ease) 0.2s backwards;
+}
+
+.opening-role {
+    font: 700 14px/1.4 var(--mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--soft);
+    animation: opening-in 1s var(--ease) 0.7s backwards;
+}
+
+.opening-hint {
+    margin-top: 22px;
+    font: 400 11px/1 var(--mono);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: opening-in 1s var(--ease) 1.3s backwards;
+}
+
+/* Portrait screens: the name on top, the rings below it */
+@media (max-aspect-ratio: 4 / 5) {
+    .opening-rings {
+        --size: min(86vw, 52vh);
+        top: auto;
+        bottom: 14vh;
+        inset-inline-start: calc(50% - var(--size) / 2);
+    }
+
+    .opening-text {
+        top: 14vh;
+        gap: 14px;
+        translate: none;
+    }
+
+    .opening-name {
+        font-size: clamp(52px, 17vw, 96px);
+    }
+
+    .opening-role {
+        font-size: 12px;
+    }
+
+    .opening-hint {
+        margin-top: 12px;
+    }
+}
+
+/* Without motion: the page waits in place under the scene, which then simply goes */
+@media (prefers-reduced-motion: reduce) {
+    .opening-on .opening {
+        background: var(--bg);
+        animation: opening-cut 1ms var(--opening-hold) both;
+    }
+
+    .opening-on .container,
+    .opening-on .dock,
+    .opening-on .analytics-consent,
+    .opening-rings,
+    .opening-rings .gr-bloom,
+    .opening-rings .gr-paint,
+    .opening-rings .gr-glint,
+    .opening-name,
+    .opening-role,
+    .opening-hint {
+        animation: none;
+    }
+}
+
+@keyframes opening-cut {
+    to {
+        visibility: hidden;
+    }
+}
+
 /* ---------- Stacked layout: tablets and phones ---------- */
 
 @media (max-width: 1100px) {
@@ -1286,6 +1458,10 @@ html[lang="fa"] .energy {
 html[lang="fa"] .nav-button.active .nav-letter,
 html[lang="fa"] .section-badge {
     padding-bottom: 0.15em;
+}
+
+html[lang="fa"] .opening-name {
+    line-height: 1.15;
 }
 
 @media (prefers-reduced-motion: reduce) {

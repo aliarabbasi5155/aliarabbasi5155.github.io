@@ -1,0 +1,106 @@
+/* Glass rings (glass-rings.js): clear glass discs with coral liquid pooled at their lower
+   left. The glass itself has no colour: away from the liquid it is as clear as a window,
+   with only its rim showing. Light catches the rim as a fine bright line on the side it
+   comes from, and gathers on the far side after passing through.
+
+   Tokens, on .glass-rings or any ancestor:
+     --gr-paint      the liquid (read once by the script; setPaint() changes it)
+     --gr-hairline   the rim's fine edge, seen all the way round
+     --gr-glint      the reflections, as r g b
+     --gr-bloom      light the liquid throws on what lies behind (none on a light wall) */
+
+.glass-rings {
+    --D: 400px;
+    position: relative;
+    aspect-ratio: 1;
+    pointer-events: none;
+}
+
+/* Floats as one piece (script) */
+.gr-stack {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+}
+
+/* Kept to the liquid's side, so the clear side stays clear */
+.gr-bloom {
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    background: var(--gr-bloom, color-mix(in srgb, var(--gr-paint, #f6654a) 16%, transparent));
+    filter: blur(calc(var(--D) * 0.08));
+    translate: -7% 8%;
+}
+
+/* --d: diameter, --x0 and --y0: offset from the centre, all as fractions of --D. In
+   Chromium the script adds the bend at the rim as a backdrop filter; the disc then casts
+   no outer shadow, which would move the filter's origin. */
+.gr-disc {
+    position: absolute;
+    top: calc(50% - var(--d) * var(--D) / 2);
+    left: calc(50% - var(--d) * var(--D) / 2);
+    width: calc(var(--d) * var(--D));
+    height: calc(var(--d) * var(--D));
+    border-radius: 50%;
+    translate: calc(var(--x0) * var(--D)) calc(var(--y0) * var(--D));
+    box-shadow: inset 0 0 0 1px var(--gr-hairline, rgb(255 255 255 / 0.12));
+}
+
+.gr-paint,
+.gr-glint,
+.gr-glint::before,
+.gr-glint::after {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+/* The liquid, drawn by the script; it sways, the light does not */
+.gr-paint {
+    background: center / 100% 100% no-repeat;
+    will-change: transform;
+}
+
+/* Reflections, drawn facing up and turned toward the light (script) */
+.gr-glint {
+    will-change: transform;
+}
+
+/* A fine bright line along the rim where the light strikes it, and a fainter one where it
+   leaves on the far side */
+.gr-glint::before {
+    content: "";
+    background: conic-gradient(
+        rgb(var(--gr-glint, 255 255 255) / 1),
+        rgb(var(--gr-glint, 255 255 255) / 0) 75deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 125deg,
+        rgb(var(--gr-glint, 255 255 255) / 0.5) 180deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 235deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 285deg,
+        rgb(var(--gr-glint, 255 255 255) / 1));
+    -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px), #000 calc(100% - 0.5px), transparent);
+    mask: radial-gradient(closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px), #000 calc(100% - 0.5px), transparent);
+}
+
+/* The rounded bevel inside the rim: a bright sheen right where the light strikes, and a
+   softer one on the far side, where the light that passed through the glass gathers */
+.gr-glint::after {
+    content: "";
+    background: conic-gradient(
+        rgb(var(--gr-glint, 255 255 255) / 0.4),
+        rgb(var(--gr-glint, 255 255 255) / 0) 40deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 115deg,
+        rgb(var(--gr-glint, 255 255 255) / 0.18) 180deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 245deg,
+        rgb(var(--gr-glint, 255 255 255) / 0) 320deg,
+        rgb(var(--gr-glint, 255 255 255) / 0.4));
+    -webkit-mask: radial-gradient(closest-side, transparent calc(100% - var(--D) * 0.03 * var(--d)), #000 calc(100% - 1px), transparent);
+    mask: radial-gradient(closest-side, transparent calc(100% - var(--D) * 0.03 * var(--d)), #000 calc(100% - 1px), transparent);
+}
+
+@media (forced-colors: active) {
+    .glass-rings {
+        display: none;
+    }
+}

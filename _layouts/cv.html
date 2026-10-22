@@ -16,6 +16,13 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // The opening scene plays once per visit; decided before the body draws, so the page
+        // never flashes first (styles.css plays it, script.js lets a visitor skip it)
+        try {
+            if (!sessionStorage.getItem('opening-seen')) document.documentElement.classList.add('opening-on');
+        } catch (error) {}
+    </script>
     <title>{{ ui.title | escape }}</title>
     <meta name="description" content="{{ ui.description | escape }}">
     <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
@@ -32,12 +39,23 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ ui.lang_switch.label | url_encode }}&display=swap">
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ '/glass-rings.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
 </head>
 <body>
     <!-- Dot field background and liquid-glass panes at every screen size -->
     <canvas id="canvas" aria-hidden="true"></canvas>
+
+    <!-- Opening scene: the name and the glass rings, before the page rises in -->
+    <div class="opening" aria-hidden="true">
+        <div class="opening-rings"></div>
+        <div class="opening-text">
+            <p class="opening-name">{{ data.profile.name | escape }}</p>
+            <p class="opening-role">{{ data.profile.role | escape }}</p>
+            <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
+        </div>
+    </div>
 
     <div class="container">
         <!-- Profile and latest updates -->
