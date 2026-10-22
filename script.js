@@ -238,56 +238,69 @@ function scramble(element, text, duration = 600) {
     element.scrambleFrame = requestAnimationFrame(step);
 }
 
-// The opening scene (styles.css plays it): the rings float, the name scrambles in like a
-// section title, and the field's own entrance waits until the scene is a third of the way
-// out. A scroll, tap or key moves the scene and the page on at once.
+// The opening scene, the page's first screen (styles.css): the rings float while it is in
+// view and the name scrambles in like a section title. The field's dots gather only as
+// the page comes up from below, and leave again on the way back. A click on the scene
+// goes down to the page; on wide screens, where the page fills one screen, a scroll or
+// key turns between the two in one move instead of stopping halfway.
 function initOpening() {
-    const root = document.documentElement;
     const scene = document.querySelector('.opening');
     if (!scene) return;
-    if (!root.classList.contains('opening-on')) {
-        scene.remove();
-        return;
-    }
-    try {
-        sessionStorage.setItem('opening-seen', '1');
-    } catch {}
 
     const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
-    rings.start();
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? rings.start() : rings.stop())).observe(scene);
     const name = scene.querySelector('.opening-name');
     scramble(name, name.textContent.trim(), 900);
 
-    const isMove = event => event.target === scene && ['opening-leave', 'opening-cut'].includes(event.animationName);
-    const leave = scene.getAnimations().find(animation => ['opening-leave', 'opening-cut'].includes(animation.animationName));
-    let holding = Boolean(field);
+    // How far the scene has scrolled away; the dots come in over the last three quarters,
+    // at no more than their own entrance's pace
     field?.onFrame(() => {
-        if (!holding) return;
-        const { delay, duration } = leave?.effect.getTiming() ?? {};
-        if (!leave || leave.currentTime === null || leave.currentTime >= delay + duration * 0.3) holding = false;
-        else field.intro = 0;
+        const { bottom, height } = scene.getBoundingClientRect();
+        const away = 1 - Math.min(1, Math.max(0, bottom / height));
+        field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
     });
 
-    // Looked up at the time, as the consent notice may only just have appeared
-    const skip = () => {
-        const moves = [scene, ...document.querySelectorAll('.container, .dock, .analytics-consent')]
-            .flatMap(element => element.getAnimations())
-            .filter(animation => ['opening-leave', 'opening-cut', 'opening-rise'].includes(animation.animationName));
-        for (const move of moves) {
-            const { delay } = move.effect.getTiming();
-            if (move.currentTime < delay) move.currentTime = delay;
-        }
+    const page = document.querySelector('.container');
+    const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);
+    let turned = -Infinity;
+    const turn = top => {
+        turned = performance.now();
+        window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
     };
-    const SKIPS = ['wheel', 'touchmove', 'pointerdown', 'keydown'];
-    for (const type of SKIPS) window.addEventListener(type, skip, { passive: true });
+    scene.addEventListener('click', () => turn(pageTop()));
 
-    scene.addEventListener('animationend', event => {
-        if (!isMove(event)) return;
-        holding = false;
-        for (const type of SKIPS) window.removeEventListener(type, skip);
-        rings.destroy();
-        scene.remove();
-        root.classList.remove('opening-on');
+    // Whether the pointer or focus is over something that can still scroll up itself
+    const scrollsUp = element => {
+        for (let el = element; el && el !== document.body; el = el.parentElement) {
+            if (el.scrollTop > 0) return true;
+        }
+        return false;
+    };
+    const wide = window.matchMedia('(min-width: 1101px)');
+    window.addEventListener('wheel', event => {
+        if (!wide.matches || event.ctrlKey) return;
+        const top = pageTop();
+        // A turn under way, and the swipe's momentum after it, move nothing else
+        if (performance.now() - turned < 900) {
+            event.preventDefault();
+        } else if (scrollY < top - 2) {
+            event.preventDefault();
+            if (event.deltaY > 0) turn(top);
+        } else if (event.deltaY < 0 && !scrollsUp(event.target)) {
+            event.preventDefault();
+            turn(0);
+        }
+    }, { passive: false });
+    window.addEventListener('keydown', event => {
+        if (!wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
+        const top = pageTop();
+        if (scrollY < top - 2 && ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) {
+            event.preventDefault();
+            turn(top);
+        } else if (scrollY >= top - 2 && ['ArrowUp', 'PageUp', 'Home'].includes(event.key)) {
+            event.preventDefault();
+            turn(0);
+        }
     });
 }
 

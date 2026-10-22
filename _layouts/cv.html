@@ -16,13 +16,6 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-        // The opening scene plays once per visit; decided before the body draws, so the page
-        // never flashes first (styles.css plays it, script.js lets a visitor skip it)
-        try {
-            if (!sessionStorage.getItem('opening-seen')) document.documentElement.classList.add('opening-on');
-        } catch (error) {}
-    </script>
     <title>{{ ui.title | escape }}</title>
     <meta name="description" content="{{ ui.description | escape }}">
     <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
@@ -47,7 +40,7 @@
     <!-- Dot field background and liquid-glass panes at every screen size -->
     <canvas id="canvas" aria-hidden="true"></canvas>
 
-    <!-- Opening scene: the name and the glass rings, before the page rises in -->
+    <!-- Opening scene: the first screen, the name and the glass rings; the page follows below -->
     <div class="opening" aria-hidden="true">
         <div class="opening-rings"></div>
         <div class="opening-text">
