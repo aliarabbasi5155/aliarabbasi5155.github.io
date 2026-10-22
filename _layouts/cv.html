@@ -54,6 +54,10 @@
             <p class="opening-role">{{ data.profile.role | escape }}</p>
             <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
         </div>
+        <button class="opening-tilt" type="button" hidden
+            data-enable="{{ ui.opening.tilt_enable | escape }}"
+            data-disable="{{ ui.opening.tilt_disable | escape }}"
+            data-unavailable="{{ ui.opening.tilt_unavailable | escape }}">{{ ui.opening.tilt_enable | escape }}</button>
     </div>
 
     <div class="container">

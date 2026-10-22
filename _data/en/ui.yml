@@ -63,6 +63,9 @@ lang_switch:
 opening:
   hint: Scroll or tap to enter
   enter: Enter the site
+  tilt_enable: Enable tilt
+  tilt_disable: Disable tilt
+  tilt_unavailable: Tilt unavailable
 copyright: © 2025 Ali Abbasi. All rights reserved.
 analytics:
   settings: Privacy settings

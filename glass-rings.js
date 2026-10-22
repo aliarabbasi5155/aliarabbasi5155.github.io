@@ -8,6 +8,7 @@
 // back ones, as if it turned to face it, and opens out while the pointer is over it. A
 // press squeezes it; held, it can be pulled about, and let go it springs back and rings.
 // The liquid leans toward the pointer and rocks with every move.
+// Phone/tablet tilt uses the same springs, with a small shift in the reflected light.
 //
 //   const rings = new GlassRings(element, { float: 0.6 });
 //   rings.start();
@@ -182,6 +183,7 @@ export class GlassRings {
         // The mouse, while it is on the page; how far the stack has opened out toward it;
         // and the press holding the stack, if any
         this.pointer = { x: 0, y: 0, active: false };
+        this.tilt = { x: 0, y: 0 };
         this.open = 0;
         this.held = null;
         // Reduced motion keeps only the light
@@ -322,6 +324,11 @@ export class GlassRings {
         this.float = value;
     }
 
+    setTilt(x, y) {
+        this.tilt = { x, y };
+        if (!this.pointer.active && !this.held) this.light.active = false;
+    }
+
     setPaint(hex) {
         this.paintColor = hex;
         this.element.style.setProperty('--gr-paint', hex);
@@ -418,8 +425,8 @@ export class GlassRings {
         const D = this.size;
         const box = this.element.getBoundingClientRect();
         const pointer = this.pointer;
-        let ux = 0;
-        let uy = 0;
+        let ux = this.tilt.x;
+        let uy = this.tilt.y;
         let over = false;
         if (pointer.active) {
             const px = pointer.x - (box.left + box.width / 2);
@@ -483,7 +490,8 @@ export class GlassRings {
 
         // The light turns the short way round toward its target; at rest it drifts a little
         const light = this.light;
-        const target = light.active ? light.target : REST_LIGHT + Math.sin(t * 0.35) * 16 * (this.reduceMotion ? 0 : 1);
+        const tiltLight = this.reduceMotion ? 0 : this.tilt.x * 30 + this.tilt.y * 15;
+        const target = light.active ? light.target : REST_LIGHT + tiltLight + Math.sin(t * 0.35) * 16 * (this.reduceMotion ? 0 : 1);
         const turn = ((target - light.angle + 540) % 360) - 180;
         light.angle += turn * (this.reduceMotion ? 1 : 1 - Math.exp(-dt * 5));
         const glint = `${light.angle.toFixed(1)}deg`;
