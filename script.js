@@ -255,25 +255,38 @@ function initOpening() {
 
     const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
     const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-rings'));
+    // Only while some of the scene shows. At the page its bottom edge still touches the top
+    // of the screen, which an observer counts as intersecting, so it asks for a sliver.
     new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.intersectionRatio > 0.01) {
             rings.start();
             tilt.start();
         } else {
             rings.stop();
             tilt.stop();
         }
-    }).observe(scene);
+    }, { threshold: [0, 0.02] }).observe(scene);
     const name = scene.querySelector('.opening-name');
     scramble(name, name.textContent.trim(), 900);
 
     // How far the scene has scrolled away; the dots come in over the last three quarters,
-    // at no more than their own entrance's pace
+    // at no more than their own entrance's pace. While the scene fills the screen the
+    // field has nothing to show, so after drawing that frame it rests until the page moves.
+    const covering = () => {
+        const { top, bottom } = scene.getBoundingClientRect();
+        return top > -1 && bottom >= innerHeight - 1;
+    };
     field?.onFrame(() => {
         const { bottom, height } = scene.getBoundingClientRect();
         const away = 1 - Math.min(1, Math.max(0, bottom / height));
         field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
+        if (covering()) field.stop();
     });
+    const wake = () => {
+        if (!covering()) field?.start();
+    };
+    window.addEventListener('scroll', wake, { passive: true });
+    window.addEventListener('resize', wake);
 
     const page = document.querySelector('.container');
     const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);

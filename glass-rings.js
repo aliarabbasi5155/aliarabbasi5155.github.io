@@ -1,7 +1,7 @@
 // Glass rings: a stack of clear glass discs with coral liquid pooled at their lower left,
 // floating as one piece. Where the liquid thins out the glass turns milky, then clear.
-// The rims catch a light that turns toward the pointer, and in Chromium every disc bends
-// what lies behind it at its edge, like real glass. The discs never slide over each other
+// The rims catch a light that turns toward the pointer; on request, in Chromium, every
+// disc also bends what lies behind it at its edge. The discs never slide over each other
 // and cast no shadows. Used by the page's opening scene (script.js).
 //
 // The stack answers the mouse: it leans toward the pointer, its front discs more than its
@@ -16,8 +16,12 @@
 // The element sets the size (its width); glass-rings.css holds the material. Anything
 // already inside the element is placed on the front disc and moves with it; presses on
 // links and buttons there stay theirs.
-
-const TAU = Math.PI * 2;
+//
+// Kept light enough to leave the page smooth: the float and the sway are CSS animations,
+// which the browser runs off the main thread; the paint is drawn once; and the script only
+// works while something is moving (the pointer, a press, a tilt, the light turning), then
+// rests. The bend at the rims (refract) is the costly part, a filter on everything behind
+// each disc redone every frame, so it is off unless asked for.
 
 // Back to front: diameter and resting offset from the stack's centre (fractions of the
 // largest disc), then where the liquid gathers (sx, sy) and how far it reaches before it
@@ -167,9 +171,8 @@ function rein(x, y, limit) {
 }
 
 export class GlassRings {
-    constructor(element, { float = 0.6, followPointer = true, grab = true, reduceMotion } = {}) {
+    constructor(element, { float = 0.6, followPointer = true, grab = true, refract = false, reduceMotion } = {}) {
         this.element = element;
-        this.float = float;
         this.reduceMotion = reduceMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.id = `gr${++instances}`;
         this.size = 0;
@@ -177,9 +180,9 @@ export class GlassRings {
         this.frameId = 0;
         this.last = 0;
         this.written = new WeakMap();
-        // Light: the angle the glints face and where it is heading
-        this.light = { angle: REST_LIGHT, target: REST_LIGHT, active: false };
-        this.refracts = CSS.supports('backdrop-filter', 'url(#a)');
+        // Light: the angle the glints face, and the point it turns toward while active
+        this.light = { angle: REST_LIGHT, x: 0, y: 0, active: false };
+        this.refracts = false;
         // The mouse, while it is on the page; how far the stack has opened out toward it;
         // and the press holding the stack, if any
         this.pointer = { x: 0, y: 0, active: false };
@@ -189,7 +192,9 @@ export class GlassRings {
         // Reduced motion keeps only the light
         this.moves = !this.reduceMotion;
 
-        element.classList.add('glass-rings');
+        element.classList.add('glass-rings', 'gr-paused');
+        element.classList.toggle('gr-still', this.reduceMotion);
+        this.setFloat(float);
         this.content = [...element.childNodes];
         this.stack = document.createElement('span');
         this.stack.className = 'gr-stack';
@@ -202,15 +207,16 @@ export class GlassRings {
             disc.style.setProperty('--x0', spec.x);
             disc.style.setProperty('--y0', spec.y);
             disc.innerHTML = '<span class="gr-paint"></span><span class="gr-glint"></span>';
+            // Each disc's liquid sways on its own rhythm (glass-rings.css)
+            const paint = disc.querySelector('.gr-paint');
+            paint.style.setProperty('--gr-sway-time', `${(3.1 + i * 0.375).toFixed(2)}s`);
+            paint.style.setProperty('--gr-sway-delay', `${(-i * 1.37).toFixed(2)}s`);
             this.stack.append(disc);
             return {
                 ...spec,
                 disc,
-                paint: disc.querySelector('.gr-paint'),
+                paint,
                 glint: disc.querySelector('.gr-glint'),
-                // Each disc's liquid sways on its own rhythm
-                period: 6.2 + i * 0.75,
-                phase: i * 1.37,
                 // Springs: the disc's shift and size, and how far its liquid has rocked
                 ox: { p: 0, v: 0 },
                 oy: { p: 0, v: 0 },
@@ -234,12 +240,13 @@ export class GlassRings {
         this.resizeObserver = new ResizeObserver(() => this.measure());
         this.resizeObserver.observe(element);
         this.measure();
+        this.setRefract(refract);
 
         if (followPointer) {
             this.onPointer = event => {
                 if (event.pointerType !== 'mouse') return;
-                this.lightToward(event.clientX, event.clientY);
                 Object.assign(this.pointer, { x: event.clientX, y: event.clientY, active: true });
+                this.lightToward(event.clientX, event.clientY);
             };
             this.onLeave = () => this.restLight();
             addEventListener('pointermove', this.onPointer, { passive: true });
@@ -256,24 +263,18 @@ export class GlassRings {
                 this.stack.addEventListener(type, this.onRelease);
             }
         }
-        // A hidden tab pauses the stack; stop() keeps it stopped
-        this.onVisibility = () => (document.hidden ? this.pause() : this.resume());
-        document.addEventListener('visibilitychange', this.onVisibility);
     }
 
-    // Turn the light toward a point on screen
+    // Turn the light toward a point on screen; the angle is worked out on the next frame
     lightToward(clientX, clientY) {
-        const r = this.element.getBoundingClientRect();
-        const dx = clientX - (r.left + r.width / 2);
-        const dy = clientY - (r.top + r.height / 2);
-        if (!dx && !dy) return;
-        this.light.target = Math.atan2(dx, -dy) * 180 / Math.PI;
-        this.light.active = true;
+        Object.assign(this.light, { x: clientX, y: clientY, active: true });
+        this.request();
     }
 
     restLight() {
         this.light.active = false;
         this.pointer.active = false;
+        this.request();
     }
 
     onPress = event => {
@@ -281,6 +282,7 @@ export class GlassRings {
         this.lightToward(event.clientX, event.clientY);
         const mouse = event.pointerType === 'mouse';
         this.held = { id: event.pointerId, mouse, x: event.clientX, y: event.clientY, dx: 0, dy: 0, pulled: false };
+        this.request();
         if (!mouse) return;
         // No text selection while pulling, and the pull goes on outside the stack
         event.preventDefault();
@@ -294,6 +296,7 @@ export class GlassRings {
         held.dx = event.clientX - held.x;
         held.dy = event.clientY - held.y;
         held.pulled ||= Math.hypot(held.dx, held.dy) > 4;
+        this.request();
     };
 
     onRelease = event => {
@@ -301,6 +304,7 @@ export class GlassRings {
         if (!held || event.pointerId !== held.id) return;
         this.held = null;
         document.documentElement.classList.remove('gr-grabbing');
+        this.request();
         // A cancelled touch became a scroll
         if (event.type !== 'pointerup') return;
         if (!held.pulled) this.poke();
@@ -318,15 +322,31 @@ export class GlassRings {
             disc.kick = now + (this.discs.length - 1 - i) * 0.06;
             disc.slosh.v += (i % 2 ? -1 : 1) * (50 + i * 15);
         }
+        this.request();
     }
 
+    // How far the stack floats and the liquid sways, 0 to 1 (glass-rings.css reads it)
     setFloat(value) {
-        this.float = value;
+        this.element.style.setProperty('--gr-float', value);
     }
 
+    // Sensor noise below this is left alone, so a phone held still lets the stack rest
     setTilt(x, y) {
+        if (this.tilt && Math.abs(x - this.tilt.x) + Math.abs(y - this.tilt.y) < 0.002) return;
         this.tilt = { x, y };
         if (!this.pointer.active && !this.held) this.light.active = false;
+        this.request();
+    }
+
+    // The bend at the rims, where the browser can draw it
+    setRefract(on) {
+        this.refracts = on && CSS.supports('backdrop-filter', 'url(#a)');
+        if (this.refracts) {
+            this.bevelDiscs();
+        } else {
+            this.defs.replaceChildren();
+            for (const disc of this.discs) disc.disc.style.backdropFilter = '';
+        }
     }
 
     setPaint(hex) {
@@ -342,6 +362,7 @@ export class GlassRings {
         this.element.style.setProperty('--D', `${size}px`);
         this.paintDiscs();
         if (this.refracts) this.bevelDiscs();
+        this.request();
     }
 
     paintDiscs() {
@@ -383,30 +404,27 @@ export class GlassRings {
         element.style.setProperty(property, value);
     }
 
+    // Float and sway run while started; stopping freezes them where they are
     start() {
         this.running = true;
-        this.resume();
+        this.element.classList.remove('gr-paused');
+        this.request();
     }
 
     stop() {
         this.running = false;
-        this.pause();
-    }
-
-    resume() {
-        if (!this.running || this.frameId || document.hidden) return;
-        this.last = 0;
-        this.frameId = requestAnimationFrame(this.frame);
-    }
-
-    pause() {
+        this.element.classList.add('gr-paused');
         cancelAnimationFrame(this.frameId);
         this.frameId = 0;
+        this.last = 0;
+    }
+
+    request() {
+        if (this.running && !this.frameId) this.frameId = requestAnimationFrame(this.frame);
     }
 
     destroy() {
         this.stop();
-        document.removeEventListener('visibilitychange', this.onVisibility);
         this.resizeObserver.disconnect();
         if (this.onPointer) {
             removeEventListener('pointermove', this.onPointer);
@@ -420,10 +438,10 @@ export class GlassRings {
     }
 
     // Each disc follows the pointer and the press on springs, nearer discs on stiffer ones,
-    // so the stack moves like one soft piece; each is then kept clear of the one behind it
-    move(t, dt) {
+    // so the stack moves like one soft piece; each is then kept clear of the one behind it.
+    // Says whether anything is still on its way.
+    move(t, dt, box = this.element.getBoundingClientRect()) {
         const D = this.size;
-        const box = this.element.getBoundingClientRect();
         const pointer = this.pointer;
         let ux = this.tilt.x;
         let uy = this.tilt.y;
@@ -436,7 +454,10 @@ export class GlassRings {
             over = Math.hypot(px, py) < D / 2;
         }
         const held = this.held;
-        this.open += ((over || held ? 1 : 0) - this.open) * (1 - Math.exp(-dt * 6));
+        const opening = over || held ? 1 : 0;
+        this.open += (opening - this.open) * (1 - Math.exp(-dt * 6));
+        let moving = Math.abs(opening - this.open) > 0.002;
+        const restless = (s, target, near) => Math.abs(s.v) > near || Math.abs(s.p - target) > near;
         // A pull gives less the farther it goes
         const reach = D * PULL;
         const gx = held?.mouse ? reach * Math.tanh(held.dx / reach) : 0;
@@ -451,17 +472,24 @@ export class GlassRings {
             const depth = i / last;
             const k = 70 + 90 * depth;
             const vx = disc.ox.v;
-            spring(disc.ox, gx + ux * (lean + face * depth), k, 0.45, dt);
-            spring(disc.oy, gy + uy * (lean + face * depth), k, 0.45, dt);
+            const tx = gx + ux * (lean + face * depth);
+            const ty = gy + uy * (lean + face * depth);
+            spring(disc.ox, tx, k, 0.45, dt);
+            spring(disc.oy, ty, k, 0.45, dt);
             if (t >= disc.kick) {
                 disc.scale.v += 0.7;
                 disc.kick = Infinity;
             }
             // Squeezed while held, the front discs most
-            spring(disc.scale, held ? 0.985 - 0.035 * depth : 1, 320, 0.2, dt);
+            const squeeze = held ? 0.985 - 0.035 * depth : 1;
+            spring(disc.scale, squeeze, 320, 0.2, dt);
             // The liquid leans toward the pointer and lags behind the disc's moves
             disc.slosh.v += 70 * (disc.ox.v - vx) / D;
-            spring(disc.slosh, -ux * 22 * (0.5 + 0.5 * this.open), 20 + 40 * depth, 0.15, dt);
+            const lag = -ux * 22 * (0.5 + 0.5 * this.open);
+            spring(disc.slosh, lag, 20 + 40 * depth, 0.15, dt);
+            this.put(disc.paint, 'transform', `rotate(${disc.slosh.p.toFixed(2)}deg)`);
+            moving ||= disc.kick !== Infinity || restless(disc.ox, tx, 0.05) || restless(disc.oy, ty, 0.05)
+                || restless(disc.scale, squeeze, 0.0005) || restless(disc.slosh, lag, 0.2);
 
             let x = disc.ox.p;
             let y = disc.oy.p;
@@ -472,35 +500,34 @@ export class GlassRings {
         // The liquid's glow follows the stack and spreads as it opens
         const glow = this.discs[0];
         this.put(this.bloom, 'transform', `translate(${glow.ox.p.toFixed(2)}px, ${glow.oy.p.toFixed(2)}px) scale(${(1 + 0.1 * this.open).toFixed(3)})`);
+        return moving;
     }
 
+    // Runs only while something moves; the float and the sway need no frames from it
     frame = now => {
-        this.frameId = requestAnimationFrame(this.frame);
+        this.frameId = 0;
         const t = now / 1000;
         const dt = this.last ? Math.min(t - this.last, 1 / 30) : 1 / 60;
         this.last = t;
-        const float = this.reduceMotion ? 0 : this.float;
-        const D = this.size;
-        if (this.moves) this.move(t, dt);
+        const box = this.element.getBoundingClientRect();
+        let moving = this.moves && this.move(t, dt, box);
 
-        // The whole stack floats as one piece
-        const x = Math.sin(TAU * t / 11 + 1) * D * 0.008 * float;
-        const y = Math.sin(TAU * t / 7.5) * D * 0.018 * float;
-        this.put(this.stack, 'translate', `${x.toFixed(2)}px ${y.toFixed(2)}px`);
-
-        // The light turns the short way round toward its target; at rest it drifts a little
+        // The light turns the short way round toward the pointer, or back to rest (shifted
+        // by the device's tilt)
         const light = this.light;
-        const tiltLight = this.reduceMotion ? 0 : this.tilt.x * 30 + this.tilt.y * 15;
-        const target = light.active ? light.target : REST_LIGHT + tiltLight + Math.sin(t * 0.35) * 16 * (this.reduceMotion ? 0 : 1);
-        const turn = ((target - light.angle + 540) % 360) - 180;
-        light.angle += turn * (this.reduceMotion ? 1 : 1 - Math.exp(-dt * 5));
-        const glint = `${light.angle.toFixed(1)}deg`;
-
-        for (const disc of this.discs) {
-            // The liquid sways a little as the stack floats; the light stays where it is
-            const sway = Math.sin(TAU * t / disc.period + disc.phase) * 5 * float + disc.slosh.p;
-            this.put(disc.paint, 'rotate', `${sway.toFixed(2)}deg`);
-            this.put(disc.glint, 'rotate', glint);
+        let target = REST_LIGHT + (this.reduceMotion ? 0 : this.tilt.x * 30 + this.tilt.y * 15);
+        if (light.active) {
+            const dx = light.x - (box.left + box.width / 2);
+            const dy = light.y - (box.top + box.height / 2);
+            if (dx || dy) target = Math.atan2(dx, -dy) * 180 / Math.PI;
         }
+        const turn = ((target - light.angle + 540) % 360) - 180;
+        light.angle += this.reduceMotion || Math.abs(turn) < 0.1 ? turn : turn * (1 - Math.exp(-dt * 5));
+        moving ||= Math.abs(turn) >= 0.1;
+        const glint = `${light.angle.toFixed(1)}deg`;
+        for (const disc of this.discs) this.put(disc.glint, 'rotate', glint);
+
+        if (moving) this.request();
+        else this.last = 0;
     };
 }

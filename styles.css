@@ -1150,7 +1150,8 @@ a {
     }
 }
 
-/* The rings rise into place while their liquid, glints and glow appear */
+/* The rings rise into place while they and their glow appear. Whole discs fade, so the
+   liquid's own sway (glass-rings.css) keeps its animation. */
 .opening-rings {
     --gr-paint: var(--coral);
     --size: min(68vh, 46vw);
@@ -1162,8 +1163,7 @@ a {
 }
 
 .opening-rings .gr-bloom,
-.opening-rings .gr-paint,
-.opening-rings .gr-glint {
+.opening-rings .gr-disc {
     animation: opening-show 1.4s var(--ease) 0.1s backwards;
 }
 
@@ -1309,8 +1309,7 @@ a {
 @media (prefers-reduced-motion: reduce) {
     .opening-rings,
     .opening-rings .gr-bloom,
-    .opening-rings .gr-paint,
-    .opening-rings .gr-glint,
+    .opening-rings .gr-disc,
     .opening-name,
     .opening-role,
     .opening-hint,
