@@ -57,12 +57,14 @@ temperature:
     - max: 2
       label: آشوبناک
 lang_switch:
+  current: فارسی
   label: English
   url: /
   lang: en
 opening:
   hint: برای ورود، اسکرول کنید یا ضربه بزنید
   enter: ورود به سایت
+  languages: زبان
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

@@ -1206,6 +1206,64 @@ a {
     animation: opening-in 1s var(--ease) 1.3s backwards;
 }
 
+/* The choice of language, in the top corner: the page's own language chosen in mint,
+   the other a link to its page. Plain fills rather than glass, so it costs nothing while
+   the field rests under the scene. */
+.opening-lang {
+    position: absolute;
+    top: 24px;
+    inset-inline-end: 32px;
+    z-index: 1;
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.04);
+    box-shadow: inset 0 0 0 1px var(--line);
+    /* English, then Persian, on both pages: only the choice moves */
+    direction: ltr;
+    cursor: auto;
+    animation: opening-show 1s var(--ease) 1.3s backwards;
+}
+
+.opening-lang > * {
+    padding: 10px 16px;
+    border-radius: 999px;
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+.opening-lang [lang="fa"] {
+    font-family: "Vazirmatn", Tahoma, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.opening-lang [aria-current] {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.opening-lang a:hover {
+    background: rgb(255 255 255 / 0.06);
+    color: var(--text);
+}
+
+.opening-lang a:focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+    .opening-lang {
+        top: 16px;
+        inset-inline-end: 16px;
+    }
+}
+
 /* The way down: the front ring's coral disc, with a white arrow dropping through it and
    a ripple spreading over the rings each time it lands. It moves with the ring (the
    script places it there); a click goes down like one anywhere on the scene, while the
@@ -1313,6 +1371,7 @@ a {
     .opening-name,
     .opening-role,
     .opening-hint,
+    .opening-lang,
     .opening-down,
     .opening-down::before,
     .opening-down::after,

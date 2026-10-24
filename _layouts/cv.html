@@ -49,6 +49,19 @@
                 <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
             </button>
         </div>
+        <!-- The choice of language, English then Persian on both pages; the other page
+             opens on its own opening -->
+        <nav class="opening-lang" aria-label="{{ ui.opening.languages | escape }}">
+            {%- capture here %}<span aria-current="page" lang="{{ lang }}">{{ ui.lang_switch.current | escape }}</span>{% endcapture %}
+            {%- capture there %}<a href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}">{{ ui.lang_switch.label | escape }}</a>{% endcapture %}
+            {%- if lang == "en" %}
+            {{ here }}
+            {{ there }}
+            {%- else %}
+            {{ there }}
+            {{ here }}
+            {%- endif %}
+        </nav>
         <div class="opening-text" aria-hidden="true">
             <p class="opening-name">{{ data.profile.name | escape }}</p>
             <p class="opening-role">{{ data.profile.role | escape }}</p>
