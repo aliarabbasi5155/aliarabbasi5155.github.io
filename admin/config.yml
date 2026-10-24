@@ -5,7 +5,7 @@
 # Every save is a commit to master, and GitHub Pages rebuilds the site from it.
 #
 # Lists use `i18n: duplicate`: adding, removing or reordering an item in English
-# does the same in Persian, while each item's text is edited per language.
+# does the same in Italian and Persian, while each item's text is edited per language.
 
 backend:
   name: github
@@ -20,7 +20,7 @@ public_folder: /assets/uploads
 
 i18n:
   structure: multiple_folders
-  locales: [en, fa]
+  locales: [en, it, fa]
   default_locale: en
 
 collections:
@@ -279,15 +279,7 @@ collections:
                 fields:
                   - { name: max, label: Up to, widget: number, value_type: float, min: 0, max: 2, step: 0.05 }
                   - { name: label, label: Readout, widget: string }
-          - name: lang_switch
-            label: Language switch
-            widget: object
-            i18n: true
-            fields:
-              - { name: current, label: This page's language, widget: string, hint: "Its own name, shown chosen in the opening's language choice" }
-              - { name: label, label: Label, widget: string }
-              - { name: url, label: Link, widget: string }
-              - { name: lang, label: Language code, widget: string }
+          - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language, on the opening and in the dock. The languages' names are in _config.yml." }
           - name: opening
             label: Opening scene
             widget: object
@@ -295,5 +287,4 @@ collections:
             fields:
               - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
               - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
-              - { name: languages, label: Language choice label, widget: string, hint: "Read aloud for the choice of language at the top of the opening" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }

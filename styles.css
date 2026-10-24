@@ -964,30 +964,33 @@ a {
     gap: 12px;
 }
 
+/* Every language, in the same order on every page: the page's own in mint, each other a
+   link to its page */
 .lang-switch {
     display: inline-flex;
     align-items: center;
-    padding: 14px 20px;
+    gap: 2px;
+    padding: 6px;
     border-radius: 999px;
+    direction: ltr;
+}
+
+.lang-switch > * {
+    position: relative;
+    z-index: 1;
+    padding: 8px 12px;
     font: 700 13px/1 var(--mono);
-    color: var(--text);
+    color: var(--muted);
     text-decoration: none;
     transition: color 0.3s;
 }
 
-.lang-switch[lang="fa"] {
-    font-family: "Vazirmatn", Tahoma, sans-serif;
-    font-weight: 600;
-    letter-spacing: 0;
-}
-
-.lang-switch span {
-    position: relative;
-    z-index: 1;
-}
-
-.lang-switch:hover {
+.lang-switch [aria-current] {
     color: var(--mint);
+}
+
+.lang-switch a:hover {
+    color: var(--text);
 }
 
 .energy {
@@ -1207,7 +1210,7 @@ a {
 }
 
 /* The choice of language, in the top corner: the page's own language chosen in mint,
-   the other a link to its page. Plain fills rather than glass, so it costs nothing while
+   each other a link to its page. Plain fills rather than glass, so it costs nothing while
    the field rests under the scene. */
 .opening-lang {
     position: absolute;
@@ -1220,7 +1223,7 @@ a {
     border-radius: 999px;
     background: rgb(255 255 255 / 0.04);
     box-shadow: inset 0 0 0 1px var(--line);
-    /* English, then Persian, on both pages: only the choice moves */
+    /* The same order and corner on every page: only the choice moves */
     direction: ltr;
     cursor: auto;
     animation: opening-show 1s var(--ease) 1.3s backwards;
@@ -1236,6 +1239,7 @@ a {
     transition: color 0.3s, background-color 0.3s;
 }
 
+.lang-switch [lang="fa"],
 .opening-lang [lang="fa"] {
     font-family: "Vazirmatn", Tahoma, sans-serif;
     font-weight: 600;

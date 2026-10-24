@@ -15,7 +15,7 @@ function text(value, limit, required = false) {
 
 export function validateRecord(value) {
     if (!value || typeof value !== 'object' || !TOKEN_PATTERN.test(value.id)) throw new Error('کد لینک معتبر نیست.');
-    if (!Object.hasOwn(CHANNELS, value.channel) || !Object.hasOwn(STATUSES, value.status) || !['en', 'fa'].includes(value.language)) throw new Error('نوع ارسال، زبان یا وضعیت معتبر نیست.');
+    if (!Object.hasOwn(CHANNELS, value.channel) || !Object.hasOwn(STATUSES, value.status) || !['en', 'it', 'fa'].includes(value.language)) throw new Error('نوع ارسال، زبان یا وضعیت معتبر نیست.');
     for (const key of ['createdAt', 'updatedAt']) {
         if (typeof value[key] !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(value[key]) || !Number.isFinite(Date.parse(value[key]))) throw new Error('تاریخ لینک معتبر نیست.');
     }
@@ -31,7 +31,7 @@ export function validateRecord(value) {
 export function buildLink(record, base) {
     const root = new URL(base);
     if (!/^https?:$/.test(root.protocol)) throw new Error('آدرس سایت معتبر نیست.');
-    const url = new URL(root.pathname.replace(/\/$/, '') + (record.language === 'fa' ? '/fa/' : '/'), root.origin);
+    const url = new URL(root.pathname.replace(/\/$/, '') + (record.language === 'en' ? '/' : `/${record.language}/`), root.origin);
     const channel = CHANNELS[record.channel];
     url.searchParams.set('utm_source', channel.source);
     url.searchParams.set('utm_medium', channel.medium);

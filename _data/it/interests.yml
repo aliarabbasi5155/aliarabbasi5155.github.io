@@ -1,0 +1,13 @@
+items:
+  - icon: fas fa-book-open
+    title: Lettura
+    text: Completamente preso dai libri su business e innovazione (come quelli di Eric Ries) e dalle piccole perle di crescita personale (come quelle di Cal Newport).
+  - icon: fas fa-futbol
+    title: Calcio
+    text: Guardo decisamente troppe partite del Liverpool e gioco a FIFA con gli amici.
+  - icon: fas fa-graduation-cap
+    title: Imparare
+    text: Leggo sempre delle nuove tendenze tecnologiche o seguo corsi online, ora soprattutto sull'AI.
+  - icon: fas fa-biking
+    title: Giri notturni
+    text: 30-40 minuti in bici per la città dopo il tramonto, il mio modo preferito per ricaricare mente e corpo.

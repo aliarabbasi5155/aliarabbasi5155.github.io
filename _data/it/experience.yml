@@ -1,0 +1,63 @@
+jobs:
+  - title: AI Engineer (Team Lead, part-time, da remoto)
+    company: Primentoring.AI
+    company_url: https://primentoring.ai/
+    location: Londra, Regno Unito
+    period: nov 2025 - oggi
+    bullets:
+      - Guido dall'inizio alla fine un team di 2 ingegneri, con la responsabilità dell'architettura della soluzione, degli studi di fattibilità, del reporting sullo stato del progetto e dell'allineamento con gli stakeholder dei team di prodotto, QA e software.
+      - "Ho progettato l'architettura di [Dana AI](https://aimentor.primentoring.ai/), un agente multimodale in tempo reale (talking head 3D, voce, testo) su WebSocket: OmniTalker per il lip-sync (con fine-tuning LoRA per ogni mentor su AWS SageMaker), ASR con GPT-4o Transcribe e vocabulary hints, e GPT-4.1 con fine-tuning sulla piattaforma OpenAI per il tono e la persona del mentor, con circa 2,5 s fino al primo frame della risposta video."
+      - Ho progettato uno stack agentic RAG in produzione su Weaviate autogestito (AWS EC2), con una latenza di retrieval di circa 900 ms, hybrid search, query expansion, reranking, agenti con function calling, task decomposition e memoria conversazionale e a lungo termine con LangGraph (precisione di retrieval top-5 di circa l'87%); è stato poi riutilizzato come base di un chatbot di assistenza clienti basato su LLM che risponde a partire dai documenti aziendali.
+      - Ho realizzato una funzionalità di Public Data Aggregation che estrae in parallelo segnali sui mentor da 8 piattaforme, completando ogni raccolta in circa 3 minuti nel rispetto dei limiti dei ToS di ciascun servizio e del GDPR.
+      - Ho realizzato una suite di valutazione basata su RAGAS con 100 query selezionate del dominio del mentoring, insieme a guardrail, filtro dei dati personali (PII), confidence scoring, passaggio human-in-the-loop, tracciamento di prompt e versioni e un Unanswered Pool a ciclo chiuso, che inoltra ai mentor le query a bassa confidenza e riporta le loro risposte nella knowledge base.
+      - Ho realizzato un sistema di raccomandazione che estrae segnali comportamentali (competenze, coinvolgimento, tempo di parola, emozioni) dalle sessioni di mentoring per abbinare mentor e mentee.
+      - Ho portato in produzione tutti i servizi di AI come microservizi Django/Celery su EC2, con Redis, PostgreSQL, pipeline ETL, CI/CD con GitHub Actions che ha ridotto i tempi di deployment a circa 1,5 minuti, e monitoraggio con Prometheus e Grafana.
+  - title: Machine Learning Engineer | Fullstack Developer
+    company: Nimbus SRL
+    company_url: https://www.nimbus.aero/
+    location: Torino, Italia
+    period: feb 2022 - oggi
+    bullets:
+      - Ho realizzato e rilasciato un assistente di supporto interno basato su LLM (LangChain RAG su un Llama-3-8B con fine-tuning LoRA su AWS SageMaker, ancorato alla documentazione interna), che oggi risponde a oltre 1.200 richieste a settimana.
+      - Ho ridotto l'onboarding dei nuovi ingegneri da qualche settimana a 2-3 giorni, rendendo disponibile il modello tramite una chat interna collegata alla knowledge base aziendale.
+      - Ho progettato un controllore di Reinforcement Learning basato su PPO per stabilizzare l'autopilota VTOL in condizioni meteo avverse, aumentando del 5% i recuperi riusciti nelle simulazioni di volo in maltempo.
+      - Ho guidato un team di 4 ingegneri nella realizzazione di un sistema multipiattaforma di monitoraggio della flotta su AWS, con telemetria ogni 2 secondi per oltre 150 UAV in tutta Europa.
+      - Ho modernizzato lo stack software (React Native, Django REST Framework, CI/CD, deployment containerizzati), risparmiando circa 50.000 € all'anno grazie alla minore capacità di ingegneria necessaria per mantenere ed evolvere la piattaforma.
+      - Ho contribuito al progetto Charger Box, automatizzando il riposizionamento dei droni per la ricarica autonoma e raggiungendo il 98% di aggancio riuscito.
+  - title: Machine Learning Engineer | Fullstack Developer
+    company: Reefilla SRL
+    company_url: https://www.reefilla.com/
+    location: Torino, Italia
+    period: set 2021 - feb 2022
+    bullets:
+      - Ho progettato e messo in produzione un modello di raccomandazione che prevede il momento ottimale per le richieste di power bank elettrici, migliorando la reattività delle consegne di circa il 18%.
+      - Ho sviluppato insieme al team un'applicazione multipiattaforma (React Native + Django) per la gestione della ricarica dei veicoli elettrici, arrivando a oltre 800 utenti attivi entro il 2021.
+earlier_title: Esperienze precedenti
+earlier_jobs:
+  - title: Backend Developer
+    company: Bardal Startup
+    company_url: ""
+    location: Teheran, Iran
+    period: lug 2019 - gen 2020
+    bullets:
+      - Ho sviluppato API RESTful con Django e Django REST Framework per i servizi di backend.
+      - Ho introdotto la containerizzazione con Docker e l'orchestrazione con Kubernetes per deployment scalabili.
+      - Ho gestito database PostgreSQL e ottimizzato le prestazioni delle query.
+  - title: Frontend Developer
+    company: Spinzer Startup
+    company_url: ""
+    location: Teheran, Iran
+    period: nov 2018 - giu 2019
+    bullets:
+      - Ho realizzato applicazioni web responsive con ReactJS, TypeScript e Redux per la gestione dello stato.
+      - Ho implementato design UI/UX moderni con HTML5 e CSS3.
+      - Ho collaborato con il team di backend per integrare API RESTful.
+  - title: Backend Developer (stage)
+    company: Saaed Co.
+    company_url: https://www.saaedco.com/
+    location: Arak, Iran
+    period: giu 2018 - ott 2018
+    bullets:
+      - Ho sviluppato servizi di backend con il framework .NET, secondo i principi di progettazione delle API RESTful.
+      - Ho creato interfacce web dinamiche con HTML, CSS e JavaScript.
+      - Ho fatto esperienza pratica di sviluppo full-stack e di metodologie agili.

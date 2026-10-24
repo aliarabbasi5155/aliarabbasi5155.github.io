@@ -16,6 +16,14 @@ analytics:
   allowed_hosts: [aliarabbasi5155.github.io]
   measurement_ids: [G-M1XGN1K27Z, G-SN7JFYP48S]
 
+# The site's languages, in the order the language switches show them: each its own
+# name and its page. Content for each lives in _data/<code>/ and _blog/<code>/, and its
+# page is <code>/index.html (English at /), which says if it reads right to left.
+languages:
+  - { code: en, name: English, url: / }
+  - { code: it, name: Italiano, url: /it/ }
+  - { code: fa, name: فارسی, url: /fa/ }
+
 collections:
   blog:
     # Posts are shown inside the one page, not as pages of their own
@@ -27,6 +35,11 @@ defaults:
       type: blog
     values:
       lang: en
+  - scope:
+      path: _blog/it
+      type: blog
+    values:
+      lang: it
   - scope:
       path: _blog/fa
       type: blog

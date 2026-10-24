@@ -56,15 +56,10 @@ temperature:
       label: CREATIVE
     - max: 2
       label: CHAOTIC
-lang_switch:
-  current: English
-  label: فارسی
-  url: /fa/
-  lang: fa
+languages: Language
 opening:
   hint: Scroll or tap to enter
   enter: Enter the site
-  languages: Language
 copyright: © 2025 Ali Abbasi. All rights reserved.
 analytics:
   settings: Privacy settings

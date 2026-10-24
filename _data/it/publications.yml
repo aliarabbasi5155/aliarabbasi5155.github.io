@@ -1,0 +1,8 @@
+items:
+  - title: Transforming Stroop task cognitive assessments with multimodal Inverse Reinforcement Learning
+    authors: "**Ali Abbasi**, Jiaqi Gong, Soroush Korivand"
+    journal: Smart Health
+    details: 36, p. 100567, 2025. Elsevier
+    url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
+    link_label: Vedi la pubblicazione
+    abstract: Questa ricerca presenta un nuovo approccio alla valutazione cognitiva, che usa l'Inverse Reinforcement Learning multimodale per ricostruire il comportamento dello sguardo umano durante i compiti di Stroop. Lo studio combina i dati EEG con quelli di eye-tracking per comprendere meglio i processi cognitivi e i modelli decisionali in diverse condizioni di carico cognitivo.

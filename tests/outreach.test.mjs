@@ -4,13 +4,15 @@ import { validateRecord, buildLink, parseBackup, mergeRecords, csv } from '../ad
 
 const sample = (extra = {}) => ({ id: 'r_0123456789abcdef', company: 'Private Company', recipient: 'Private Person <person@example.com>', role: 'AI Engineer', notes: 'Private notes', channel: 'resume', language: 'en', status: 'draft', createdAt: '2026-10-05T16:00:00.000Z', updatedAt: '2026-10-05T16:00:00.000Z', ...extra });
 
-test('generated links carry only campaign labels and an opaque code, with both languages and a base path', () => {
+test('generated links carry only campaign labels and an opaque code, in every language and with a base path', () => {
     const record = validateRecord(sample());
     const url = new URL(buildLink(record, 'https://example.com/portfolio'));
     assert.equal(url.pathname, '/portfolio/');
     assert.deepEqual(Object.fromEntries(url.searchParams), { utm_source: 'cv', utm_medium: 'document', utm_campaign: 'job_search_2026', utm_content: record.id });
     for (const secret of [record.company, record.recipient, record.role, record.notes]) assert.ok(!url.href.includes(encodeURIComponent(secret)));
     assert.equal(new URL(buildLink(sample({ language: 'fa', channel: 'linkedin' }), 'https://example.com')).pathname, '/fa/');
+    assert.equal(new URL(buildLink(sample({ language: 'it' }), 'https://example.com/portfolio/')).pathname, '/portfolio/it/');
+    assert.throws(() => validateRecord(sample({ language: 'de' })));
 });
 
 test('backup validation is atomic and rejects invalid IDs, types and duplicates', () => {

@@ -1,0 +1,69 @@
+title: Ali Abbasi - AI / GenAI Engineer
+description: "Ali Abbasi, AI / GenAI engineer e technical lead operativo: agentic RAG, fine-tuning, valutazione e sistemi LLM in produzione su AWS."
+nav:
+  - tab: blog
+    letter: A
+    label: Blog
+  - tab: about
+    letter: B
+    label: Chi sono
+  - tab: experience
+    letter: C
+    label: Esperienza
+  - tab: education
+    letter: D
+    label: Formazione
+  - tab: skills
+    letter: E
+    label: Competenze
+  - tab: projects
+    letter: F
+    label: Progetti
+  - tab: publications
+    letter: G
+    label: Pubblicazioni
+  - tab: interests
+    letter: H
+    label: Interessi
+show_more: Mostra di più
+show_less: Mostra di meno
+months:
+  - gennaio
+  - febbraio
+  - marzo
+  - aprile
+  - maggio
+  - giugno
+  - luglio
+  - agosto
+  - settembre
+  - ottobre
+  - novembre
+  - dicembre
+date_pattern: "{day} {month} {year}"
+digits: ""
+temperature:
+  label: TEMPERATURA
+  hint: "La temperatura di campionamento, come in un LLM: a 0 ogni punto sta esattamente sulla sua forma; alzala e iniziano a vagare."
+  bands:
+    - max: 0.2
+      label: DETERMINISTICO
+    - max: 0.6
+      label: PRECISO
+    - max: 1
+      label: BILANCIATO
+    - max: 1.5
+      label: CREATIVO
+    - max: 2
+      label: CAOTICO
+languages: Lingua
+opening:
+  hint: Scorri o tocca per entrare
+  enter: Entra nel sito
+copyright: © 2025 Ali Abbasi. Tutti i diritti riservati.
+analytics:
+  settings: Impostazioni privacy
+  title: Statistiche del sito facoltative
+  description: "Posso usare Google Analytics per capire quali sezioni e progetti esplorano i visitatori? Usa cookie di analisi. Puoi cambiare la tua scelta qui in qualsiasi momento."
+  allow: Consenti le statistiche
+  decline: No, grazie

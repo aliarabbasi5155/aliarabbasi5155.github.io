@@ -35,7 +35,7 @@ function harness({ url = 'https://aliarabbasi5155.github.io/', consent = 'grante
         documentElement: { lang: 'en' }, referrer: 'https://linkedin.com/in/private-name?email=person@example.com',
         visibilityState: 'visible', cookie: '', hasFocus: () => hasFocus,
         createElement: () => ({}),
-        querySelectorAll: query => query === '.lang-switch' ? [languageLink] : [],
+        querySelectorAll: query => query === '.lang-link' ? [languageLink] : [],
         querySelector: query => query === '.tab-contents' ? content : query === '.tab-content.active' ? sections[sectionName] : null,
         getElementById: id => ({ 'analytics-consent': panel, 'analytics-settings': settings, ...sections })[id],
     });
