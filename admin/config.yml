@@ -284,6 +284,7 @@ collections:
             widget: object
             i18n: true
             fields:
+              - { name: current, label: This page's language, widget: string, hint: "Its own name, shown chosen in the opening's language choice" }
               - { name: label, label: Label, widget: string }
               - { name: url, label: Link, widget: string }
               - { name: lang, label: Language code, widget: string }
@@ -294,4 +295,5 @@ collections:
             fields:
               - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
               - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
+              - { name: languages, label: Language choice label, widget: string, hint: "Read aloud for the choice of language at the top of the opening" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }

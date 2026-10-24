@@ -295,7 +295,10 @@ function initOpening() {
         turned = performance.now();
         window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
     };
-    scene.addEventListener('click', () => turn(pageTop()));
+    scene.addEventListener('click', event => {
+        // The choice of language leaves for its page instead
+        if (!event.target.closest('.opening-lang')) turn(pageTop());
+    });
 
     // Whether the pointer or focus is over something that can still scroll up itself
     const scrollsUp = element => {
