@@ -1,0 +1,84 @@
+groups:
+  - title: Linguaggi di programmazione
+    tags:
+      - Python
+      - C++
+      - C#
+      - JavaScript
+      - TypeScript
+      - SQL
+  - title: GenAI e LLM engineering
+    tags:
+      - LangGraph
+      - LangChain
+      - Agentic RAG
+      - Hybrid Search
+      - Reranking
+      - Function Calling
+      - Task Decomposition
+      - Memoria conversazionale e a lungo termine
+      - MCP
+      - LoRA Fine-tuning
+      - OpenAI Fine-tuning Platform
+      - RAGAS
+      - Guardrails
+      - PII Filtering
+      - Prompt Versioning
+  - title: Machine Learning
+    tags:
+      - PyTorch
+      - TensorFlow
+      - scikit-learn
+      - Hugging Face Transformers
+      - Reinforcement Learning
+      - Computer Vision
+      - NLP
+      - WandB
+      - TensorBoard
+  - title: Dati e storage
+    tags:
+      - PostgreSQL
+      - Redis
+      - Weaviate
+      - MySQL
+      - SQLite
+      - Pipeline ETL
+  - title: Backend e API
+    tags:
+      - Django
+      - Django REST Framework
+      - Celery
+      - REST
+      - WebSocket
+      - Microservizi
+      - Pytest
+  - title: DevOps e cloud
+    tags:
+      - AWS (EC2, SageMaker, S3)
+      - Azure
+      - Docker
+      - Kubernetes
+      - GitHub Actions
+      - GitLab CI
+      - Nginx
+      - Prometheus
+      - Grafana
+      - Linux
+  - title: Frontend e mobile
+    tags:
+      - React.js
+      - React Native
+      - Next.js
+      - Redux
+      - Tailwind CSS
+  - title: Leadership e collaborazione
+    tags:
+      - Leadership tecnica
+      - Architettura delle soluzioni
+      - Gestione degli stakeholder
+      - Analisi di fattibilità
+      - Mentoring
+      - Agile/Scrum
+      - Git
+      - Jira
+      - Confluence

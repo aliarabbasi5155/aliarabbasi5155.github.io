@@ -35,7 +35,7 @@
         if (value && rule.test(value)) campaign.set(key, value);
     }
     // Keep the same campaign when the visitor switches languages, even before consent.
-    for (const link of document.querySelectorAll('.lang-switch')) {
+    for (const link of document.querySelectorAll('.lang-link')) {
         const url = new URL(link.href, location.href);
         for (const [key, value] of campaign) url.searchParams.set(key, value);
         link.href = url.href;
@@ -283,7 +283,7 @@
             else if (link.matches('.publication-link') || link.closest('.publication')) emit('publication_click', details);
             else if (link.closest('.profile-contacts')) emit('contact_click', details);
             else if (link.hasAttribute('download') || /\.(pdf|docx?)$/i.test(url.pathname)) emit('cv_download', { link_kind: 'document' });
-            else if (link.matches('.lang-switch')) emit('language_switch', { target_language: link.hreflang });
+            else if (link.matches('.lang-link')) emit('language_switch', { target_language: link.hreflang });
             else if (/^https?:$/.test(url.protocol) && url.origin !== location.origin) emit('outbound_click', details);
         }
         const button = event.target.closest('.blog-toggle-btn');

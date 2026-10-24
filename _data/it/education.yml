@@ -1,0 +1,16 @@
+degrees:
+  - title: Laurea Magistrale in Data Science and Engineering
+    institution: Politecnico di Torino
+    institution_url: https://www.polito.it/
+    location: Torino, Italia
+    period: 2020 - 2024
+    details:
+      - "**Tesi:** [\"Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning\"](https://webthesis.biblio.polito.it/34008/)"
+      - "**Pubblicazione:** pubblicata su [Elsevier Smart Health Journal](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (2025) a partire dal lavoro di tesi"
+      - "**Conferenza:** accettata anche alla conferenza IEEE/CHASE 2025"
+  - title: Laurea Triennale in Ingegneria Informatica
+    institution: Università di Arak
+    institution_url: https://www.araku.ac.ir/
+    location: Arak, Iran
+    period: 2015 - 2019
+    details: []

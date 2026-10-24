@@ -25,6 +25,7 @@ const LANG = document.documentElement.lang || 'en';
 // What a title cycles through while it scrambles in
 const GLYPHS = {
     en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
+    it: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
     fa: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
 }[LANG] ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 

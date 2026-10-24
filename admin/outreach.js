@@ -121,7 +121,7 @@ function render() {
         node.querySelector('.record-description').textContent = [record.recipient, record.role].filter(Boolean).join(' · ');
         node.querySelector('.record-id').textContent = record.id;
         node.querySelector('.record-date').textContent = new Date(record.createdAt).toLocaleDateString('fa-IR');
-        node.querySelector('.record-channel').textContent = CHANNELS[record.channel].label + ' · ' + (record.language === 'fa' ? 'فارسی' : 'English');
+        node.querySelector('.record-channel').textContent = CHANNELS[record.channel].label + ' · ' + ({ en: 'English', it: 'Italiano', fa: 'فارسی' }[record.language]);
         node.querySelector('.record-notes').textContent = record.notes;
         const status = node.querySelector('.record-status');
         status.setAttribute('aria-label', 'وضعیت ' + record.company);

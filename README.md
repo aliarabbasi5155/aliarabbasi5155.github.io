@@ -12,6 +12,7 @@ The first run installs the required Ruby gems into `vendor/bundle` in this
 checkout. Later runs reuse them. Keep the terminal running and open:
 
 - Site: http://127.0.0.1:4000/
+- Italian: http://127.0.0.1:4000/it/
 - Persian: http://127.0.0.1:4000/fa/
 - CMS: http://127.0.0.1:4000/admin/
 - Application links: http://127.0.0.1:4000/admin/outreach.html
@@ -49,9 +50,13 @@ setting. Desktop mouse interaction remains available. Run the automated checks w
 
 All text lives in data files; the page layout is `_layouts/cv.html`.
 
-- CV sections: `_data/en/*.yml` and `_data/fa/*.yml` (one file per section, same structure in both languages)
-- Blog posts: `_blog/en/<slug>.md` and `_blog/fa/<slug>.md` (same slug in both languages)
+- CV sections: `_data/<lang>/*.yml` for `en`, `it` and `fa` (one file per section, same structure in every language)
+- Blog posts: `_blog/<lang>/<slug>.md` (same slug in every language)
 - Menu names, buttons and other site text: `_data/<lang>/ui.yml`
+- The languages themselves, their names and their order in the language switches: `languages` in `_config.yml`
+
+The Italian résumé link points to the English PDF until an Italian one is added; change
+`resume.url` in `_data/it/profile.yml` to switch it.
 
 ### With the CMS
 
@@ -94,7 +99,7 @@ their old code; their data can continue to reach the old property, not the new o
 Google Analytics loads only after **Allow analytics**. A visitor can withdraw via
 **Privacy settings**; Global Privacy Control is also respected. Unknown query
 parameters, fragments and referrer paths are removed from the values sent by the
-tag. Generated campaign parameters survive the English/Persian language switch.
+tag. Generated campaign parameters survive switching between languages.
 The outreach code is carried through the same browser tab's session after opt-in;
 it is not a persistent recipient identity or proof of who opened a link.
 

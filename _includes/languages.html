@@ -1,0 +1,11 @@
+{%- comment -%}
+  The site's languages (site.languages), in order: the page's own (include.lang) marked
+  as current, each other a link to its page.
+{%- endcomment -%}
+{%- for language in site.languages %}
+{%- if language.code == include.lang %}
+<span aria-current="page" lang="{{ language.code }}">{{ language.name | escape }}</span>
+{%- else %}
+<a class="lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}">{{ language.name | escape }}</a>
+{%- endif %}
+{%- endfor %}

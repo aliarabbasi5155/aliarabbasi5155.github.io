@@ -1,0 +1,23 @@
+title: Ultime novità
+items:
+  - date: 10 novembre 2025
+    label: "🚀 Nuovo incarico:"
+    text: Ho iniziato come AI Engineer e Team Lead (part-time, da remoto) in Primentoring.AI, una fantastica startup di Londra, nel Regno Unito.
+  - date: 21 ottobre 2025
+    label: "🚀 Nuovo progetto:"
+    text: Ho iniziato a lavorare a un nuovo progetto basato su LLM, con Django e React, per ora chiamato HardWordExtractor.
+  - date: 18 settembre 2025
+    label: "🌐 Sito rinnovato:"
+    text: Ho rinnovato il mio sito personale su GitHub Pages, con un nuovo design e contenuti aggiornati.
+  - date: gennaio 2025
+    label: 📄 Articolo pubblicato!
+    text: Il nostro articolo "Transforming Stroop task cognitive assessments with multimodal IRL" è stato pubblicato sulla rivista Smart Health di Elsevier.
+  - date: dicembre 2024
+    label: "🎤 Accettato a una conferenza:"
+    text: Il nostro articolo è stato accettato alla conferenza IEEE/CHASE 2025.
+  - date: 10 dicembre 2024
+    label: "🎓 Laurea:"
+    text: Finalmente ho conseguito la laurea magistrale in Data Science and Engineering.
+  - date: 10 dicembre 2024
+    label: "🛡️ Discussione della tesi:"
+    text: Ho discusso con successo la tesi magistrale "Reconstructing Human Gaze Behavior in Stroop Test Using IRL and EEG Data".

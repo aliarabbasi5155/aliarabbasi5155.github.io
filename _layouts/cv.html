@@ -18,8 +18,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ ui.title | escape }}</title>
     <meta name="description" content="{{ ui.description | escape }}">
-    <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
-    <link rel="alternate" hreflang="fa" href="{{ '/fa/' | absolute_url }}">
+    {%- for language in site.languages %}
+    <link rel="alternate" hreflang="{{ language.code }}" href="{{ language.url | absolute_url }}">
+    {%- endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
     <meta name="theme-color" content="#191a1e">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,8 +30,9 @@
     {%- else %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Xanh+Mono&display=swap">
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
-    <!-- Just the letters of the language switch, so its Persian label joins up -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ ui.lang_switch.label | url_encode }}&display=swap">
+    <!-- Just the letters of the language switches' Persian name, so it joins up -->
+    {%- assign persian = site.languages | where: "code", "fa" | first %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ persian.name | url_encode }}&display=swap">
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ '/glass-rings.css' | relative_url }}">
@@ -49,18 +52,10 @@
                 <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
             </button>
         </div>
-        <!-- The choice of language, English then Persian on both pages; the other page
-             opens on its own opening -->
-        <nav class="opening-lang" aria-label="{{ ui.opening.languages | escape }}">
-            {%- capture here %}<span aria-current="page" lang="{{ lang }}">{{ ui.lang_switch.current | escape }}</span>{% endcapture %}
-            {%- capture there %}<a href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}">{{ ui.lang_switch.label | escape }}</a>{% endcapture %}
-            {%- if lang == "en" %}
-            {{ here }}
-            {{ there }}
-            {%- else %}
-            {{ there }}
-            {{ here }}
-            {%- endif %}
+        <!-- The choice of language, in the same order on every page; another page opens on
+             its own opening -->
+        <nav class="opening-lang" aria-label="{{ ui.languages | escape }}">
+            {%- include languages.html lang=lang %}
         </nav>
         <div class="opening-text" aria-hidden="true">
             <p class="opening-name">{{ data.profile.name | escape }}</p>
@@ -314,7 +309,9 @@
             <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
         </div>
         <div class="dock-controls">
-            <a class="lang-switch glass" href="{{ ui.lang_switch.url | relative_url }}" hreflang="{{ ui.lang_switch.lang }}" lang="{{ ui.lang_switch.lang }}"><span>{{ ui.lang_switch.label | escape }}</span></a>
+            <nav class="lang-switch glass" aria-label="{{ ui.languages | escape }}">
+                {%- include languages.html lang=lang %}
+            </nav>
             <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
                 <span class="energy-readout"><b>{{ ui.temperature.label | escape }}</b> <span class="energy-value"></span> · <span class="energy-band"></span></span>
                 <input type="range" min="0" max="200" step="5" value="70" aria-label="{{ ui.temperature.label | escape }}">
