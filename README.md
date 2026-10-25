@@ -46,6 +46,15 @@ permission denial, scrolling into the page and back, and the phone's reduced-mot
 setting. Desktop mouse interaction remains available. Run the automated checks with
 `node --test tests/*.test.mjs`.
 
+## Themes
+
+The site has a dark and a light theme. A visitor's first visit follows their system's
+setting, and keeps following it as it changes; the sun/moon switch on the opening and in
+the dock picks one instead, remembered in that browser. Picking the theme the system
+already uses forgets the choice, so the page follows the system again. Colours live once
+in `styles.css` (`:root`, each as `light-dark(light, dark)`); the dot field's two palettes
+are `sand` and `paper` in `dot-field.js`.
+
 ## Editing content
 
 All text lives in data files; the page layout is `_layouts/cv.html`.

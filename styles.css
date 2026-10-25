@@ -1,5 +1,6 @@
 /* Ali Abbasi · one-page CV
-   Charcoal ground under a beige dot field, mint accents, liquid-glass panes.
+   Charcoal ground under a beige dot field, mint accents, liquid-glass panes; in the light
+   theme, warm paper under ink grains, with the mint deepened to stay legible.
    The dot field renders the panes at every screen size (html.gl-glass),
    with CSS glass as a fallback when WebGL is unavailable. */
 
@@ -11,21 +12,29 @@
     box-sizing: border-box;
 }
 
+/* Every colour is set once for both themes, as light-dark(light, dark). The theme follows
+   the system until the visitor picks one (data-theme, set before the first paint). */
 :root {
-    --bg: #191a1e;
-    --panel: #25262b;
-    --mint: #acffce;
+    color-scheme: light dark;
+    --bg: light-dark(#f1eee7, #191a1e);
+    --panel: light-dark(#fbfaf6, #25262b);
+    /* Pale mint would vanish on paper, so the light theme takes it much deeper */
+    --mint: light-dark(#1c6e47, #acffce);
     /* The second colour, for heat and for what is current: the opening's rings, the
        temperature and the warmth it gives the field, the current section's mark. Mint
        stays the colour of the interface. About a third of the way round the colour wheel
        from mint and much darker, so the two never blur together; coral is the stronger,
        so it stays rare. */
     --coral: #f6654a;
-    --text: #f5f5f2;
-    --soft: #d6d5cf;
-    --muted: #a3a39d;
-    --line: rgba(255, 255, 255, 0.14);
-    --dash: rgba(255, 255, 255, 0.24);
+    --text: light-dark(#1b1c20, #f5f5f2);
+    --soft: light-dark(#3f4046, #d6d5cf);
+    --muted: light-dark(#64635d, #a3a39d);
+    --line: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.14));
+    --dash: light-dark(rgba(0, 0, 0, 0.24), rgba(255, 255, 255, 0.24));
+    /* Fine lines and fills that sit on the ground: ink on paper, light on charcoal */
+    --hairline: light-dark(rgba(0, 0, 0, 0.45), rgba(255, 255, 255, 0.55));
+    --wash: light-dark(rgba(0, 0, 0, 0.035), rgba(255, 255, 255, 0.04));
+    --wash-strong: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
     --radius: 28px;
     --gap: 22px;
     --dock: 76px;
@@ -33,6 +42,14 @@
     --sans: "General Sans", "Helvetica Neue", Arial, sans-serif;
     --mono: "Space Mono", ui-monospace, Menlo, monospace;
     --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
 }
 
 html {
@@ -81,13 +98,16 @@ a {
 .glass {
     position: relative;
     border-radius: var(--radius);
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.04));
+    background: linear-gradient(160deg,
+        light-dark(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.07)),
+        light-dark(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.02)) 45%,
+        light-dark(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.04)));
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     backdrop-filter: blur(16px) saturate(140%);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.16),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-        0 18px 40px rgba(0, 0, 0, 0.35);
+        inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.16)),
+        inset 0 -1px 0 light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.25)),
+        0 18px 40px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.35));
 }
 
 /* Specular rim: bright on two opposite corners, fading along the sides */
@@ -98,7 +118,7 @@ a {
     z-index: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 28%, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.24) 92%);
+    background: linear-gradient(135deg, light-dark(rgba(0, 0, 0, 0.16), rgba(255, 255, 255, 0.5)), light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.08)) 28%, transparent 55%, light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.24)) 92%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -106,7 +126,10 @@ a {
 }
 
 .glass.active {
-    background: linear-gradient(160deg, rgba(172, 255, 206, 0.16), rgba(172, 255, 206, 0.05) 50%, rgba(172, 255, 206, 0.1));
+    background: linear-gradient(160deg,
+        light-dark(rgba(172, 255, 206, 0.4), rgba(172, 255, 206, 0.16)),
+        light-dark(rgba(172, 255, 206, 0.15), rgba(172, 255, 206, 0.05)) 50%,
+        light-dark(rgba(172, 255, 206, 0.28), rgba(172, 255, 206, 0.1)));
 }
 
 /* The dot field draws the glass: the elements only carry their content */
@@ -459,7 +482,7 @@ a {
 
 /* The section's name, framed by corner brackets like the field's tags */
 .section-title {
-    --corner: rgba(255, 255, 255, 0.55);
+    --corner: var(--hairline);
     --corner-size: 11px;
     position: relative;
     z-index: 1;
@@ -524,7 +547,7 @@ a {
 .tab-contents,
 .updates-content {
     scrollbar-width: thin;
-    scrollbar-color: rgba(172, 255, 206, 0.45) transparent;
+    scrollbar-color: color-mix(in srgb, var(--mint) 45%, transparent) transparent;
 }
 
 .tab-contents::-webkit-scrollbar,
@@ -535,7 +558,7 @@ a {
 .tab-contents::-webkit-scrollbar-thumb,
 .updates-content::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background: rgba(172, 255, 206, 0.45);
+    background: color-mix(in srgb, var(--mint) 45%, transparent);
 }
 
 .tab-content {
@@ -628,7 +651,7 @@ a {
 .tab-contents a {
     color: var(--mint);
     text-decoration: none;
-    border-bottom: 1px dashed rgba(172, 255, 206, 0.5);
+    border-bottom: 1px dashed color-mix(in srgb, var(--mint) 50%, transparent);
     transition: border-color 0.3s;
 }
 
@@ -755,7 +778,7 @@ a {
     padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: rgba(25, 26, 30, 0.45);
+    background: color-mix(in srgb, var(--bg) 45%, transparent);
     font: 400 12px/1 var(--mono);
     color: var(--soft);
     transition: border-color 0.3s, color 0.3s;
@@ -993,6 +1016,90 @@ a {
     color: var(--text);
 }
 
+/* The theme: a moon while dark, turning into a sun in daylight. Hidden if the script that
+   sets the theme never ran. */
+.theme-toggle {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--soft);
+    cursor: pointer;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+.dock .theme-toggle {
+    width: 41px;
+    height: 41px;
+}
+
+:root:not([data-theme]) .theme-toggle {
+    display: none;
+}
+
+.theme-toggle:hover {
+    color: var(--mint);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 2px;
+}
+
+.theme-toggle svg {
+    position: relative;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    overflow: visible;
+}
+
+.theme-body,
+.theme-bite,
+.theme-rays {
+    transform-origin: 12px 12px;
+    transition: transform 0.6s var(--ease), opacity 0.4s var(--ease);
+}
+
+.theme-body {
+    fill: currentColor;
+}
+
+.theme-rays {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8px;
+    stroke-linecap: round;
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.5);
+}
+
+:root[data-theme="light"] .theme-body {
+    transform: scale(0.62);
+}
+
+:root[data-theme="light"] .theme-bite {
+    transform: translate(9px, -9px);
+}
+
+:root[data-theme="light"] .theme-rays {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-body,
+    .theme-bite,
+    .theme-rays {
+        transition: none;
+    }
+}
+
 .energy {
     display: flex;
     align-items: center;
@@ -1021,7 +1128,7 @@ a {
 }
 
 .energy input {
-    --track: rgba(255, 255, 255, 0.4);
+    --track: light-dark(rgba(0, 0, 0, 0.35), rgba(255, 255, 255, 0.4));
     width: 160px;
     height: 24px;
     background: transparent;
@@ -1157,6 +1264,9 @@ a {
    liquid's own sway (glass-rings.css) keeps its animation. */
 .opening-rings {
     --gr-paint: var(--coral);
+    /* On paper the clear glass shows by a darker rim, and the liquid's glow is fainter */
+    --gr-hairline: light-dark(rgb(0 0 0 / 0.16), rgb(255 255 255 / 0.12));
+    --gr-bloom: light-dark(color-mix(in srgb, var(--coral) 9%, transparent), color-mix(in srgb, var(--coral) 16%, transparent));
     --size: min(68vh, 46vw);
     position: absolute;
     top: calc(52% - var(--size) / 2);
@@ -1209,24 +1319,33 @@ a {
     animation: opening-in 1s var(--ease) 1.3s backwards;
 }
 
-/* The choice of language, in the top corner: the page's own language chosen in mint,
-   each other a link to its page. Plain fills rather than glass, so it costs nothing while
-   the field rests under the scene. */
-.opening-lang {
+/* The theme and the choice of language, in the top corner: the page's own language chosen
+   in mint, each other a link to its page. Plain fills rather than glass, so they cost
+   nothing while the field rests under the scene. */
+.opening-controls {
     position: absolute;
     top: 24px;
     inset-inline-end: 32px;
     z-index: 1;
     display: flex;
-    gap: 2px;
-    padding: 4px;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.04);
-    box-shadow: inset 0 0 0 1px var(--line);
+    gap: 8px;
     /* The same order and corner on every page: only the choice moves */
     direction: ltr;
     cursor: auto;
     animation: opening-show 1s var(--ease) 1.3s backwards;
+}
+
+.opening-lang,
+.opening-controls .theme-toggle {
+    border-radius: 999px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.opening-lang {
+    display: flex;
+    gap: 2px;
+    padding: 4px;
 }
 
 .opening-lang > * {
@@ -1252,7 +1371,7 @@ a {
 }
 
 .opening-lang a:hover {
-    background: rgb(255 255 255 / 0.06);
+    background: var(--wash-strong);
     color: var(--text);
 }
 
@@ -1262,7 +1381,7 @@ a {
 }
 
 @media (max-width: 1100px) {
-    .opening-lang {
+    .opening-controls {
         top: 16px;
         inset-inline-end: 16px;
     }
@@ -1375,7 +1494,7 @@ a {
     .opening-name,
     .opening-role,
     .opening-hint,
-    .opening-lang,
+    .opening-controls,
     .opening-down,
     .opening-down::before,
     .opening-down::after,

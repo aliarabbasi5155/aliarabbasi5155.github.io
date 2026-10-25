@@ -279,6 +279,7 @@ collections:
                 fields:
                   - { name: max, label: Up to, widget: number, value_type: float, min: 0, max: 2, step: 0.05 }
                   - { name: label, label: Readout, widget: string }
+          - { name: theme, label: Theme switch label, widget: string, i18n: true, hint: "Read aloud for the switch between the dark and light themes, and shown when hovering it; it reads as pressed while the theme is dark" }
           - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language, on the opening and in the dock. The languages' names are in _config.yml." }
           - name: opening
             label: Opening scene
