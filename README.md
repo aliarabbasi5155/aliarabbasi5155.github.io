@@ -105,8 +105,9 @@ enabled alongside it. There is one Google tag loader. Clones and localhost never
 load it unless their owner changes the allowlist. Existing clones still have
 their old code; their data can continue to reach the old property, not the new one.
 
-Google Analytics loads only after **Allow analytics**. A visitor can withdraw via
-**Privacy settings**; Global Privacy Control is also respected. Unknown query
+Google Analytics loads only after **Allow analytics**. The choice never pops up on
+its own: a visitor finds it under **Privacy settings** in the footer, where they can
+also withdraw; Global Privacy Control is also respected. Unknown query
 parameters, fragments and referrer paths are removed from the values sent by the
 tag. Generated campaign parameters survive switching between languages.
 The outreach code is carried through the same browser tab's session after opt-in;

@@ -73,12 +73,16 @@ test('clone hosts, owner browsers and privacy signals never load or send to Goog
     }
 });
 
-test('consent is required; accepting uses one loader and configures each destination exactly once', () => {
+test('consent is required, asked only from Privacy settings; accepting uses one loader and configures each destination exactly once', () => {
     const page = harness({ consent: null });
-    assert.equal(page.panel.hidden, false);
+    assert.equal(page.panel.hidden, true);
+    assert.equal(page.settings.hidden, false);
     page.advance(30000);
     assert.equal(page.tags.length, 0);
+    page.settings.dispatchEvent(new Event('click'));
+    assert.equal(page.panel.hidden, false);
     page.choose('granted');
+    assert.equal(page.panel.hidden, true);
     assert.equal(page.tags.length, 1);
     assert.deepEqual(page.commands().filter(args => args[0] === 'config').map(args => args[1]), ['G-M1XGN1K27Z', 'G-SN7JFYP48S']);
     assert.deepEqual(Array.from(page.events('section_view')[0][2].send_to), ['G-M1XGN1K27Z', 'G-SN7JFYP48S']);
