@@ -23,6 +23,17 @@
     {%- endfor %}
     <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
     <meta name="theme-color" content="#191a1e">
+    <!-- The theme, before anything is drawn: the visitor's own choice if they made one,
+         otherwise their system's (script.js keeps it in step and switches it) -->
+    <script>
+        (() => {
+            let theme;
+            try { theme = localStorage.getItem('theme'); } catch {}
+            if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.dataset.theme = theme;
+            document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f1eee7' : '#191a1e';
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     {%- if lang == "fa" %}
@@ -52,11 +63,14 @@
                 <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
             </button>
         </div>
-        <!-- The choice of language, in the same order on every page; another page opens on
-             its own opening -->
-        <nav class="opening-lang" aria-label="{{ ui.languages | escape }}">
-            {%- include languages.html lang=lang %}
-        </nav>
+        <!-- The theme and the choice of language, in the same order on every page; another
+             page opens on its own opening -->
+        <div class="opening-controls">
+            {%- include theme-toggle.html id="opening" label=ui.theme %}
+            <nav class="opening-lang" aria-label="{{ ui.languages | escape }}">
+                {%- include languages.html lang=lang %}
+            </nav>
+        </div>
         <div class="opening-text" aria-hidden="true">
             <p class="opening-name">{{ data.profile.name | escape }}</p>
             <p class="opening-role">{{ data.profile.role | escape }}</p>
@@ -302,7 +316,7 @@
         </main>
     </div>
 
-    <!-- Dock: copyright, language and the dot field's temperature -->
+    <!-- Dock: copyright, language, theme and the dot field's temperature -->
     <footer class="dock">
         <div class="dock-info">
             <p class="copyright">{{ ui.copyright | escape }}</p>
@@ -312,6 +326,7 @@
             <nav class="lang-switch glass" aria-label="{{ ui.languages | escape }}">
                 {%- include languages.html lang=lang %}
             </nav>
+            {%- include theme-toggle.html id="dock" label=ui.theme class="glass" %}
             <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
                 <span class="energy-readout"><b>{{ ui.temperature.label | escape }}</b> <span class="energy-value"></span> · <span class="energy-band"></span></span>
                 <input type="range" min="0" max="200" step="5" value="70" aria-label="{{ ui.temperature.label | escape }}">

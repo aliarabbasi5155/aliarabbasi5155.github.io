@@ -35,14 +35,23 @@ const TILT = [
     ['.section-header-card', 3],
     ['.section-content-card', 1.2],
     ['.nav-button', 4],
-    ['.lang-switch, .energy', 5],
+    ['.lang-switch, .theme-toggle.glass, .energy', 5],
 ];
 const TILT_PERSPECTIVE = 1200;
 
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const CORAL = getComputedStyle(document.documentElement).getPropertyValue('--coral').trim() || '#f6654a';
+// The page's ground in each theme (styles.css --bg), for the browser's own chrome
+const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
 
 let field = null;
+
+// The field's palette for a theme. On phones the copy sits right on top of the shapes, so
+// keep them quieter. Coral, the site's second colour, warms the grains as the temperature rises.
+function fieldPalette(theme) {
+    const small = window.matchMedia('(max-width: 768px)').matches;
+    return { ...PALETTES[theme === 'light' ? 'paper' : 'sand'], accent: CORAL, ...(small && { gain: 1.05 }) };
+}
 
 function initBackground() {
     const canvas = document.getElementById('canvas');
@@ -54,9 +63,7 @@ function initBackground() {
         field = new DotField(canvas, {
             scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
             initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
-            // On phones the copy sits right on top of the shapes, so keep them quieter
-            // Coral, the site's second colour, warms the grains as the temperature rises
-            palette: { ...PALETTES.sand, accent: CORAL, ...(small && { gain: 1.05 }) },
+            palette: fieldPalette(document.documentElement.dataset.theme),
             // Right-to-left pages mirror the shapes along with the layout
             mirror: document.documentElement.dir === 'rtl',
             count: small ? 24000 : 42000,
@@ -105,6 +112,52 @@ function initBackground() {
         if (e.target.closest('a, button, input, label, textarea, select')) return;
         field.ripple(e.clientX, e.clientY);
     }, { passive: true });
+}
+
+// Dark or light: the system's theme (set before the first paint, in the layout's head)
+// until the visitor picks one with either switch. A pick that matches the system is
+// forgotten, so the page goes back to following the system.
+function initTheme() {
+    const root = document.documentElement;
+    const toggles = document.querySelectorAll('.theme-toggle');
+    const system = window.matchMedia('(prefers-color-scheme: light)');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const stored = () => {
+        try {
+            return localStorage.getItem('theme');
+        } catch {
+            return null;
+        }
+    };
+    const show = theme => {
+        for (const toggle of toggles) toggle.setAttribute('aria-pressed', theme === 'dark');
+    };
+    const apply = theme => {
+        root.dataset.theme = theme;
+        if (meta) meta.content = THEME_COLORS[theme];
+        show(theme);
+        field?.setPalette(fieldPalette(theme));
+    };
+    // The whole page crossfades, the field with it, where the browser can
+    const switchTo = theme => {
+        if (REDUCE_MOTION || !document.startViewTransition) apply(theme);
+        else document.startViewTransition(() => apply(theme));
+    };
+
+    show(root.dataset.theme);
+    for (const toggle of toggles) {
+        toggle.addEventListener('click', () => {
+            const theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+            try {
+                if (theme === (system.matches ? 'light' : 'dark')) localStorage.removeItem('theme');
+                else localStorage.setItem('theme', theme);
+            } catch {}
+            switchTo(theme);
+        });
+    }
+    system.addEventListener('change', () => {
+        if (!['light', 'dark'].includes(stored())) switchTo(system.matches ? 'light' : 'dark');
+    });
 }
 
 // The dock's slider is the field's sampling temperature, like an LLM's:
@@ -297,8 +350,8 @@ function initOpening() {
         window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
     };
     scene.addEventListener('click', event => {
-        // The choice of language leaves for its page instead
-        if (!event.target.closest('.opening-lang')) turn(pageTop());
+        // The theme and language controls do their own thing instead
+        if (!event.target.closest('.opening-controls')) turn(pageTop());
     });
 
     // Whether the pointer or focus is over something that can still scroll up itself
@@ -650,6 +703,7 @@ if (document.readyState === 'loading') {
 
 function initAll() {
     initBackground();
+    initTheme();
     initOpening();
     initTemperature();
     initTilt();

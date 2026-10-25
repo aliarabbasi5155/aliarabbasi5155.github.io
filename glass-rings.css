@@ -8,7 +8,7 @@
      --gr-paint      the liquid (read once by the script; setPaint() changes it)
      --gr-hairline   the rim's fine edge, seen all the way round
      --gr-glint      the reflections, as r g b
-     --gr-bloom      light the liquid throws on what lies behind (none on a light wall) */
+     --gr-bloom      light the liquid throws on what lies behind (fainter on a light wall) */
 
 .glass-rings {
     --D: 400px;

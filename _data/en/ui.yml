@@ -57,6 +57,7 @@ temperature:
     - max: 2
       label: CHAOTIC
 languages: Language
+theme: Dark theme
 opening:
   hint: Scroll or tap to enter
   enter: Enter the site

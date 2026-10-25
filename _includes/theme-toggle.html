@@ -1,0 +1,17 @@
+{%- comment -%}
+  The switch between the dark and light themes: pressed while dark, a moon then and a sun
+  in daylight. include.id keeps its mask apart from the other switch's; include.class adds
+  classes (glass, in the dock). script.js wires it up; without the script it stays hidden.
+{%- endcomment -%}
+<button class="theme-toggle {{ include.class }}" type="button" aria-label="{{ include.label | escape }}" title="{{ include.label | escape }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+        <mask id="theme-moon-{{ include.id }}">
+            <rect width="24" height="24" fill="#fff"/>
+            <circle class="theme-bite" cx="17" cy="7" r="6" fill="#000"/>
+        </mask>
+        <circle class="theme-body" cx="12" cy="12" r="8" mask="url(#theme-moon-{{ include.id }})"/>
+        <g class="theme-rays">
+            <path d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5"/>
+        </g>
+    </svg>
+</button>

@@ -57,6 +57,7 @@ temperature:
     - max: 2
       label: CAOTICO
 languages: Lingua
+theme: Tema scuro
 opening:
   hint: Scorri o tocca per entrare
   enter: Entra nel sito

@@ -8,6 +8,9 @@
 
 export const SHAPES = ['ring', 'portrait', 'beam', 'rings', 'terrain', 'streams', 'ripples', 'book', 'globe'];
 
+// Glass: face lifts the flat face above the background, edge darkens the rim's hairline
+// (light reflections alone vanish on a pale ground), shade darkens the bevel away from the
+// light, shadow is the contact shadow's depth, and vignette how far the corners darken.
 export const PALETTES = {
 	// Warm grey grains on charcoal, mint for tinted glass
 	sand: {
@@ -21,6 +24,29 @@ export const PALETTES = {
 		gain: 1.35,
 		grain: 0.1,
 		tint: '#acffce',
+		face: 0.025,
+		edge: 0,
+		shade: 0.22,
+		shadow: 0.32,
+		vignette: 0.3,
+	},
+	// The same grains in ink on warm paper; the glass frosts whiter than the paper
+	paper: {
+		background: '#f1eee7',
+		low: '#b0ab9f',
+		high: '#5a564e',
+		accent: '#b0aca2',
+		accentMix: 0,
+		glow: 0,
+		glowColor: '#000000',
+		gain: 1.35,
+		grain: 0.1,
+		tint: '#acffce',
+		face: 0.03,
+		edge: 0.2,
+		shade: 0.08,
+		shadow: 0.12,
+		vignette: 0.1,
 	},
 };
 
@@ -443,6 +469,11 @@ uniform mat3 uGlassPlane[${MAX_GLASS}];
 // Where the light comes from, as a unit vector in screen space
 uniform vec2 uLight;
 uniform vec3 uTint;
+uniform float uFace;
+uniform float uEdge;
+uniform float uShade;
+uniform float uShadow;
+uniform float uVignette;
 // Glass look, in CSS pixels where they are lengths
 uniform float uBevel;
 uniform float uRefraction;
@@ -525,7 +556,7 @@ void main() {
 		float d = nearestGlass(gl_FragCoord.xy, normal, tint, lift) / uPixelRatio;
 
 		// Panes lift off the field with a soft contact shadow
-		color *= 1.0 - 0.32 * exp(-max(d, 0.0) / 11.0);
+		color *= 1.0 - uShadow * exp(-max(d, 0.0) / 11.0);
 
 		if (d < 1.0) {
 			float depth = max(-d, 0.0);
@@ -547,7 +578,7 @@ void main() {
 			);
 			seen = clamp(seen * uGain * mix(uGlassInk, 1.1, bevel), 0.0, 1.0);
 			vec3 ink = inkAt(seen.g, vUv);
-			vec3 face = uBackground + 0.025 + uTint * 0.05 * tint;
+			vec3 face = uBackground + uFace + uTint * 0.05 * tint;
 			vec3 glass = vec3(
 				mix(face.r, ink.r, seen.r),
 				mix(face.g, ink.g, seen.g),
@@ -562,7 +593,8 @@ void main() {
 			float shine = rim * (0.16 + 0.75 * pow(abs(facing), 3.0));
 			shine += lens * max(facing, 0.0) * 0.1;
 			glass += mix(vec3(1.0), uTint, 0.6 * tint) * shine;
-			glass *= 1.0 - lens * max(-facing, 0.0) * 0.22;
+			glass *= 1.0 - uEdge * rim;
+			glass *= 1.0 - lens * max(-facing, 0.0) * uShade;
 			glass = mix(glass, glass + uTint * 0.06, tint * bevel);
 
 			color = mix(color, glass, clamp(0.5 - d * uPixelRatio, 0.0, 1.0));
@@ -570,7 +602,7 @@ void main() {
 	}
 
 	vec2 c = vUv - 0.5;
-	float vignette = 1.0 - dot(c, c) * 0.3;
+	float vignette = 1.0 - dot(c, c) * uVignette;
 	outColor = vec4(color * vignette, 1.0);
 }
 `;
@@ -708,6 +740,23 @@ function multiply(a, b) {
 	return out;
 }
 
+function parsePalette(palette) {
+	return {
+		face: 0.025,
+		edge: 0,
+		shade: 0.22,
+		shadow: 0.32,
+		vignette: 0.3,
+		...palette,
+		background: rgb(palette.background),
+		low: rgb(palette.low),
+		high: rgb(palette.high),
+		accent: rgb(palette.accent),
+		glowColor: rgb(palette.glowColor),
+		tint: rgb(palette.tint ?? palette.high),
+	};
+}
+
 export class DotField {
 	/**
 	 * scenes: [{ shape: 'ring', wide: [x, y, scale], tall?: [x, y, scale] }, …]
@@ -745,15 +794,7 @@ export class DotField {
 		this.reduceMotion = reduceMotion;
 		this.maxPixelRatio = maxPixelRatio;
 		this.mirror = mirror ? -1 : 1;
-		this.palette = {
-			...palette,
-			background: rgb(palette.background),
-			low: rgb(palette.low),
-			high: rgb(palette.high),
-			accent: rgb(palette.accent),
-			glowColor: rgb(palette.glowColor),
-			tint: rgb(palette.tint ?? palette.high),
-		};
+		this.palette = parsePalette(palette);
 		this.glass = { bevel: 18, refraction: 26, frost: 2.4, ink: 0.5, ...glass };
 		this.scenes = scenes.map(scene => {
 			const shape = SHAPES.indexOf(scene.shape);
@@ -865,6 +906,13 @@ export class DotField {
 	// Like an LLM's sampling temperature, 0 to 2: 0 keeps every grain on its shape
 	setTemperature(value) {
 		this.heat = Math.min(Math.max(value, 0), 2) / 2;
+	}
+
+	// Change palettes (the page's theme) at once, keeping the accent's current sweep; drawn
+	// straight away, so a paused field shows it too
+	setPalette(palette) {
+		this.palette = parsePalette({ ...palette, accentMix: this.palette.accentMix });
+		this.render();
 	}
 
 	// How much of the palette's accent sweeps through the grains, 0 to 1
@@ -1075,6 +1123,7 @@ export class DotField {
 		gl.uniform1f(q.uAccentMix, palette.accentMix);
 		gl.uniform3fv(q.uGlowColor, palette.glowColor);
 		gl.uniform1f(q.uGlow, palette.glow);
+		gl.uniform1f(q.uVignette, palette.vignette);
 		gl.uniform1i(q.uGlassCount, this.glassCount);
 		if (this.glassCount > 0) {
 			gl.uniform4fv(q.uGlassRects, this.glassRects);
@@ -1082,6 +1131,10 @@ export class DotField {
 			gl.uniformMatrix3fv(q.uGlassPlane, false, this.glassPlane);
 			gl.uniform2fv(q.uLight, this.light);
 			gl.uniform3fv(q.uTint, palette.tint);
+			gl.uniform1f(q.uFace, palette.face);
+			gl.uniform1f(q.uEdge, palette.edge);
+			gl.uniform1f(q.uShade, palette.shade);
+			gl.uniform1f(q.uShadow, palette.shadow);
 			gl.uniform1f(q.uBevel, this.glass.bevel);
 			gl.uniform1f(q.uRefraction, this.glass.refraction);
 			gl.uniform1f(q.uFrost, this.glass.frost);

@@ -57,6 +57,7 @@ temperature:
     - max: 2
       label: آشوبناک
 languages: زبان
+theme: حالت تیره
 opening:
   hint: برای ورود، اسکرول کنید یا ضربه بزنید
   enter: ورود به سایت

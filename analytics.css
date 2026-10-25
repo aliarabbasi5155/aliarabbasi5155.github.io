@@ -1,10 +1,10 @@
 .dock-info { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .privacy-settings { border: 0; background: none; color: var(--muted, #b7c2bd); font: inherit; font-size: 11px; text-decoration: underline; cursor: pointer; }
-.analytics-consent { position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 100; width: min(390px, calc(100vw - 44px)); padding: 20px; border: 1px solid rgba(172, 255, 206, .3); border-radius: 20px; background: #20282a; color: #eff4f0; box-shadow: 0 12px 48px #0006; font-size: 14px; line-height: 1.6; }
+.analytics-consent { position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 100; width: min(390px, calc(100vw - 44px)); padding: 20px; border: 1px solid light-dark(rgba(28, 110, 71, .3), rgba(172, 255, 206, .3)); border-radius: 20px; background: light-dark(#fbfaf6, #20282a); color: light-dark(#1b1c20, #eff4f0); box-shadow: 0 12px 48px light-dark(#0002, #0006); font-size: 14px; line-height: 1.6; }
 .analytics-consent[hidden], .privacy-settings[hidden] { display: none; }
-.analytics-consent p { margin: 8px 0 16px; color: #c4cfc8; }
+.analytics-consent p { margin: 8px 0 16px; color: light-dark(#3f4046, #c4cfc8); }
 .consent-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.consent-actions button { flex: 1; padding: 10px 12px; border: 1px solid #8caf9b; border-radius: 10px; background: transparent; color: #dbf4e5; font: inherit; cursor: pointer; }
-.consent-actions button:hover { background: #33463d; }
-.consent-actions button:focus-visible, .privacy-settings:focus-visible { outline: 2px solid #b0f1cb; outline-offset: 4px; }
+.consent-actions button { flex: 1; padding: 10px 12px; border: 1px solid light-dark(#5f8c73, #8caf9b); border-radius: 10px; background: transparent; color: light-dark(#1c6e47, #dbf4e5); font: inherit; cursor: pointer; }
+.consent-actions button:hover { background: light-dark(#dcefe3, #33463d); }
+.consent-actions button:focus-visible, .privacy-settings:focus-visible { outline: 2px solid light-dark(#1c6e47, #b0f1cb); outline-offset: 4px; }
 @media (max-width: 640px) { .dock-info { justify-content: center; } .analytics-consent { bottom: 12px; inset-inline-end: 12px; width: calc(100vw - 24px); } }
