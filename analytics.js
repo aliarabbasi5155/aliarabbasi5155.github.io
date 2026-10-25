@@ -231,9 +231,8 @@
         panel.hidden = !panel.hidden;
         if (!panel.hidden) panel.querySelector('button')?.focus({ preventScroll: true });
     });
-    const choice = read(local, CONSENT_KEY);
-    if (choice === 'granted') start();
-    else panel.hidden = choice === 'denied';
+    // The choice is never put in front of the visitor: it opens only from Privacy settings
+    if (read(local, CONSENT_KEY) === 'granted') start();
 
     document.addEventListener('portfolio:section', event => {
         if (!enabled || event.detail.section === currentSection) return;
