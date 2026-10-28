@@ -55,6 +55,16 @@ already uses forgets the choice, so the page follows the system again. Colours l
 in `styles.css` (`:root`, each as `light-dark(light, dark)`); the dot field's two palettes
 are `sand` and `paper` in `dot-field.js`.
 
+## Language picker
+
+A first visit to the English page (`/`) opens on a language picker: each language greets
+the visitor in turn over the dot field's globe, starting with the browser's own, and a
+glass lens leads to each language's page. The choice, and any later language switch, is
+remembered in that browser, so `/` then goes straight to the chosen page. Campaign links
+(with `utm_` parameters) skip the picker, since their language is already chosen; Escape
+closes it without remembering anything. To see it again, clear the site's data in the
+browser. Its greeting and prompt are under **Language picker** in each language's UI text.
+
 ## Editing content
 
 All text lives in data files; the page layout is `_layouts/cv.html`.

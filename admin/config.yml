@@ -288,4 +288,12 @@ collections:
             fields:
               - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
               - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
+          - name: picker
+            label: Language picker
+            widget: object
+            i18n: true
+            hint: "The first screen of a first visit to the English page, where every language greets the visitor in turn"
+            fields:
+              - { name: greeting, label: Greeting, widget: string, hint: "One word, shown large, e.g. Hello" }
+              - { name: prompt, label: Prompt, widget: string, hint: "Shown under the greeting, e.g. Choose a language" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }

@@ -61,6 +61,9 @@ theme: Tema scuro
 opening:
   hint: Scorri o tocca per entrare
   enter: Entra nel sito
+picker:
+  greeting: Ciao
+  prompt: Scegli una lingua
 copyright: © 2025 Ali Abbasi. Tutti i diritti riservati.
 analytics:
   settings: Impostazioni privacy

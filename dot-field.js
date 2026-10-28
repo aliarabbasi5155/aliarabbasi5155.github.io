@@ -50,8 +50,8 @@ export const PALETTES = {
 	},
 };
 
-// Up to this many DOM elements can be glass at once
-const MAX_GLASS = 16;
+// Up to this many DOM elements can be glass at once (hidden or offscreen ones cost nothing)
+const MAX_GLASS = 20;
 
 const FOV = (45 * Math.PI) / 180;
 const CAM_Z = 6;
