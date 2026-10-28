@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+    <!-- The language picker's Italian pattern: one tile, repeated as a mask
+         (styles.css), so its colour comes from the page. Drawn in strokes only. -->
+    <g fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- colosseum -->
+    <g transform="translate(20.0 18.0) rotate(-10 32.0 32.0) scale(1.0)"><path d="M6 22 Q32 12 58 22 V56 H6 Z M6 34 Q32 25 58 34 M6 45 Q32 37 58 45 M9.0 56 V51 A2.5 2.5 0 0 1 14.0 51 V56 M17.6 56 V51 A2.5 2.5 0 0 1 22.6 51 V56 M26.2 56 V51 A2.5 2.5 0 0 1 31.2 51 V56 M34.8 56 V51 A2.5 2.5 0 0 1 39.8 51 V56 M43.4 56 V51 A2.5 2.5 0 0 1 48.4 51 V56 M52.0 56 V51 A2.5 2.5 0 0 1 57.0 51 V56 M9.0 44.5 V40 A2.5 2.5 0 0 1 14.0 40 V44.5 M17.6 44.5 V40 A2.5 2.5 0 0 1 22.6 40 V44.5 M26.2 44.5 V40 A2.5 2.5 0 0 1 31.2 40 V44.5 M34.8 44.5 V40 A2.5 2.5 0 0 1 39.8 40 V44.5 M43.4 44.5 V40 A2.5 2.5 0 0 1 48.4 40 V44.5 M52.0 44.5 V40 A2.5 2.5 0 0 1 57.0 40 V44.5"/></g>
+    <!-- pisa -->
+    <g transform="translate(121.6 31.6) rotate(8 30.4 30.4) scale(0.95)"><path transform="rotate(8 32 60)" d="M24 11 H40 V60 H24 Z M26 5 H38 V11 H26 Z M22 60 H42 M24 19 H40 M24 27 H40 M24 35 H40 M24 43 H40 M24 51 H40 M28 13 V17 M32 13 V17 M36 13 V17 M28 21 V25 M32 21 V25 M36 21 V25 M28 29 V33 M32 29 V33 M36 29 V33 M28 37 V41 M32 37 V41 M36 37 V41 M28 45 V49 M32 45 V49 M36 45 V49"/></g>
+    <!-- moka -->
+    <g transform="translate(220.0 12.0) rotate(-4 32.0 32.0) scale(1.0)"><path d="M20 10 H44 L40 32 H24 Z M23 32 H41 V35.5 H23 Z M24 35.5 H40 L46 59 H18 Z M29 10 Q32 5 35 10 M20 12 L13 9 M44 13 H50 Q53 13 53 16 V27 Q53 30 49 30 H42 M32 10 V32 M32 35.5 V59"/></g>
+    <!-- pizza -->
+    <g transform="translate(15.6 119.6) rotate(6 30.4 30.4) scale(0.95)"><path d="M32 60 L12 13 Q32 3 52 13 Z M14.5 19 Q32 10 49.5 19 M28 22 A4 4 0 1 0 28 30 A4 4 0 1 0 28 22 M39 29 A3.5 3.5 0 1 0 39 36 A3.5 3.5 0 1 0 39 29 M30 39 A3 3 0 1 0 30 45 A3 3 0 1 0 30 39"/></g>
+    <!-- gondola -->
+    <g transform="translate(116.0 132.0) rotate(-8 32.0 32.0) scale(1.0)"><path d="M3 34 Q8 46 22 47 H42 Q55 45 60 29 M7 38 Q14 43 24 43.5 H41 Q51 42 56 33 M3 34 Q2 29 6 27 M60 29 V21 M57 23 H61 M57 26 H61 M18 22 A2.5 2.5 0 1 0 18 27 A2.5 2.5 0 1 0 18 22 M18 27 V40 M18 31 L23 34 M12 14 L28 52"/></g>
+    <!-- lemon -->
+    <g transform="translate(219.6 115.6) rotate(12 30.4 30.4) scale(0.95)"><path transform="rotate(-18 32 34)" d="M10 35 C12 26 22 22 32 22 C42 22 52 26 54 35 C52 44 42 48 32 48 C22 48 12 44 10 35 Z M10 35 L6 34.5 M54 35 L58 35.5 M32 22 C33 14 40 10 46 9 C45 15 39 19 32 22 Z M32 22 L43 12"/></g>
+    <!-- mask -->
+    <g transform="translate(24.0 220.0) rotate(-6 32.0 32.0) scale(1.0)"><path d="M8 24 C14 17 25 20 32 25 C39 20 50 17 56 24 C56 35 45 41 32 37 C19 41 8 35 8 24 Z M15 27 Q20 23 26 28 Q20 31 15 27 Z M49 27 Q44 23 38 28 Q44 31 49 27 Z M32 25 C30 17 34 9 40 5 M33 21 C38 16 46 15 50 10 M12 37 L5 59"/></g>
+    <!-- mole -->
+    <g transform="translate(125.6 231.6) rotate(10 30.4 30.4) scale(0.95)"><path d="M20 47 H44 V61 H20 Z M24 50 V61 M28 50 V61 M32 50 V61 M36 50 V61 M40 50 V61 M17 61 H47 M20 47 Q24 30 29 21 H35 Q40 30 44 47 M26 38 H38 M29 21 V13 H35 V21 M32 13 V2"/></g>
+    <!-- vespa -->
+    <g transform="translate(224.0 216.0) rotate(-12 32.0 32.0) scale(1.0)"><path d="M7 44 C7 31 19 27 30 31 C32 36 31 44 31 44 Z M31 44 H42 M42 44 C45 35 45 23 40 14 M35 12 H46 M42 44 C46 39 54 39 57 46 M13 28 Q21 23 28 27 M16 44 A5.5 5.5 0 1 0 16 55 A5.5 5.5 0 1 0 16 44 M51 44 A5.5 5.5 0 1 0 51 55 A5.5 5.5 0 1 0 51 44"/></g>
+    </g>
+</svg>
