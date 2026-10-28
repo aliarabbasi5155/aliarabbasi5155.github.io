@@ -1506,19 +1506,22 @@ a {
 /* ---------- Language picker ---------- */
 
 /* The first screen of a first visit to the English page (html.picking, set in the head): a
-   tall section for each language side by side, each greeting in its language over a dim
-   pattern of its culture (patterns/*.svg, used as a mask so the theme colours it). The one
-   under the pointer widens and its pattern brightens; a choice widens it over the others
-   (script.js). The opening waits underneath with its entrance held, and the page stays
-   put. */
+   tall glass pane for each language, like the page's own panes (the field draws the glass,
+   tints it mint while hovered and tilts it with the pointer). Each greets in its language,
+   framed like a section title, over a dim pattern of its culture (patterns/*.svg, a mask,
+   so the theme colours it). The panes rise in, and a choice widens one over the others;
+   English then lets them fall away onto the opening, which waits underneath with its
+   entrance held (script.js). The field's glass follows the panes' boxes, not their
+   opacity, so they come and go by moving. */
 .language-picker {
     position: fixed;
     inset: 0;
     z-index: 60;
     display: none;
-    background: var(--bg);
+    flex-direction: column;
+    gap: var(--gap);
+    padding: 24px 32px;
     outline: none;
-    transition: opacity 0.6s var(--ease);
 }
 
 .picking .language-picker {
@@ -1539,22 +1542,33 @@ html.picking {
     animation-play-state: paused;
 }
 
-/* Every language's prompt, across the top */
-.picker-title {
-    position: absolute;
-    top: 28px;
-    inset-inline: 0;
-    z-index: 1;
+/* The name, every language's prompt, and the theme */
+.picker-bar {
     display: flex;
+    flex: none;
+    align-items: center;
+    gap: 24px;
+    direction: ltr;
+    transition: opacity 0.4s var(--ease);
+    animation: opening-show 1s var(--ease) 0.2s backwards;
+}
+
+.picker-name {
+    font: 400 26px/1 var(--display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.picker-title {
+    display: flex;
+    flex: 1;
     justify-content: center;
     gap: 14px;
     font: 400 11px/1.4 var(--mono);
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--muted);
-    direction: ltr;
-    pointer-events: none;
-    animation: opening-show 1s var(--ease) 1.1s backwards;
 }
 
 .picker-title span + span::before {
@@ -1567,87 +1581,99 @@ html.picking {
     letter-spacing: 0;
 }
 
+.picker-bar .theme-toggle {
+    border-radius: 999px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--line);
+}
+
 .picker-choices {
     display: flex;
     flex: 1;
+    gap: var(--gap);
+    min-height: 0;
     /* The same order on every screen */
     direction: ltr;
 }
 
-/* Each language's colour, for its pattern and its small words */
 .pick[hreflang="en"] {
-    --tint: light-dark(#2f4f9e, #8fa8ff);
     --i: 0;
 }
 
 .pick[hreflang="it"] {
-    --tint: light-dark(#b53e27, #f6654a);
     --i: 1;
 }
 
 .pick[hreflang="fa"] {
-    --tint: light-dark(#127a72, #5fd3c6);
     --i: 2;
 }
 
 .pick {
-    position: relative;
     display: flex;
     flex: 1 1 0;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    gap: 18px;
     min-width: 0;
-    padding: 24px;
-    overflow: hidden;
-    /* Physical sides: the row runs left to right, the Persian section right to left */
-    border-left: 1px solid var(--line);
+    padding: 26px 28px 30px;
     color: var(--text);
-    text-align: center;
     text-decoration: none;
-    transition: flex-grow 0.8s var(--ease), background-color 0.6s var(--ease);
+    transition:
+        flex-grow 0.8s var(--ease),
+        padding 0.8s var(--ease),
+        translate 0.7s cubic-bezier(0.6, 0, 0.8, 0.2) calc(var(--i) * 0.07s);
+    animation: pick-rise 1.1s var(--ease) calc(0.15s + var(--i) * 0.12s) backwards;
 }
 
-.pick:first-child {
-    border-left: 0;
+@keyframes pick-rise {
+    from {
+        translate: 0 105vh;
+    }
 }
 
-/* The pattern, larger than the section by a tile, drifting a tile's width diagonally and
-   starting over where it looks the same; a transform, so the compositor moves it */
-.pick::before {
+.pick > span {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.3s var(--ease);
+}
+
+/* The pattern, clipped to the pane and larger than it by a tile, drifting a tile's width
+   diagonally and starting over where it looks the same; a transform, so the compositor
+   moves it */
+.pick > .pick-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.pick-pattern::before {
     content: "";
     position: absolute;
     inset: -300px 0 0 -300px;
-    background: var(--tint);
+    background: var(--soft);
     -webkit-mask: 0 0 / 300px 300px repeat;
     mask: 0 0 / 300px 300px repeat;
-    opacity: 0.1;
-    transition: opacity 0.6s var(--ease);
-    animation:
-        pattern-in 1.6s var(--ease) calc(var(--i) * 0.15s) backwards,
-        pattern-drift 90s linear infinite;
+    opacity: 0.07;
+    transition: opacity 0.6s var(--ease), background-color 0.6s var(--ease);
+    animation: pattern-drift 90s linear infinite;
 }
 
-.pick[hreflang="en"]::before {
+.pick[hreflang="en"] .pick-pattern::before {
     -webkit-mask-image: url(patterns/en.svg);
     mask-image: url(patterns/en.svg);
 }
 
-.pick[hreflang="it"]::before {
+.pick[hreflang="it"] .pick-pattern::before {
     -webkit-mask-image: url(patterns/it.svg);
     mask-image: url(patterns/it.svg);
 }
 
-.pick[hreflang="fa"]::before {
+.pick[hreflang="fa"] .pick-pattern::before {
     -webkit-mask-image: url(patterns/fa.svg);
     mask-image: url(patterns/fa.svg);
-}
-
-@keyframes pattern-in {
-    from {
-        opacity: 0;
-    }
 }
 
 @keyframes pattern-drift {
@@ -1656,145 +1682,222 @@ html.picking {
     }
 }
 
-.pick > span {
-    position: relative;
-    z-index: 1;
-    animation: opening-in 1s var(--ease) calc(0.3s + var(--i) * 0.12s) backwards;
+/* Badge and name, like the menu's */
+.pick-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    align-self: stretch;
 }
 
-.pick-code {
-    font: 700 11px/1 var(--mono);
-    letter-spacing: 0.24em;
-    color: var(--tint);
+.pick-badge {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--mint);
+    border-radius: 50%;
+    font: 400 20px/1 var(--display);
+    color: var(--mint);
+    transition: background-color 0.3s, color 0.3s;
 }
 
+.pick-name {
+    font: 700 13px/1 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.pick-name:lang(fa) {
+    font: 600 15px/1.2 "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
+}
+
+/* The greeting, framed by corner brackets like a section title */
 .pick-greeting {
-    font: 400 clamp(52px, 7.5vw, 128px)/1.2 var(--display);
+    --corner: var(--hairline);
+    --corner-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    max-width: 100%;
+    padding: 16px 30px 16px 24px;
+    background:
+        linear-gradient(var(--corner), var(--corner)) top left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / 1px var(--corner-size) no-repeat;
+    font: 400 clamp(44px, 5.6vw, 104px)/1.15 var(--display);
     letter-spacing: 0.02em;
     text-transform: uppercase;
+    color: var(--mint);
     white-space: nowrap;
 }
 
+.pick-greeting i {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    background: var(--coral);
+}
+
 .pick-greeting:lang(fa) {
+    padding: 16px 24px 16px 30px;
     font-family: "Markazi Text", "Vazirmatn", serif;
     font-weight: 500;
     letter-spacing: 0;
 }
 
-.pick-name {
+/* How to continue: a pill like the blog's "show more" */
+.pick-continue {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 12px;
+    padding-inline: 14px 22px;
+    border: 1px dashed var(--dash);
+    border-radius: 999px;
+    background: var(--panel);
     font: 700 13px/1 var(--mono);
-    letter-spacing: 0.16em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--mint);
+    transition: background 0.3s, color 0.3s, opacity 0.3s var(--ease);
 }
 
-.pick-name:lang(fa),
 .pick-continue:lang(fa) {
-    font-family: "Vazirmatn", Tahoma, sans-serif;
-    font-size: 15px;
+    font: 600 15px/1 "Vazirmatn", Tahoma, sans-serif;
     letter-spacing: 0;
 }
 
-.pick-continue {
-    font: 400 12px/1.4 var(--mono);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--tint);
-    opacity: 0;
-    translate: 0 8px;
-    transition: opacity 0.4s var(--ease), translate 0.4s var(--ease);
-}
-
-.pick-continue::after {
-    content: " \2192";
-}
-
-.pick-continue:lang(fa)::after {
-    content: " \2190";
+.pick-continue::before {
+    content: "";
+    width: 18px;
+    height: 14px;
+    background:
+        radial-gradient(circle, currentColor 2px, transparent 2.5px) 0 2px / 7px 7px no-repeat,
+        radial-gradient(circle, currentColor 2.6px, transparent 3.1px) 9px 0 / 8px 8px no-repeat,
+        radial-gradient(circle, currentColor 3px, transparent 3.5px) 6px 6px / 9px 9px no-repeat;
+    transition: transform 0.6s var(--ease);
 }
 
 .pick:hover,
 .pick:focus-visible {
-    flex-grow: 1.5;
-    background-color: color-mix(in srgb, var(--tint) 5%, transparent);
+    flex-grow: 1.4;
 }
 
-.pick:hover::before,
-.pick:focus-visible::before {
-    opacity: 0.22;
+.pick:hover .pick-pattern::before,
+.pick:focus-visible .pick-pattern::before,
+.pick.active .pick-pattern::before {
+    background-color: var(--mint);
+    opacity: 0.16;
+}
+
+.pick:hover .pick-badge,
+.pick:focus-visible .pick-badge,
+.pick.active .pick-badge {
+    background: var(--mint);
+    color: var(--bg);
 }
 
 .pick:hover .pick-continue,
-.pick:focus-visible .pick-continue {
-    opacity: 1;
-    translate: none;
+.pick:focus-visible .pick-continue,
+.pick.active .pick-continue {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.pick:hover .pick-continue::before,
+.pick:focus-visible .pick-continue::before {
+    transform: rotate(140deg);
 }
 
 .pick:focus-visible {
-    outline: 2px solid var(--tint);
-    outline-offset: -8px;
+    outline: 1px dashed var(--mint);
+    outline-offset: -10px;
 }
 
-/* A choice widens its section over the others, then the picker leaves */
-.language-picker.chosen .pick {
+/* A choice widens its pane over the others */
+.language-picker.chosen .pick:not(.active) {
     flex-grow: 0.0001;
+    padding-inline: 0;
 }
 
-.language-picker.chosen .pick.chosen {
-    flex-grow: 1;
-}
-
-.language-picker.chosen .pick:not(.chosen) > span {
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.language-picker.leaving {
+.language-picker.chosen .pick:not(.active) > span {
     opacity: 0;
 }
 
-/* Portrait screens: the sections stack, and say how to continue without a hover */
+/* Then, for English, the panes fall away */
+.language-picker.leaving .picker-bar {
+    opacity: 0;
+}
+
+.language-picker.leaving .pick {
+    translate: 0 105vh;
+}
+
+/* Portrait screens: the panes stack, and the prompts give way to them */
 @media (max-aspect-ratio: 4 / 5) {
-    .picker-title {
-        top: 14px;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        font-size: 10px;
+    .language-picker {
+        gap: 14px;
+        padding: 16px;
     }
 
-    .picker-title span + span::before {
-        content: none;
+    .picker-bar {
+        justify-content: space-between;
+    }
+
+    .picker-title {
+        display: none;
+    }
+
+    .picker-name {
+        font-size: 22px;
     }
 
     .picker-choices {
         flex-direction: column;
-        padding-top: 92px;
+        gap: 14px;
     }
 
     .pick {
-        gap: 10px;
-        border-left: 0;
-        border-top: 1px solid var(--line);
+        padding: 18px 20px 20px;
+        border-radius: 24px;
+    }
+
+    .pick-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 17px;
     }
 
     .pick-greeting {
-        font-size: clamp(44px, 13vw, 72px);
+        padding-block: 10px;
+        font-size: clamp(40px, 12vw, 64px);
     }
 
     .pick-continue {
-        opacity: 1;
-        translate: none;
+        padding-block: 10px;
+    }
+
+    .language-picker.chosen .pick:not(.active) {
+        padding-block: 0;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .language-picker,
-    .picker-title,
+    .picker-bar,
     .pick,
-    .pick::before,
     .pick > span,
-    .pick-continue {
+    .pick-pattern::before,
+    .pick-continue,
+    .pick-continue::before {
         animation: none;
         transition: none;
     }
