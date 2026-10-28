@@ -34,6 +34,21 @@
             document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f1eee7' : '#191a1e';
         })();
     </script>
+    {%- if page.url == "/" %}
+    <!-- The language, before anything is drawn: a first visit here meets the language
+         picker (html.picking), a visitor who chose another language before goes straight to
+         its page, and a campaign link has chosen already -->
+    <script>
+        (() => {
+            const pages = { {%- for language in site.languages %}{{ language.code | jsonify }}: {{ language.url | relative_url | jsonify }}{% unless forloop.last %}, {% endunless %}{%- endfor %} };
+            if (/[?&]utm_/.test(location.search)) return;
+            let chosen;
+            try { chosen = localStorage.getItem('language'); } catch {}
+            if (!chosen) document.documentElement.classList.add('picking');
+            else if (chosen !== {{ page.lang | default: "en" | jsonify }} && pages[chosen]) location.replace(pages[chosen] + location.hash);
+        })();
+    </script>
+    {%- endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     {%- if lang == "fa" %}
@@ -43,7 +58,13 @@
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
     <!-- Just the letters of the language switches' Persian name, so it joins up -->
     {%- assign persian = site.languages | where: "code", "fa" | first %}
+    {%- if page.url == "/" %}
+    <!-- and of the language picker's Persian greeting and prompt -->
+    {%- capture persian_text %}{{ persian.name }}{{ site.data.fa.ui.picker.greeting }}{{ site.data.fa.ui.picker.prompt }}{% endcapture %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500&family=Vazirmatn:wght@400;600&text={{ persian_text | url_encode }}&display=swap">
+    {%- else %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ persian.name | url_encode }}&display=swap">
+    {%- endif %}
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ '/glass-rings.css' | relative_url }}">
@@ -53,6 +74,25 @@
 <body>
     <!-- Dot field background and liquid-glass panes at every screen size -->
     <canvas id="canvas" aria-hidden="true"></canvas>
+
+    {%- if page.url == "/" %}
+    <!-- Language picker: the first screen of a first visit here, before the opening, shown
+         only when the head script asks for it. Each language greets the visitor in turn over
+         the field's globe; each lens leads to its page, and English stays here. -->
+    <div class="language-picker" role="dialog" aria-modal="true" aria-label="{{ ui.picker.prompt | escape }}" tabindex="-1">
+        <p class="picker-greeting" aria-hidden="true" lang="{{ lang }}">{{ ui.picker.greeting | escape }}</p>
+        <p class="picker-prompt" aria-hidden="true" lang="{{ lang }}">{{ ui.picker.prompt | escape }}</p>
+        <nav class="picker-choices" aria-label="{{ ui.languages | escape }}">
+            {%- for language in site.languages %}
+            {%- assign their = site.data[language.code].ui.picker %}
+            <a class="pick glass lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" data-greeting="{{ their.greeting | escape }}" data-prompt="{{ their.prompt | escape }}">
+                <span class="pick-code" aria-hidden="true">{{ language.code | upcase }}</span>
+                <span class="pick-name">{{ language.name | escape }}</span>
+            </a>
+            {%- endfor %}
+        </nav>
+    </div>
+    {%- endif %}
 
     <!-- Opening scene: the first screen, the name and the glass rings; the page follows below.
          The arrow down rides on the front ring (glass-rings.js moves it there). Only the

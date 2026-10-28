@@ -61,6 +61,9 @@ theme: حالت تیره
 opening:
   hint: برای ورود، اسکرول کنید یا ضربه بزنید
   enter: ورود به سایت
+picker:
+  greeting: سلام
+  prompt: یک زبان انتخاب کنید
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

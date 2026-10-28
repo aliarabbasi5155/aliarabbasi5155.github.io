@@ -1503,6 +1503,181 @@ a {
     }
 }
 
+/* ---------- Language picker ---------- */
+
+/* The first screen of a first visit to the English page (html.picking, set in the head):
+   each language greets the visitor in turn over the field's globe, above a glass lens for
+   each language (script.js). The opening waits underneath with its entrance held, and the
+   page stays put. The lenses are glass the field draws, which follows their boxes but not
+   their opacity, so they come and go by growing and shrinking. */
+.language-picker {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    place-content: center;
+    justify-items: center;
+    padding: 24px;
+    text-align: center;
+    outline: none;
+}
+
+.picking .language-picker {
+    display: grid;
+}
+
+html.picking {
+    overflow: hidden;
+}
+
+.picking .opening > * {
+    visibility: hidden;
+}
+
+/* Held at their start, so the opening's entrance plays once the picker has gone */
+.picking .opening,
+.picking .opening * {
+    animation-play-state: paused;
+}
+
+.picker-greeting,
+.picker-prompt {
+    transition: opacity 0.4s var(--ease);
+}
+
+.picker-greeting {
+    min-height: 1em;
+    font: 400 clamp(72px, 12vw, 176px)/1 var(--display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--mint);
+    animation: opening-in 1s var(--ease) 0.3s backwards;
+}
+
+.picker-greeting:lang(fa) {
+    font-family: "Markazi Text", "Vazirmatn", serif;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0;
+}
+
+.picker-prompt {
+    margin-top: 18px;
+    font: 400 12px/1.4 var(--mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    /* Brighter than a hint: it sits on the globe's lines */
+    color: var(--soft);
+    animation: opening-in 1s var(--ease) 0.6s backwards;
+}
+
+.picker-prompt:lang(fa) {
+    font: 400 15px/1.4 "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
+}
+
+.picker-choices {
+    display: flex;
+    gap: clamp(14px, 3vw, 44px);
+    margin-top: clamp(36px, 7vh, 72px);
+    /* The same order on every screen */
+    direction: ltr;
+}
+
+/* A lens: the field bends the globe through it, and tints it while it is hovered */
+.pick {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    width: clamp(104px, 14vw, 188px);
+    aspect-ratio: 1;
+    /* In pixels: the field reads the corner as a length, and caps it to a circle */
+    border-radius: 999px;
+    color: var(--text);
+    text-decoration: none;
+    transition: scale 0.5s var(--ease), color 0.3s;
+    animation: pick-in 0.9s var(--ease) 0.8s backwards;
+}
+
+.pick:nth-child(2) {
+    animation-delay: 0.95s;
+}
+
+.pick:nth-child(3) {
+    animation-delay: 1.1s;
+}
+
+@keyframes pick-in {
+    from {
+        scale: 0;
+    }
+}
+
+.pick > * {
+    position: relative;
+    z-index: 1;
+}
+
+.pick-code {
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.2em;
+    color: var(--muted);
+}
+
+.pick-name {
+    font: 400 clamp(20px, 2.2vw, 30px)/1 var(--display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.pick-name:lang(fa) {
+    font: 600 clamp(18px, 2vw, 26px)/1.2 "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
+}
+
+.pick:hover,
+.pick:focus-visible {
+    scale: 1.06;
+    color: var(--mint);
+}
+
+.pick:focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 6px;
+}
+
+/* On the way out the words fade and the lenses close, the chosen one last */
+.language-picker.leaving .picker-greeting,
+.language-picker.leaving .picker-prompt {
+    opacity: 0;
+}
+
+.language-picker.leaving .pick {
+    scale: 0;
+    transition: scale 0.5s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.language-picker.leaving .pick.chosen {
+    transition-delay: 0.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .picker-greeting,
+    .picker-prompt,
+    .pick {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* Moving between the language pages crossfades, where the browser can */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+}
+
 /* ---------- Stacked layout: tablets and phones ---------- */
 
 @media (max-width: 1100px) {

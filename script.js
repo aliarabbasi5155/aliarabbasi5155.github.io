@@ -18,16 +18,19 @@ const TAB_SCENES = {
     interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
 const TAB_ORDER = Object.keys(TAB_SCENES);
+// The language picker's globe (initPicker), after the tabs' scenes
+const PICKER_SCENE = TAB_ORDER.length;
 
 // The page's strings come from _data/<lang>/ui.yml, embedded by the layout
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const LANG = document.documentElement.lang || 'en';
 // What a title cycles through while it scrambles in
+const LATIN_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
 const GLYPHS = {
-    en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
-    it: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
+    en: LATIN_GLYPHS,
+    it: LATIN_GLYPHS,
     fa: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
-}[LANG] ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+}[LANG] ?? LATIN_GLYPHS;
 
 // How far each kind of pane tilts toward the pointer, in degrees
 const TILT = [
@@ -45,6 +48,8 @@ const CORAL = getComputedStyle(document.documentElement).getPropertyValue('--cor
 const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
 
 let field = null;
+// While the language picker shows or leaves: how much of its globe may show, 0 to 1
+let picker = null;
 
 // The field's palette for a theme. On phones the copy sits right on top of the shapes, so
 // keep them quieter. Coral, the site's second colour, warms the grains as the temperature rises.
@@ -59,10 +64,11 @@ function initBackground() {
 
     const activeTab = document.querySelector('.nav-button.active')?.dataset.tab;
     const small = window.matchMedia('(max-width: 768px)').matches;
+    const picking = document.documentElement.classList.contains('picking');
     try {
         field = new DotField(canvas, {
-            scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
-            initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
+            scenes: [...TAB_ORDER.map(tab => TAB_SCENES[tab]), { shape: 'globe', wide: [0, 0.02, 1.2], tall: [0, 0.04, 1.05] }],
+            initial: picking ? PICKER_SCENE : Math.max(0, TAB_ORDER.indexOf(activeTab)),
             palette: fieldPalette(document.documentElement.dataset.theme),
             // Right-to-left pages mirror the shapes along with the layout
             mirror: document.documentElement.dir === 'rtl',
@@ -274,14 +280,13 @@ function initExternalLinks() {
 }
 
 // Letters cycle through random glyphs, then settle left to right
-function scramble(element, text, duration = 600) {
+function scramble(element, text, duration = 600, glyphs = GLYPHS) {
     cancelAnimationFrame(element.scrambleFrame);
     if (REDUCE_MOTION) {
         element.textContent = text;
         return;
     }
     const start = performance.now();
-    const glyphs = GLYPHS;
     const step = now => {
         const progress = Math.min(1, (now - start) / duration);
         const settled = Math.floor(progress * text.length);
@@ -295,6 +300,123 @@ function scramble(element, text, duration = 600) {
         if (progress < 1) element.scrambleFrame = requestAnimationFrame(step);
     };
     element.scrambleFrame = requestAnimationFrame(step);
+}
+
+// Every language link remembers its language, so the next visit to the English page goes
+// straight there (the layout's head reads it)
+function initLanguageMemory() {
+    document.addEventListener('click', event => {
+        const link = event.target.closest('.lang-link');
+        if (!link) return;
+        try {
+            localStorage.setItem('language', link.hreflang);
+        } catch {}
+    });
+}
+
+// The language picker (styles.css), on a first visit to the English page: the field
+// gathers into a globe while each language greets the visitor in turn, starting with the
+// browser's own, and a lens held under the pointer or focus greets in its language. A lens
+// leads to its language's page; English stays, and the globe dissolves into the opening.
+// Escape stays too, without remembering a choice.
+function initPicker() {
+    const root = document.documentElement;
+    const dialog = document.querySelector('.language-picker');
+    if (!dialog || !root.classList.contains('picking')) return;
+    const greeting = dialog.querySelector('.picker-greeting');
+    const prompt = dialog.querySelector('.picker-prompt');
+    const picks = [...dialog.querySelectorAll('.pick')];
+    const behind = document.querySelectorAll('.opening, .container, .dock');
+    for (const element of behind) element.inert = true;
+    picker = { level: 1, leaving: false };
+    dialog.focus({ preventScroll: true });
+
+    // Persian scrambles through its own strings' letters, the only ones this page loads
+    const persian = picks.find(pick => pick.hreflang === 'fa');
+    const persianGlyphs = persian ? [...new Set((persian.dataset.greeting + persian.dataset.prompt).replace(/\s/g, ''))].join('') : '';
+    let shown = greeting.lang;
+    const greet = pick => {
+        const code = pick.hreflang;
+        if (code === shown) return;
+        shown = code;
+        const glyphs = code === 'fa' ? persianGlyphs : LATIN_GLYPHS;
+        for (const [element, text] of [[greeting, pick.dataset.greeting], [prompt, pick.dataset.prompt]]) {
+            element.lang = code;
+            element.dir = code === 'fa' ? 'rtl' : 'ltr';
+            scramble(element, text, 700, glyphs);
+        }
+    };
+
+    const wanted = (navigator.languages?.length ? navigator.languages : [navigator.language || '']).map(tag => tag.slice(0, 2).toLowerCase());
+    let current = Math.max(0, picks.findIndex(pick => pick.hreflang === wanted.find(code => picks.some(p => p.hreflang === code))));
+    greet(picks[current]);
+    let held = null;
+    const cycle = REDUCE_MOTION ? 0 : setInterval(() => {
+        if (held) return;
+        current = (current + 1) % picks.length;
+        greet(picks[current]);
+    }, 2600);
+
+    field?.onFrame(delta => {
+        if (!picker) return;
+        if (picker.leaving) picker.level = Math.max(0, picker.level - delta / 0.7);
+        field.intro = Math.min(field.intro, picker.level);
+    });
+
+    const leave = pick => {
+        if (picker.leaving) return;
+        picker.leaving = true;
+        clearInterval(cycle);
+        pick?.classList.add('chosen');
+        dialog.classList.add('leaving');
+        const wait = REDUCE_MOTION ? 0 : 700;
+        if (pick && pick.hreflang !== LANG) {
+            setTimeout(() => location.assign(pick.href), wait);
+            return;
+        }
+        // Back to the tab's own scene, unseen under the opening
+        field?.morphTo(Math.max(0, TAB_ORDER.indexOf(document.querySelector('.nav-button.active')?.dataset.tab)));
+        setTimeout(() => {
+            picker = null;
+            dialog.remove();
+            root.classList.remove('picking');
+            for (const element of behind) element.inert = false;
+            const name = document.querySelector('.opening-name');
+            if (name) scramble(name, name.textContent.trim(), 900);
+        }, wait);
+    };
+
+    for (const pick of picks) {
+        const hold = () => {
+            held = pick;
+            current = picks.indexOf(pick);
+            greet(pick);
+        };
+        const release = () => {
+            if (held === pick) held = null;
+        };
+        pick.addEventListener('pointerenter', hold);
+        pick.addEventListener('focus', hold);
+        pick.addEventListener('pointerleave', release);
+        pick.addEventListener('blur', release);
+        pick.addEventListener('click', event => {
+            event.preventDefault();
+            const box = pick.getBoundingClientRect();
+            field?.ripple(box.left + box.width / 2, box.top + box.height / 2, 1.4);
+            leave(pick);
+        });
+    }
+    dialog.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            leave(null);
+        } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+            const from = picks.indexOf(document.activeElement);
+            const step = event.key === 'ArrowRight' ? 1 : -1;
+            const next = from < 0 ? (step > 0 ? 0 : picks.length - 1) : (from + step + picks.length) % picks.length;
+            picks[next].focus();
+            event.preventDefault();
+        }
+    });
 }
 
 // The opening scene, the page's first screen (styles.css): the rings float while it is in
@@ -331,6 +453,8 @@ function initOpening() {
         return top > -1 && bottom >= innerHeight - 1;
     };
     field?.onFrame(() => {
+        // The language picker has the field to itself until it has gone
+        if (picker) return;
         const { bottom, height } = scene.getBoundingClientRect();
         const away = 1 - Math.min(1, Math.max(0, bottom / height));
         field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
@@ -363,7 +487,7 @@ function initOpening() {
     };
     const wide = window.matchMedia('(min-width: 1101px)');
     window.addEventListener('wheel', event => {
-        if (!wide.matches || event.ctrlKey) return;
+        if (picker || !wide.matches || event.ctrlKey) return;
         const top = pageTop();
         // A turn under way, and the swipe's momentum after it, move nothing else
         if (performance.now() - turned < 900) {
@@ -377,7 +501,7 @@ function initOpening() {
         }
     }, { passive: false });
     window.addEventListener('keydown', event => {
-        if (!wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
+        if (picker || !wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
         const top = pageTop();
         if (scrollY < top - 2 && ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) {
             event.preventDefault();
@@ -530,25 +654,6 @@ function initAnimations() {
         observer.observe(card);
     });
 }
-
-// Add keyboard navigation for tabs
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        const activeTab = document.querySelector('.tab-button.active');
-        const tabs = Array.from(document.querySelectorAll('.tab-button'));
-        const currentIndex = tabs.indexOf(activeTab);
-        
-        let newIndex;
-        if (e.key === 'ArrowLeft') {
-            newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-        } else {
-            newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-        }
-        
-        tabs[newIndex].click();
-        tabs[newIndex].focus();
-    }
-});
 
 // Removed loading animation to prevent blinking
 
@@ -705,6 +810,8 @@ function initAll() {
     initBackground();
     initTheme();
     initOpening();
+    initPicker();
+    initLanguageMemory();
     initTemperature();
     initTilt();
     initExternalLinks();
