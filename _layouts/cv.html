@@ -84,21 +84,28 @@
 
     {%- if page.url == "/" %}
     <!-- Language picker: the first screen of a first visit here, before the opening, shown
-         only when the head script asks for it. A section for each language, greeting in it
-         over a pattern of its culture (patterns/), leads to its page; English stays here. -->
+         only when the head script asks for it. A glass pane for each language, greeting in
+         it over a pattern of its culture (patterns/), leads to its page; English stays. -->
     <div class="language-picker" role="dialog" aria-modal="true" aria-label="{{ ui.picker.prompt | escape }}" tabindex="-1">
-        <p class="picker-title" aria-hidden="true">
-            {%- for language in site.languages %}
-            <span lang="{{ language.code }}">{{ site.data[language.code].ui.picker.prompt | escape }}</span>
-            {%- endfor %}
-        </p>
+        <div class="picker-bar">
+            <p class="picker-name" aria-hidden="true">{{ data.profile.name | escape }}</p>
+            <p class="picker-title" aria-hidden="true">
+                {%- for language in site.languages %}
+                <span lang="{{ language.code }}">{{ site.data[language.code].ui.picker.prompt | escape }}</span>
+                {%- endfor %}
+            </p>
+            {%- include theme-toggle.html id="picker" label=ui.theme %}
+        </div>
         <nav class="picker-choices" aria-label="{{ ui.languages | escape }}">
             {%- for language in site.languages %}
             {%- assign their = site.data[language.code].ui.picker %}
-            <a class="pick lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" dir="{% if language.code == 'fa' %}rtl{% else %}ltr{% endif %}">
-                <span class="pick-code" aria-hidden="true">{{ language.code | upcase }}</span>
-                <span class="pick-greeting" aria-hidden="true">{{ their.greeting | escape }}</span>
-                <span class="pick-name">{{ language.name | escape }}</span>
+            <a class="pick glass lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" dir="{% if language.code == 'fa' %}rtl{% else %}ltr{% endif %}">
+                <span class="pick-pattern" aria-hidden="true"></span>
+                <span class="pick-head">
+                    <span class="pick-badge" aria-hidden="true">{{ language.code | upcase }}</span>
+                    <span class="pick-name">{{ language.name | escape }}</span>
+                </span>
+                <span class="pick-greeting" aria-hidden="true"><i></i><span class="pick-word">{{ their.greeting | escape }}</span></span>
                 <span class="pick-continue" aria-hidden="true">{{ their.continue | escape }}</span>
             </a>
             {%- endfor %}

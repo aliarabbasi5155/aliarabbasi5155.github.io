@@ -57,7 +57,7 @@ are `sand` and `paper` in `dot-field.js`.
 
 ## Language picker
 
-A first visit to the English page (`/`) opens on a language picker: a tall section for
+A first visit to the English page (`/`) opens on a language picker: a tall glass pane for
 each language, greeting in it over a dim pattern of its culture, that leads to its page.
 The choice, and any later language switch, is remembered in that browser, so `/` then
 goes straight to the chosen page. Campaign links (with `utm_` parameters) skip the picker,

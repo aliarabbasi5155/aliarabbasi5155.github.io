@@ -18,16 +18,19 @@ const TAB_SCENES = {
     interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
 const TAB_ORDER = Object.keys(TAB_SCENES);
+// The language picker's globe (initPicker), after the tabs' scenes
+const PICKER_SCENE = TAB_ORDER.length;
 
 // The page's strings come from _data/<lang>/ui.yml, embedded by the layout
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const LANG = document.documentElement.lang || 'en';
 // What a title cycles through while it scrambles in
+const LATIN_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
 const GLYPHS = {
-    en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
-    it: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/',
+    en: LATIN_GLYPHS,
+    it: LATIN_GLYPHS,
     fa: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
-}[LANG] ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+}[LANG] ?? LATIN_GLYPHS;
 
 // How far each kind of pane tilts toward the pointer, in degrees
 const TILT = [
@@ -36,6 +39,7 @@ const TILT = [
     ['.section-content-card', 1.2],
     ['.nav-button', 4],
     ['.lang-switch, .theme-toggle.glass, .energy', 5],
+    ['.pick', 1.5],
 ];
 const TILT_PERSPECTIVE = 1200;
 
@@ -45,8 +49,8 @@ const CORAL = getComputedStyle(document.documentElement).getPropertyValue('--cor
 const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
 
 let field = null;
-// Whether the language picker covers the page (initPicker)
-let picker = false;
+// While the language picker shows or leaves: how much of its globe may show, 0 to 1
+let picker = null;
 
 // The field's palette for a theme. On phones the copy sits right on top of the shapes, so
 // keep them quieter. Coral, the site's second colour, warms the grains as the temperature rises.
@@ -61,10 +65,11 @@ function initBackground() {
 
     const activeTab = document.querySelector('.nav-button.active')?.dataset.tab;
     const small = window.matchMedia('(max-width: 768px)').matches;
+    const picking = document.documentElement.classList.contains('picking');
     try {
         field = new DotField(canvas, {
-            scenes: TAB_ORDER.map(tab => TAB_SCENES[tab]),
-            initial: Math.max(0, TAB_ORDER.indexOf(activeTab)),
+            scenes: [...TAB_ORDER.map(tab => TAB_SCENES[tab]), { shape: 'globe', wide: [0, 0, 1.25], tall: [0, 0, 1.1] }],
+            initial: picking ? PICKER_SCENE : Math.max(0, TAB_ORDER.indexOf(activeTab)),
             palette: fieldPalette(document.documentElement.dataset.theme),
             // Right-to-left pages mirror the shapes along with the layout
             mirror: document.documentElement.dir === 'rtl',
@@ -276,14 +281,13 @@ function initExternalLinks() {
 }
 
 // Letters cycle through random glyphs, then settle left to right
-function scramble(element, text, duration = 600) {
+function scramble(element, text, duration = 600, glyphs = GLYPHS) {
     cancelAnimationFrame(element.scrambleFrame);
     if (REDUCE_MOTION) {
         element.textContent = text;
         return;
     }
     const start = performance.now();
-    const glyphs = GLYPHS;
     const step = now => {
         const progress = Math.min(1, (now - start) / duration);
         const settled = Math.floor(progress * text.length);
@@ -311,10 +315,11 @@ function initLanguageMemory() {
     });
 }
 
-// The language picker (styles.css), on a first visit to the English page: a section for
-// each language. Choosing one widens it over the others; English then fades away onto the
-// opening, which plays its entrance, and the others go to their page. Escape stays on
-// English without remembering a choice, and the arrow keys move between the sections.
+// The language picker (styles.css), on a first visit to the English page: a glass pane for
+// each language over the field's globe. Each greeting scrambles in, and again as its pane
+// is hovered. Choosing a pane widens it over the others; English then lets the panes fall
+// away onto the opening as the globe dissolves, and the others go to their page. Escape
+// stays on English without remembering a choice, and the arrow keys move between panes.
 function initPicker() {
     const root = document.documentElement;
     const dialog = document.querySelector('.language-picker');
@@ -322,24 +327,42 @@ function initPicker() {
     const picks = [...dialog.querySelectorAll('.pick')];
     const behind = document.querySelectorAll('.opening, .container, .dock');
     for (const element of behind) element.inert = true;
-    picker = true;
+    picker = { level: 1, leaving: false };
     dialog.focus({ preventScroll: true });
     const wait = ms => (REDUCE_MOTION ? 0 : ms);
 
+    // Persian scrambles through its own words' letters, the only ones this page loads
+    picks.forEach((pick, i) => {
+        const word = pick.querySelector('.pick-word');
+        const text = word.textContent;
+        const glyphs = pick.hreflang === 'fa' ? [...new Set(pick.textContent.replace(/[^\u0600-\u06ff]/g, ''))].join('') : LATIN_GLYPHS;
+        scramble(word, text, 1100 + i * 150, glyphs);
+        pick.addEventListener('pointerenter', () => scramble(word, text, 600, glyphs));
+    });
+
+    field?.onFrame(delta => {
+        if (!picker) return;
+        if (picker.leaving) picker.level = Math.max(0, picker.level - delta / 0.7);
+        field.intro = Math.min(field.intro, picker.level);
+    });
+
     const reveal = () => {
+        picker.leaving = true;
         dialog.classList.add('leaving');
+        // Back to the tab's own scene, unseen under the opening
+        field?.morphTo(Math.max(0, TAB_ORDER.indexOf(document.querySelector('.nav-button.active')?.dataset.tab)));
         setTimeout(() => {
-            picker = false;
+            picker = null;
             dialog.remove();
             root.classList.remove('picking');
             for (const element of behind) element.inert = false;
             const name = document.querySelector('.opening-name');
             if (name) scramble(name, name.textContent.trim(), 900);
-        }, wait(600));
+        }, wait(900));
     };
     const choose = pick => {
-        if (dialog.classList.contains('chosen') || dialog.classList.contains('leaving')) return;
-        pick.classList.add('chosen');
+        if (dialog.classList.contains('chosen') || picker.leaving) return;
+        pick.classList.add('active');
         dialog.classList.add('chosen');
         setTimeout(() => (pick.hreflang === LANG ? reveal() : location.assign(pick.href)), wait(750));
     };
@@ -397,6 +420,8 @@ function initOpening() {
         return top > -1 && bottom >= innerHeight - 1;
     };
     field?.onFrame(() => {
+        // The language picker has the field to itself until it has gone
+        if (picker) return;
         const { bottom, height } = scene.getBoundingClientRect();
         const away = 1 - Math.min(1, Math.max(0, bottom / height));
         field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
