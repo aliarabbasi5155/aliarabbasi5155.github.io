@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+    <!-- The language picker's English (the US and the UK) pattern: one tile, repeated as a mask
+         (styles.css), so its colour comes from the page. Drawn in strokes only. -->
+    <g fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- big-ben -->
+    <g transform="translate(20.0 18.0) rotate(-10 32.0 32.0) scale(1.0)"><path d="M28 14 L32 3 L36 14 Z M26 14 H38 V20 H26 Z M24 20 H40 V34 H24 Z M32 22.5 A4.5 4.5 0 1 0 32 31.5 A4.5 4.5 0 1 0 32 22.5 M32 27 V24.5 M32 27 L34 28.5 M25 34 V61 M39 34 V61 M22 61 H42 M29.5 38 V57 M34.5 38 V57"/></g>
+    <!-- phone-box -->
+    <g transform="translate(121.6 31.6) rotate(8 30.4 30.4) scale(0.95)"><path d="M19 12 Q32 3 45 12 M19 12 H45 V61 H19 Z M19 17 H45 M24 21 H40 V45 H24 Z M29.3 21 V45 M34.7 21 V45 M24 29 H40 M24 37 H40 M17 61 H47"/></g>
+    <!-- bus -->
+    <g transform="translate(220.0 12.0) rotate(-4 32.0 32.0) scale(1.0)"><path d="M5 15 H59 V51 H5 Z M5 33 H59 M9 20 H55 V29 H9 Z M20 20 V29 M31 20 V29 M42 20 V29 M9 37 H38 V45 H9 Z M43 37 H55 V51 M16 51 A5 5 0 1 0 16 61 A5 5 0 1 0 16 51 M48 51 A5 5 0 1 0 48 61 A5 5 0 1 0 48 51"/></g>
+    <!-- empire-state -->
+    <g transform="translate(15.6 119.6) rotate(6 30.4 30.4) scale(0.95)"><path d="M20 62 V31 H24 V23 H27 V15 H30 V9 H34 V15 H37 V23 H40 V31 H44 V62 M32 9 V2 M28 35 V58 M32 35 V58 M36 35 V58"/></g>
+    <!-- golden-gate -->
+    <g transform="translate(116.0 132.0) rotate(-8 32.0 32.0) scale(1.0)"><path d="M2 44 H62 M14 13 V56 M18 13 V56 M46 13 V56 M50 13 V56 M14 21 H18 M14 31 H18 M46 21 H50 M46 31 H50 M2 34 Q9 26 16 13 M16 13 Q32 46 48 13 M48 13 Q55 26 62 34 M24 28 V44 M32 30.5 V44 M40 28 V44"/></g>
+    <!-- teacup -->
+    <g transform="translate(219.6 115.6) rotate(12 30.4 30.4) scale(0.95)"><path d="M14 26 H44 V34 C44 44 38 50 29 50 C20 50 14 44 14 34 Z M44 30 C52 30 52 42 43 41 M8 54 Q29 60 50 54 M24 20 C21 16 27 13 24 8 M33 20 C30 16 36 13 33 8"/></g>
+    <!-- crown -->
+    <g transform="translate(24.0 220.0) rotate(-6 32.0 32.0) scale(1.0)"><path d="M16 46 H48 V53 H16 Z M16 46 L12 24 L22 34 L32 18 L42 34 L52 24 L48 46 M32 18 V10 M28.5 13.5 H35.5 M12 21 A3 3 0 1 0 12 27 A3 3 0 1 0 12 21 M52 21 A3 3 0 1 0 52 27 A3 3 0 1 0 52 21"/></g>
+    <!-- umbrella -->
+    <g transform="translate(125.6 231.6) rotate(10 30.4 30.4) scale(0.95)"><path d="M8 32 Q32 4 56 32 Q50 28 44 32 Q38 28 32 32 Q26 28 20 32 Q14 28 8 32 M32 10 V7 M32 32 V54 Q32 60 26 58"/></g>
+    <!-- stars -->
+    <g transform="translate(224.0 216.0) rotate(-12 32.0 32.0) scale(1.0)"><path d="M22.0 13.0 L24.6 20.4 L32.5 20.6 L26.3 25.4 L28.5 32.9 L22.0 28.5 L15.5 32.9 L17.7 25.4 L11.5 20.6 L19.4 20.4 Z M44.0 36.0 L45.9 41.4 L51.6 41.5 L47.0 45.0 L48.7 50.5 L44.0 47.2 L39.3 50.5 L41.0 45.0 L36.4 41.5 L42.1 41.4 Z"/></g>
+    </g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+    <!-- The language picker's Persian pattern: one tile, repeated as a mask
+         (styles.css), so its colour comes from the page. Drawn in strokes only. -->
+    <g fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- azadi -->
+    <g transform="translate(20.0 18.0) rotate(-10 32.0 32.0) scale(1.0)"><path d="M7 62 C14 46 20 30 25 14 H39 C44 30 50 46 57 62 M19 62 C21 47 27 35 32 30 C37 35 43 47 45 62 M24 14 H40 V7 H24 Z M28 7 Q32 3 36 7 M25 22 H39"/></g>
+    <!-- persepolis -->
+    <g transform="translate(121.6 31.6) rotate(8 30.4 30.4) scale(0.95)"><path d="M12 19 H52 M12 19 C7 19 5 15 7 11 C9 8 13 9 14 12 M9 10 C7 6 9 3 12 4 M14 19 V24 H18 M52 19 C57 19 59 15 57 11 C55 8 51 9 50 12 M55 10 C57 6 55 3 52 4 M50 19 V24 H46 M22 19 V25 H42 V19 M26 25 V56 M38 25 V56 M30 25 V56 M34 25 V56 M22 62 H42 M24 62 C24 58 28 56 32 56 C36 56 40 58 40 62"/></g>
+    <!-- pomegranate -->
+    <g transform="translate(220.0 12.0) rotate(-4 32.0 32.0) scale(1.0)"><path d="M32 22 A17 17 0 1 0 32 56 A17 17 0 1 0 32 22 M26 23 L24 12 L28.5 16.5 L32 9 L35.5 16.5 L40 12 L38 23 M22 36 C22 31 25 27 29 26"/></g>
+    <!-- tea-glass -->
+    <g transform="translate(15.6 119.6) rotate(6 30.4 30.4) scale(0.95)"><path d="M22 17 H42 C40 23 38 25 38 30 C38 35 42 38 41 48 H23 C22 38 26 35 26 30 C26 25 24 23 22 17 Z M24.5 25 H39.5 M12 53 Q32 59 52 53 M15 51 H49 M30 13 C28 9 32 7 30 3 M35 13 C33 9 37 7 35 3"/></g>
+    <!-- boteh -->
+    <g transform="translate(116.0 132.0) rotate(-8 32.0 32.0) scale(1.0)"><path d="M32 58 C16 58 12 42 18 32 C24 22 38 24 40 12 C41 6 47 6 46 12 C44 22 52 30 50 42 C48 52 42 58 32 58 Z M32 52 C23 52 20 43 24 36 C28 30 36 31 39 24 C41 31 45 35 44 42 C43 48 38 52 32 52 Z M33 40 A2 2 0 1 0 33 44 A2 2 0 1 0 33 40"/></g>
+    <!-- cypresses -->
+    <g transform="translate(219.6 115.6) rotate(12 30.4 30.4) scale(0.95)"><path d="M24 4 C30 16 33 30 31 45 C30 52 27 55 24 55 C21 55 18 52 17 45 C15 30 18 16 24 4 Z M24 55 V61 M44 20 C49 29 51 39 49 49 C48 53 46 55 44 55 C42 55 40 53 39 49 C37 39 39 29 44 20 Z M44 55 V61 M10 61 H56 M21 22 L24 19 L27 22 M20 32 L24 28 L28 32 M20 42 L24 38 L28 42 M41.5 36 L44 33.5 L46.5 36 M41 45 L44 42 L47 45"/></g>
+    <!-- dome -->
+    <g transform="translate(24.0 220.0) rotate(-6 32.0 32.0) scale(1.0)"><path d="M14 40 C14 25 24 17 31 12 C38 17 48 25 48 40 Z M31 12 V4 M14 40 H48 V48 H14 Z M18 48 V44 A2.0 2.0 0 0 1 22 44 V48 M24 48 V44 A2.0 2.0 0 0 1 28 44 V48 M30 48 V44 A2.0 2.0 0 0 1 34 44 V48 M36 48 V44 A2.0 2.0 0 0 1 40 44 V48 M42 48 V44 A2.0 2.0 0 0 1 46 44 V48 M12 48 H50 V62 H12 Z M27 62 V54 A4 4 0 0 1 35 54 V62 M55 62 V21 M59 62 V21 M53 25 H61 M55 21 L57 13 L59 21"/></g>
+    <!-- girih -->
+    <g transform="translate(125.6 231.6) rotate(10 30.4 30.4) scale(0.95)"><path d="M56.0 32.0 L32.0 56.0 L8.0 32.0 L32.0 8.0 Z M49.0 49.0 L15.0 49.0 L15.0 15.0 L49.0 15.0 Z M41.2 35.8 L35.8 41.2 L28.2 41.2 L22.8 35.8 L22.8 28.2 L28.2 22.8 L35.8 22.8 L41.2 28.2 Z"/></g>
+    <!-- tulip -->
+    <g transform="translate(224.0 216.0) rotate(-12 32.0 32.0) scale(1.0)"><path d="M32 48 C23 44 20 31 22 20 L27.5 26 L32 15 L36.5 26 L42 20 C44 31 41 44 32 48 Z M32 48 V62 M32 58 C26 54 22 54 17 49 C24 49 28 51 32 55"/></g>
+    </g>
+</svg>

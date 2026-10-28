@@ -57,13 +57,19 @@ are `sand` and `paper` in `dot-field.js`.
 
 ## Language picker
 
-A first visit to the English page (`/`) opens on a language picker: each language greets
-the visitor in turn over the dot field's globe, starting with the browser's own, and a
-glass lens leads to each language's page. The choice, and any later language switch, is
-remembered in that browser, so `/` then goes straight to the chosen page. Campaign links
-(with `utm_` parameters) skip the picker, since their language is already chosen; Escape
-closes it without remembering anything. To see it again, clear the site's data in the
-browser. Its greeting and prompt are under **Language picker** in each language's UI text.
+A first visit to the English page (`/`) opens on a language picker: a tall section for
+each language, greeting in it over a dim pattern of its culture, that leads to its page.
+The choice, and any later language switch, is remembered in that browser, so `/` then
+goes straight to the chosen page. Campaign links (with `utm_` parameters) skip the picker,
+since their language is already chosen; Escape closes it without remembering anything.
+
+To see the picker at any time, open `/?picker` (locally, http://127.0.0.1:4000/?picker).
+A choice made there is not remembered, so the site behaves as before afterwards.
+
+The patterns are `patterns/en.svg`, `patterns/it.svg` and `patterns/fa.svg`: one square
+tile each, drawn in black strokes and repeated as a mask, so the page gives them their
+colour (`styles.css`, `.pick`). The greeting, prompt and "continue" line are under
+**Language picker** in each language's UI text.
 
 ## Editing content
 

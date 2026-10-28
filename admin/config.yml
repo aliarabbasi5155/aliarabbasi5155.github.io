@@ -292,8 +292,9 @@ collections:
             label: Language picker
             widget: object
             i18n: true
-            hint: "The first screen of a first visit to the English page, where every language greets the visitor in turn"
+            hint: "The first screen of a first visit to the English page: a section for each language, over a pattern of its culture"
             fields:
-              - { name: greeting, label: Greeting, widget: string, hint: "One word, shown large, e.g. Hello" }
-              - { name: prompt, label: Prompt, widget: string, hint: "Shown under the greeting, e.g. Choose a language" }
+              - { name: greeting, label: Greeting, widget: string, hint: "One word, shown large in this language's section, e.g. Hello" }
+              - { name: prompt, label: Prompt, widget: string, hint: "Shown across the top with the other languages' prompts, e.g. Choose a language" }
+              - { name: continue, label: Continue, widget: string, hint: "Shown in this language's section while it is hovered, e.g. Continue in English" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }

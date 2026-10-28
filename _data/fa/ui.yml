@@ -64,6 +64,7 @@ opening:
 picker:
   greeting: سلام
   prompt: یک زبان انتخاب کنید
+  continue: ادامه به فارسی
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

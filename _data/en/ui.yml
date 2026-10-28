@@ -64,6 +64,7 @@ opening:
 picker:
   greeting: Hello
   prompt: Choose a language
+  continue: Continue in English
 copyright: © 2025 Ali Abbasi. All rights reserved.
 analytics:
   settings: Privacy settings
