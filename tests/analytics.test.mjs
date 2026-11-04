@@ -36,7 +36,7 @@ function harness({ url = 'https://aliarabbasi5155.github.io/', consent = 'grante
         visibilityState: 'visible', cookie: '', hasFocus: () => hasFocus,
         createElement: () => ({}),
         querySelectorAll: query => query === '.lang-link' ? [languageLink] : [],
-        querySelector: query => query === '.sections' ? content : query === '.section.current' ? sections[sectionName] : null,
+        querySelector: query => query === '.tab-contents' ? content : query === '.tab-content.active' ? sections[sectionName] : null,
         getElementById: id => ({ 'analytics-consent': panel, 'analytics-settings': settings, ...sections })[id],
     });
     const window = Object.assign(new EventTarget(), {

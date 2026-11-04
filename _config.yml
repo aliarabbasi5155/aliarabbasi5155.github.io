@@ -26,9 +26,8 @@ languages:
 
 collections:
   blog:
-    # Each post has a page of its own, under its language's blog/ (_layouts/post.html);
-    # the CV's blog section lists them
-    output: true
+    # Posts are shown inside the one page, not as pages of their own
+    output: false
 
 defaults:
   - scope:
@@ -36,22 +35,16 @@ defaults:
       type: blog
     values:
       lang: en
-      layout: post
-      permalink: /blog/:name/
   - scope:
       path: _blog/it
       type: blog
     values:
       lang: it
-      layout: post
-      permalink: /it/blog/:name/
   - scope:
       path: _blog/fa
       type: blog
     values:
       lang: fa
-      layout: post
-      permalink: /fa/blog/:name/
 
 exclude:
   - README.md

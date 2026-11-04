@@ -1,31 +1,32 @@
 title: علی عباسی | Fullstack AI Engineer
 description: "علی عباسی، Fullstack AI Engineer و Technical Lead: سیستم‌های agentic RAG، fine-tuning، evaluation و LLM در production روی AWS."
 nav:
+  - tab: blog
+    letter: الف
+    label: بلاگ
   - tab: about
+    letter: ب
     label: درباره‌ی من
   - tab: experience
+    letter: پ
     label: سوابق کاری
-  - tab: projects
-    label: پروژه‌ها
-  - tab: skills
-    label: مهارت‌ها
   - tab: education
+    letter: ت
     label: تحصیلات
+  - tab: skills
+    letter: ث
+    label: مهارت‌ها
+  - tab: projects
+    letter: ج
+    label: پروژه‌ها
   - tab: publications
+    letter: چ
     label: مقالات
-  - tab: blog
-    label: بلاگ
-  - tab: contact
-    label: تماس
-show_more: نمایش بیشتر
-show_less: نمایش کمتر
-sections: بخش‌ها
-menu: منو
-interests_title: علایق
-read: خواندن مطلب
-all_posts: همه‌ی نوشته‌ها
-previous: قبلی
-next: بعدی
+  - tab: interests
+    letter: ح
+    label: علایق
+show_more: ادامه‌ی مطلب
+show_less: بستن
 months:
   - ژانویه
   - فوریه
@@ -58,13 +59,12 @@ temperature:
 languages: زبان
 theme: حالت تیره
 opening:
-  enter: ادامه
+  hint: برای ورود، اسکرول کنید یا ضربه بزنید
+  enter: ورود به سایت
 picker:
   greeting: سلام
   prompt: یک زبان انتخاب کنید
   continue: ادامه به فارسی
-contact:
-  text: "آماده‌ی همکاری در نقش‌های AI engineering و technical lead هستم و همیشه از گفت‌وگو درباره‌ی سیستم‌های LLM استقبال می‌کنم. سریع‌ترین راه تماس با من ایمیل است."
 copyright: © ۲۰۲۵ علی عباسی. تمامی حقوق محفوظ است.
 analytics:
   settings: تنظیمات حریم خصوصی

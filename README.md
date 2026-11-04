@@ -31,14 +31,14 @@ old Bundler bundled with macOS does not need to be changed.
 
 ## Phone and tablet tilt
 
-The hero's rings follow device tilt automatically on supported touch devices over
+The opening rings follow device tilt automatically on supported touch devices over
 HTTPS, with no enable/disable control. The presence of a permission API does not block
 already-allowed readings. If a browser requires explicit permission before sending
 readings, clicking the rings requests it through the browser's own prompt; permission
 cannot be bypassed. Denied access leaves the usual floating animation. The first sensor
 reading sets the neutral holding position, with recalibration after screen rotation
-or returning to the hero. Reduced motion disables sensor input, and sensors pause
-while the hero is offscreen or the tab is hidden. Sensor data stays on the device.
+or returning to the opening. Reduced motion disables sensor input, and sensors pause
+while the opening is offscreen or the tab is hidden. Sensor data stays on the device.
 
 For a physical-device check, use an HTTPS preview (a phone opening a plain HTTP LAN
 address cannot use the sensors). Check left/right and forward/back tilt, landscape,
@@ -49,8 +49,8 @@ setting. Desktop mouse interaction remains available. Run the automated checks w
 ## Themes
 
 The site has a dark and a light theme. A visitor's first visit follows their system's
-setting, and keeps following it as it changes; the sun/moon switch in the bar along the
-top picks one instead, remembered in that browser. Picking the theme the system
+setting, and keeps following it as it changes; the sun/moon switch on the opening and in
+the dock picks one instead, remembered in that browser. Picking the theme the system
 already uses forgets the choice, so the page follows the system again. Colours live once
 in `styles.css` (`:root`, each as `light-dark(light, dark)`); the dot field's two palettes
 are `sand` and `paper` in `dot-field.js`.
@@ -71,27 +71,13 @@ tile each, drawn in black strokes and repeated as a mask, so the page gives them
 colour (`styles.css`, `.pick`). The greeting, prompt and "continue" line are under
 **Language picker** in each language's UI text.
 
-## How the page is put together
-
-The CV is one page that scrolls (`_layouts/cv.html`): a bar along the top with a link to
-each section, the hero (name, role, a one-line pitch and the ways to get in touch, beside
-the glass rings), then one glass card per section, in the order of `nav` in each
-language's `ui.yml` (Interests show inside About). Each section has its own link, such as
-`/#projects` or `/it/#projects`, and its link in the bar lights up while it is on screen.
-On narrow screens the links fold into a menu.
-
-Each blog post has a page of its own at `/blog/<slug>/` (`/it/blog/…`, `/fa/blog/…`), laid
-out by `_layouts/post.html`, with the posts before and after it; the language switch on a
-post leads to the same post in the other languages.
-
 ## Editing content
 
-All text lives in data files; the layouts are `_layouts/cv.html` and `_layouts/post.html`.
+All text lives in data files; the page layout is `_layouts/cv.html`.
 
 - CV sections: `_data/<lang>/*.yml` for `en`, `it` and `fa` (one file per section, same structure in every language)
-- The hero's pitch: `pitch` in `_data/<lang>/profile.yml`
 - Blog posts: `_blog/<lang>/<slug>.md` (same slug in every language)
-- Section names and order, buttons and other site text: `_data/<lang>/ui.yml`
+- Menu names, buttons and other site text: `_data/<lang>/ui.yml`
 - The languages themselves, their names and their order in the language switches: `languages` in `_config.yml`
 
 The Italian résumé link points to the English PDF until an Italian one is added; change
@@ -152,8 +138,8 @@ it is not a persistent recipient identity or proof of who opened a link.
 | `section_engaged` | One milestone per section per page load: `milestone_seconds` = 10, 30, 60, 120 |
 | `section_depth` | Highest visible content depth: `percent_scrolled` = 25, 50, 75, 100 |
 | `project_click`, `publication_click` | Link to a public item; `item_id`, `link_kind` |
-| `contact_click` | Email/GitHub/LinkedIn/Scholar button in the hero or the contact section; `link_kind` (not a message being sent) |
-| `article_open` | A blog post opened from the blog section; `item_id` |
+| `contact_click` | Email/GitHub/LinkedIn link click; `link_kind` (not a message being sent) |
+| `article_expand` | Blog post expanded; `item_id` |
 | `language_switch` | Language navigation; `target_language` |
 | `outbound_click`, `cv_download` | Other external links / document links if present |
 

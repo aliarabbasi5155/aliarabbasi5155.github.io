@@ -1,26 +1,25 @@
-// The CV, one page that scrolls, and the blog posts' pages. A dot field fills the
-// background: each section of the CV gives it its own shape as it comes on screen, and the
+// Dot field background: every tab morphs the dots into its own shape, and the
 // same field renders the liquid-glass panes at every screen size.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
 import { DeviceTilt } from './device-tilt.js?v=2';
 
-// Each section's shape: [x, y, scale], x and y in half-view units (1 reaches the screen
-// edge). `tall` is used on portrait screens.
-const SCENES = {
+// [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
+// `tall` is used on portrait screens, where everything stacks in one column.
+const TAB_SCENES = {
+    blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
     about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
     experience: { shape: 'beam', wide: [0, 0, 1] },
-    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
-    skills: { shape: 'streams', wide: [0, 0, 1] },
     education: { shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
+    skills: { shape: 'streams', wide: [0, 0, 1] },
+    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
     publications: { shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
-    blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
-    contact: { shape: 'ripples', wide: [0.46, -0.05, 1] },
+    interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
-const SCENE_ORDER = Object.keys(SCENES);
-// The language picker's globe (initPicker), after the sections' scenes
-const PICKER_SCENE = SCENE_ORDER.length;
+const TAB_ORDER = Object.keys(TAB_SCENES);
+// The language picker's globe (initPicker), after the tabs' scenes
+const PICKER_SCENE = TAB_ORDER.length;
 
 // The page's strings come from _data/<lang>/ui.yml, embedded by the layout
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
@@ -35,7 +34,11 @@ const GLYPHS = {
 
 // How far each kind of pane tilts toward the pointer, in degrees
 const TILT = [
-    ['.energy', 5],
+    ['.profile-panel, .updates-panel', 2.5],
+    ['.section-header-card', 3],
+    ['.section-content-card', 1.2],
+    ['.nav-button', 4],
+    ['.lang-switch, .theme-toggle.glass, .energy', 5],
     ['.pick', 1.5],
 ];
 const TILT_PERSPECTIVE = 1200;
@@ -60,13 +63,13 @@ function initBackground() {
     const canvas = document.getElementById('canvas');
     if (!canvas) return;
 
-    const first = document.querySelector('.section')?.id;
+    const activeTab = document.querySelector('.nav-button.active')?.dataset.tab;
     const small = window.matchMedia('(max-width: 768px)').matches;
     const picking = document.documentElement.classList.contains('picking');
     try {
         field = new DotField(canvas, {
-            scenes: [...SCENE_ORDER.map(id => SCENES[id]), { shape: 'globe', wide: [0, 0, 1.25], tall: [0, 0, 1.1] }],
-            initial: picking ? PICKER_SCENE : Math.max(0, SCENE_ORDER.indexOf(first)),
+            scenes: [...TAB_ORDER.map(tab => TAB_SCENES[tab]), { shape: 'globe', wide: [0, 0, 1.25], tall: [0, 0, 1.1] }],
+            initial: picking ? PICKER_SCENE : Math.max(0, TAB_ORDER.indexOf(activeTab)),
             palette: fieldPalette(document.documentElement.dataset.theme),
             // Right-to-left pages mirror the shapes along with the layout
             mirror: document.documentElement.dir === 'rtl',
@@ -164,7 +167,7 @@ function initTheme() {
     });
 }
 
-// The footer's slider is the field's sampling temperature, like an LLM's:
+// The dock's slider is the field's sampling temperature, like an LLM's:
 // at 0 every grain sits on its shape, toward 2 they wander off it
 function initTemperature() {
     const input = document.querySelector('.energy input');
@@ -254,7 +257,6 @@ function initTilt() {
         }
     };
 
-    if (!panes.length) return;
     // In step with the field, so the glass and the content tilt on the same frame
     if (field) {
         field.onFrame(step);
@@ -316,15 +318,14 @@ function initLanguageMemory() {
 // The language picker (styles.css), on a first visit to the English page: a glass pane for
 // each language over the field's globe. Each greeting scrambles in, and again as its pane
 // is hovered. Choosing a pane widens it over the others; English then lets the panes fall
-// away onto the hero as the globe dissolves, and the others go to their page. Escape
+// away onto the opening as the globe dissolves, and the others go to their page. Escape
 // stays on English without remembering a choice, and the arrow keys move between panes.
-// The page underneath waits with its bar put away and its hero's entrance held.
 function initPicker() {
     const root = document.documentElement;
     const dialog = document.querySelector('.language-picker');
     if (!dialog || !root.classList.contains('picking')) return;
     const picks = [...dialog.querySelectorAll('.pick')];
-    const behind = document.querySelectorAll('.topbar, .sections, .site-footer');
+    const behind = document.querySelectorAll('.opening, .container, .dock');
     for (const element of behind) element.inert = true;
     picker = { level: 1, leaving: false };
     dialog.focus({ preventScroll: true });
@@ -348,14 +349,14 @@ function initPicker() {
     const reveal = () => {
         picker.leaving = true;
         dialog.classList.add('leaving');
-        // Back to the first section's scene, unseen under the hero
-        field?.morphTo(Math.max(0, SCENE_ORDER.indexOf(document.querySelector('.section')?.id)));
+        // Back to the tab's own scene, unseen under the opening
+        field?.morphTo(Math.max(0, TAB_ORDER.indexOf(document.querySelector('.nav-button.active')?.dataset.tab)));
         setTimeout(() => {
             picker = null;
             dialog.remove();
             root.classList.remove('picking');
             for (const element of behind) element.inert = false;
-            const name = document.querySelector('.hero-name');
+            const name = document.querySelector('.opening-name');
             if (name) scramble(name, name.textContent.trim(), 900);
         }, wait(900));
     };
@@ -385,18 +386,20 @@ function initPicker() {
     });
 }
 
-// The hero, the page's first screen (styles.css): the rings float while it is in view and
-// the name scrambles in like a section title. The field's dots gather only as the page
-// scrolls on, and leave again on the way back; while the hero fills the screen the field
-// has nothing to show, so after drawing that frame it rests until the page moves.
-function initHero() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
+// The opening scene, the page's first screen (styles.css): the rings float while it is in
+// view and the name scrambles in like a section title. The field's dots gather only as
+// the page comes up from below, and leave again on the way back. A click on the scene or
+// on the arrow on the front ring goes down to the page (a mouse press on the other rings
+// is theirs to play with); on wide screens, where the page fills one screen, a scroll or
+// key turns between the two in one move instead of stopping halfway.
+function initOpening() {
+    const scene = document.querySelector('.opening');
+    if (!scene) return;
 
-    const rings = new GlassRings(hero.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
-    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), hero.querySelector('.opening-rings'));
-    // Only while some of the hero shows. Below it, its bottom edge still touches the top of
-    // the screen, which an observer counts as intersecting, so it asks for a sliver.
+    const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
+    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-rings'));
+    // Only while some of the scene shows. At the page its bottom edge still touches the top
+    // of the screen, which an observer counts as intersecting, so it asks for a sliver.
     new IntersectionObserver(([entry]) => {
         if (entry.intersectionRatio > 0.01) {
             rings.start();
@@ -405,19 +408,21 @@ function initHero() {
             rings.stop();
             tilt.stop();
         }
-    }, { threshold: [0, 0.02] }).observe(hero);
-    const name = hero.querySelector('.hero-name');
+    }, { threshold: [0, 0.02] }).observe(scene);
+    const name = scene.querySelector('.opening-name');
     scramble(name, name.textContent.trim(), 900);
 
+    // How far the scene has scrolled away; the dots come in over the last three quarters,
+    // at no more than their own entrance's pace. While the scene fills the screen the
+    // field has nothing to show, so after drawing that frame it rests until the page moves.
     const covering = () => {
-        const { top, bottom } = hero.getBoundingClientRect();
+        const { top, bottom } = scene.getBoundingClientRect();
         return top > -1 && bottom >= innerHeight - 1;
     };
     field?.onFrame(() => {
         // The language picker has the field to itself until it has gone
         if (picker) return;
-        // The dots come in over the last three quarters of the hero's way out
-        const { bottom, height } = hero.getBoundingClientRect();
+        const { bottom, height } = scene.getBoundingClientRect();
         const away = 1 - Math.min(1, Math.max(0, bottom / height));
         field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
         if (covering()) field.stop();
@@ -427,108 +432,341 @@ function initHero() {
     };
     window.addEventListener('scroll', wake, { passive: true });
     window.addEventListener('resize', wake);
-}
 
-// The section on screen: the one across a line a third of the way down (the last once the
-// page can scroll no further). Its link in the bar lights up, the field takes its shape and
-// analytics hears of it (analytics.js); each title scrambles in the first time it shows.
-function initSections() {
-    const sections = [...document.querySelectorAll('.section')];
-    if (!sections.length) return;
-    const links = new Map([...document.querySelectorAll('.topnav a[data-section]')].map(link => [link.dataset.section, link]));
-    let current = null;
-    const show = section => {
-        if (section === current) return;
-        if (current) {
-            current.classList.remove('current');
-            links.get(current.id)?.removeAttribute('aria-current');
+    const page = document.querySelector('.container');
+    const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);
+    let turned = -Infinity;
+    const turn = top => {
+        turned = performance.now();
+        window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+    };
+    scene.addEventListener('click', event => {
+        // The theme and language controls do their own thing instead
+        if (!event.target.closest('.opening-controls')) turn(pageTop());
+    });
+
+    // Whether the pointer or focus is over something that can still scroll up itself
+    const scrollsUp = element => {
+        for (let el = element; el && el !== document.body; el = el.parentElement) {
+            if (el.scrollTop > 0) return true;
         }
-        current = section;
-        if (!section) return;
-        section.classList.add('current');
-        links.get(section.id)?.setAttribute('aria-current', 'true');
-        if (!picker) field?.morphTo(Math.max(0, SCENE_ORDER.indexOf(section.id)));
-        document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: section.id } }));
+        return false;
     };
-    const find = () => {
-        if (scrollY > 0 && innerHeight + scrollY >= document.documentElement.scrollHeight - 2) return sections.at(-1);
-        const line = innerHeight * 0.35;
-        return sections.find(section => {
-            const { top, bottom } = section.getBoundingClientRect();
-            return top <= line && bottom > line;
-        }) ?? null;
-    };
-    let queued = false;
-    const update = () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => {
-            queued = false;
-            show(find());
-        });
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
-
-    const titles = new IntersectionObserver(entries => {
-        for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            titles.unobserve(entry.target);
-            scramble(entry.target, entry.target.textContent.trim(), 700);
+    const wide = window.matchMedia('(min-width: 1101px)');
+    window.addEventListener('wheel', event => {
+        if (picker || !wide.matches || event.ctrlKey) return;
+        const top = pageTop();
+        // A turn under way, and the swipe's momentum after it, move nothing else
+        if (performance.now() - turned < 900) {
+            event.preventDefault();
+        } else if (scrollY < top - 2) {
+            event.preventDefault();
+            if (event.deltaY > 0) turn(top);
+        } else if (event.deltaY < 0 && !scrollsUp(event.target)) {
+            event.preventDefault();
+            turn(0);
         }
-    }, { threshold: 0.6 });
-    for (const section of sections) titles.observe(section.querySelector('.section-title span'));
-}
-
-// On narrow screens the bar's links fold into a menu: the button opens it, and a link, a
-// click anywhere else or Escape closes it
-function initMenu() {
-    const bar = document.querySelector('.topbar');
-    const button = bar?.querySelector('.menu-toggle');
-    if (!button) return;
-    const set = open => {
-        bar.classList.toggle('open', open);
-        button.setAttribute('aria-expanded', open);
-    };
-    button.addEventListener('click', () => set(!bar.classList.contains('open')));
-    bar.querySelector('.topnav').addEventListener('click', event => {
-        if (event.target.closest('a')) set(false);
-    });
-    document.addEventListener('click', event => {
-        if (!bar.contains(event.target)) set(false);
-    });
-    document.addEventListener('keydown', event => {
-        if (event.key !== 'Escape' || !bar.classList.contains('open')) return;
-        set(false);
-        button.focus();
+    }, { passive: false });
+    window.addEventListener('keydown', event => {
+        if (picker || !wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
+        const top = pageTop();
+        if (scrollY < top - 2 && ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) {
+            event.preventDefault();
+            turn(top);
+        } else if (scrollY >= top - 2 && ['ArrowUp', 'PageUp', 'Home'].includes(event.key)) {
+            event.preventDefault();
+            turn(0);
+        }
     });
 }
 
-// Long lists show their first few (data-fold) and the rest on request
-function initFolds() {
-    for (const list of document.querySelectorAll('[data-fold]')) {
-        const rest = [...list.children].slice(Number(list.dataset.fold));
-        if (!rest.length) continue;
-        for (const item of rest) item.classList.add('folded');
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'fold-toggle';
-        toggle.textContent = UI.show_more;
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.addEventListener('click', () => {
-            const open = toggle.getAttribute('aria-expanded') !== 'true';
-            for (const item of rest) item.classList.toggle('folded', !open);
-            toggle.setAttribute('aria-expanded', open);
-            toggle.textContent = open ? UI.show_less : UI.show_more;
+// Tab functionality with smooth fade transitions
+function openTab(tabName) {
+    field?.morphTo(TAB_ORDER.indexOf(tabName));
+    // The header shows the same letter and name as the menu entry
+    const tabButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
+    if (tabButton) {
+        document.getElementById('section-badge').textContent = tabButton.querySelector('.nav-letter').textContent;
+    }
+
+    // Get all tab contents and find the currently active one
+    const tabContents = document.getElementsByClassName("tab-content");
+    const activeContent = document.querySelector('.tab-content.active');
+    const sectionTitle = document.getElementById('section-title');
+    
+    // Remove active class from all navigation buttons IMMEDIATELY for smooth animation
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach(button => {
+        button.classList.remove("active");
+    });
+    
+    // Mark the corresponding navigation button as active IMMEDIATELY
+    const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add("active");
+    }
+    
+    // Add fade-out class to current active content and title
+    if (activeContent) {
+        activeContent.classList.add('fade-out');
+    }
+    if (sectionTitle) {
+        sectionTitle.classList.add('fade-out');
+    }
+    
+    // Wait for fade-out animation to complete
+    setTimeout(() => {
+        // Remove active class and fade-out class from all tabs
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active", "fade-out");
+        }
+        
+        // Show the selected tab content
+        const newContent = document.getElementById(tabName);
+        if (newContent) {
+            newContent.classList.add("active");
+            document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: tabName } }));
+        }
+        
+        if (sectionTitle && tabButton) {
+            // Remove fade-out and scramble in the new title
+            sectionTitle.classList.remove('fade-out');
+            scramble(sectionTitle, tabButton.querySelector('.nav-label').textContent.trim());
+        }
+    }, 300); // Match this with fade-out animation duration
+}
+
+// Initialize navigation
+function initNavigation() {
+    const navButtons = document.querySelectorAll('.nav-button');
+    console.log(`Found ${navButtons.length} navigation buttons`);
+    
+    navButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.getAttribute('data-tab');
+            console.log(`Switching to tab: ${tabName}`);
+            field?.ripple(e.clientX, e.clientY, 1.2);
+
+            // Use requestAnimationFrame for smoother transitions
+            requestAnimationFrame(() => {
+                openTab(tabName);
+            });
         });
-        // A list item can't hold a button, so the updates' goes after them; the posts' joins
-        // their grid, along its whole width
-        if (list.tagName === 'UL') list.after(toggle);
-        else list.append(toggle);
+    });
+}
+
+// Mobile menu toggle functionality
+const menuToggle = document.getElementById('menuToggle');
+const navLinksContainer = document.getElementById('navLinks');
+
+if (menuToggle) {
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navLinksContainer.classList.toggle('active');
+    });
+}
+
+// Handle nav link clicks
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = link.getAttribute('data-tab');
+        if (tabName) {
+            openTab(tabName);
+            // Close mobile menu
+            navLinksContainer.classList.remove('active');
+        }
+    });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (menuToggle && navLinksContainer && 
+        !menuToggle.contains(e.target) && 
+        !navLinksContainer.contains(e.target)) {
+        navLinksContainer.classList.remove('active');
+    }
+});
+
+// Smooth scrolling and animations
+function initAnimations() {
+    // Add smooth scroll behavior to external links
+    const externalLinks = document.querySelectorAll('a[target="_blank"]');
+    externalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Add a small delay to show the click feedback
+            setTimeout(() => {
+                // The browser will handle opening the external link
+            }, 100);
+        });
+    });
+    
+    // Add animation classes for better UX
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    // Observe all job, degree, project, publication, and interest cards
+    const cards = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+// Removed loading animation to prevent blinking
+
+// Add search functionality (optional)
+function initSearch() {
+    const searchInput = document.getElementById('search');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const searchableElements = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
+        
+        searchableElements.forEach(element => {
+            const text = element.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                element.style.display = 'block';
+                element.style.opacity = '1';
+            } else {
+                element.style.display = 'none';
+                element.style.opacity = '0.5';
+            }
+        });
+    });
+}
+
+// Theme toggler (optional feature)
+function initThemeToggler() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
     }
 }
 
+// Print functionality
+function printResume() {
+    window.print();
+}
+
+// Social media sharing (optional)
+function shareResume(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent('Ali Abbasi - Machine Learning Engineer');
+    
+    let shareUrl;
+    switch(platform) {
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            break;
+        default:
+            return;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+
+// Add tooltips for skill tags
+function initSkillTags() {
+    const skillTags = document.querySelectorAll('.skill-tag, .tech-tag');
+    
+    skillTags.forEach(tag => {
+        tag.addEventListener('mouseenter', function() {
+            // You can add custom tooltips here if needed
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        tag.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+        
+        // Add transition for smooth hover effect
+        tag.style.transition = 'transform 0.2s ease';
+    });
+}
+
+// Copy email to clipboard
+function copyEmail() {
+    const email = 'abbasialiar@gmail.com';
+    navigator.clipboard.writeText(email).then(function() {
+        // Show a temporary notification
+        const notification = document.createElement('div');
+        notification.textContent = 'Email copied to clipboard!';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    });
+}
+
+// Add slideIn animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+`;
+document.head.appendChild(style);
+
+// Blog post toggle functionality
+function toggleBlogPost(button) {
+    const blogPost = button.closest('.blog-post');
+    const fullContent = blogPost.querySelector('.blog-full-content');
+    const isExpanded = fullContent.style.display !== 'none';
+    
+    if (isExpanded) {
+        // Collapse
+        fullContent.style.display = 'none';
+        button.textContent = UI.show_more;
+    } else {
+        // Expand
+        fullContent.style.display = 'block';
+        button.textContent = UI.show_less;
+    }
+}
+
+// Make toggleBlogPost available globally
+window.toggleBlogPost = toggleBlogPost;
+
+// Main initialization
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAll);
 } else {
@@ -538,13 +776,13 @@ if (document.readyState === 'loading') {
 function initAll() {
     initBackground();
     initTheme();
-    initHero();
+    initOpening();
     initPicker();
-    initSections();
     initLanguageMemory();
     initTemperature();
     initTilt();
     initExternalLinks();
-    initMenu();
-    initFolds();
+    initNavigation();
+    initAnimations();
+    initSkillTags();
 }
