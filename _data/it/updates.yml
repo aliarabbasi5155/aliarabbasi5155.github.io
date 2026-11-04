@@ -1,5 +1,8 @@
 title: Ultime novità
 items:
+  - date: 3 novembre 2026
+    label: "🎨 Nuovo progetto open source:"
+    text: "Ho pubblicato [Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio), uno studio di immagini AI privato basato su FLUX.2 Klein, SAM 3 e ComfyUI, che gira sul tuo Mac o PC NVIDIA e funziona anche dal telefono."
   - date: 10 novembre 2025
     label: "🚀 Nuovo incarico:"
     text: Ho iniziato come AI Engineer e Team Lead (part-time, da remoto) in Primentoring.AI, una fantastica startup di Londra, nel Regno Unito.
