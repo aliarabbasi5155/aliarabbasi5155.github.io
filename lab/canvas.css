@@ -1,0 +1,272 @@
+/* Concept 2, the spatial canvas (lab only): a world of glass panes that the view pans and
+   zooms over (canvas.js places them and moves the camera). */
+
+html:has(.canvas-page),
+.canvas-page {
+    height: 100%;
+    overflow: hidden;
+}
+
+.viewport {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+}
+
+.viewport.dragging {
+    cursor: grabbing;
+}
+
+.world {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+}
+
+.world.flying {
+    transition: transform 0.95s cubic-bezier(0.65, 0, 0.25, 1);
+}
+
+.links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.links line {
+    stroke: var(--dash);
+    stroke-width: 1.5px;
+    stroke-dasharray: 6 9;
+    vector-effect: non-scaling-stroke;
+}
+
+.pane {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: 26px 30px;
+    cursor: auto;
+}
+
+.pane > * {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.5s var(--ease);
+}
+
+/* The panes around the one in view step back */
+.focus-mode .pane:not(.focused) > * {
+    opacity: 0.4;
+}
+
+.map-mode .pane,
+.focus-mode .pane:not(.focused) {
+    cursor: pointer;
+}
+
+.pane-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    color: var(--mint);
+}
+
+.pane-head .section-title {
+    padding: 10px 20px 10px 16px;
+    font-size: 30px;
+}
+
+.pane-body {
+    flex: 1;
+    min-height: 0;
+    padding-inline-end: 10px;
+    overflow: hidden;
+    touch-action: pan-y;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--mint) 45%, transparent) transparent;
+}
+
+.focused .pane-body {
+    overflow-y: auto;
+}
+
+/* Ali's own pane */
+.pane-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    padding: 40px 44px;
+}
+
+.home-text {
+    display: grid;
+    justify-items: start;
+    gap: 18px;
+}
+
+.home-role {
+    font: 700 13px/1.4 var(--mono);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.home-name {
+    width: min-content;
+    font: 400 96px/0.9 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.home-pitch {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--soft);
+}
+
+.home-rings {
+    --gr-paint: var(--coral);
+    --gr-hairline: light-dark(rgb(0 0 0 / 0.16), rgb(255 255 255 / 0.12));
+    --gr-bloom: light-dark(color-mix(in srgb, var(--coral) 9%, transparent), color-mix(in srgb, var(--coral) 16%, transparent));
+    justify-self: center;
+    width: 100%;
+    max-width: 330px;
+}
+
+/* The rail: Ali, a letter for each pane, the whole map */
+.rail {
+    position: fixed;
+    top: 50%;
+    left: 16px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: inset 0 0 0 1px var(--line);
+    translate: 0 -50%;
+}
+
+.rail button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    font: 700 12px/1 var(--mono);
+    color: var(--soft);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.rail button:hover {
+    color: var(--mint);
+}
+
+.rail button[aria-current] {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.rail-home span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.rail-overview span {
+    width: 14px;
+    height: 14px;
+    background:
+        linear-gradient(currentColor, currentColor) 0 0 / 6px 6px no-repeat,
+        linear-gradient(currentColor, currentColor) 100% 0 / 6px 6px no-repeat,
+        linear-gradient(currentColor, currentColor) 0 100% / 6px 6px no-repeat,
+        linear-gradient(currentColor, currentColor) 100% 100% / 6px 6px no-repeat;
+}
+
+.canvas-top {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.canvas-where {
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* Phones: the panes in a row the width of the screen, the rail along the bottom */
+@media (max-width: 760px) {
+    .pane {
+        padding: 20px 18px;
+    }
+
+    .pane-home {
+        grid-template-columns: minmax(0, 1fr);
+        align-content: start;
+        overflow-y: auto;
+        padding: 26px 22px;
+    }
+
+    .home-name {
+        font-size: clamp(52px, 16vw, 80px);
+    }
+
+    .home-rings {
+        max-width: 220px;
+    }
+
+    .pane-head .section-title {
+        font-size: 24px;
+    }
+
+    .rail {
+        top: auto;
+        bottom: 12px;
+        left: 50%;
+        flex-direction: row;
+        gap: 0;
+        padding: 6px;
+        translate: -50% 0;
+    }
+
+    .rail button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .canvas-where {
+        display: none;
+    }
+
+    .canvas-page .concept-chip {
+        top: 16px;
+        bottom: auto;
+    }
+}

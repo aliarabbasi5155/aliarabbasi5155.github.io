@@ -1,0 +1,305 @@
+/* Concept 4, the chapters (lab only): full-screen scenes the page snaps between; a glass
+   panel on one side, the field's shape on the other. */
+
+html:has(.chapters-page) {
+    scroll-snap-type: y mandatory;
+}
+
+.scenes {
+    position: relative;
+    z-index: 1;
+}
+
+.scene {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    height: 100svh;
+    padding: 70px clamp(24px, 6vw, 110px) 50px;
+    scroll-snap-align: start;
+}
+
+.scene[data-side="right"] {
+    justify-content: flex-end;
+}
+
+.scene-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: min(640px, 48vw);
+    max-height: 100%;
+    padding: 30px 34px;
+    opacity: 1;
+    transition: translate 0.9s var(--ease);
+}
+
+.scene-panel > * {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.6s var(--ease) 0.15s;
+}
+
+/* A scene's panel slides in from its side as the scene arrives */
+.scene:not(.in) .scene-panel {
+    translate: -40px 0;
+}
+
+.scene[data-side="right"]:not(.in) .scene-panel {
+    translate: 40px 0;
+}
+
+.scene:not(.in) .scene-panel > * {
+    opacity: 0;
+}
+
+.scene-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.scene-panel .section-title {
+    align-self: flex-start;
+    margin: 0;
+    font-size: clamp(28px, 3vw, 44px);
+}
+
+.scene-subtitle {
+    font: 400 28px/1.1 var(--display);
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.scene-panel .scene-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-inline-end: 10px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--mint) 45%, transparent) transparent;
+}
+
+.earlier-list {
+    display: grid;
+    gap: 14px;
+}
+
+.earlier-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 14px 0;
+    border-top: 1px dashed var(--dash);
+}
+
+.earlier-role {
+    font: 400 22px/1.15 var(--display);
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.earlier-company {
+    grid-column: 1;
+    color: var(--mint);
+    font-weight: 600;
+}
+
+.earlier-row .duration {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    align-self: center;
+    margin: 0;
+}
+
+.scene-contact {
+    display: grid;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--dash);
+    color: var(--soft);
+}
+
+/* The first scene: the name and the rings */
+.scene-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 40px;
+}
+
+.hero-copy {
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+}
+
+.hero-role {
+    font: 700 14px/1.4 var(--mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--soft);
+}
+
+.hero-name {
+    width: min-content;
+    font: 400 clamp(60px, 8.5vw, 132px)/0.9 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.hero-pitch {
+    max-width: 32em;
+    font-size: clamp(16px, 1.35vw, 20px);
+    line-height: 1.55;
+    color: var(--soft);
+}
+
+.hero-rings {
+    --gr-paint: var(--coral);
+    --gr-hairline: light-dark(rgb(0 0 0 / 0.16), rgb(255 255 255 / 0.12));
+    --gr-bloom: light-dark(color-mix(in srgb, var(--coral) 9%, transparent), color-mix(in srgb, var(--coral) 16%, transparent));
+    justify-self: center;
+    width: min(60vh, 38vw);
+}
+
+.scene-next {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--dash);
+    color: var(--mint);
+    text-decoration: none;
+    translate: -50% 0;
+    animation: chapter-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes chapter-bob {
+    50% {
+        translate: -50% 6px;
+    }
+}
+
+/* The rail: a letter for each chapter, the one in view in mint, and the scene's number */
+.rail {
+    position: fixed;
+    top: 50%;
+    right: 18px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    translate: 0 -50%;
+}
+
+.rail a {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font: 700 11px/1 var(--mono);
+    color: var(--muted);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.rail a:hover {
+    color: var(--mint);
+}
+
+.rail a[aria-current] {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.rail-count {
+    margin-top: 10px;
+    font: 400 10px/1 var(--mono);
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.chapters-top {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 20;
+}
+
+/* Phones: the scenes grow with their content and the shape sits behind the panel */
+@media (max-width: 760px) {
+    html:has(.chapters-page) {
+        scroll-snap-type: y proximity;
+    }
+
+    .scene,
+    .scene[data-side="right"] {
+        justify-content: center;
+        height: auto;
+        min-height: 100svh;
+        padding: 70px 14px 40px;
+    }
+
+    .scene-panel {
+        width: 100%;
+        padding: 22px 20px;
+    }
+
+    .scene-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-rings {
+        width: min(70vw, 300px);
+    }
+
+    .rail {
+        top: auto;
+        right: auto;
+        bottom: 12px;
+        left: 50%;
+        flex-direction: row;
+        padding: 6px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--bg) 72%, transparent);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        box-shadow: inset 0 0 0 1px var(--line);
+        translate: -50% 0;
+    }
+
+    .rail-count {
+        display: none;
+    }
+
+    .scene-next {
+        display: none;
+    }
+
+    .chapters-page .concept-chip {
+        top: 16px;
+        bottom: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scene-panel,
+    .scene-panel > *,
+    .scene-next {
+        transition: none;
+        animation: none;
+    }
+}

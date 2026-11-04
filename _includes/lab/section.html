@@ -1,0 +1,150 @@
+{%- comment -%}
+  Lab only (the concept prototypes in lab/): one section of the CV, by include.id, from the
+  English data, in the site's own markup so styles.css dresses it. include.limit caps a
+  list (jobs, projects, posts) for a preview.
+{%- endcomment -%}
+{%- assign data = site.data.en -%}
+{%- assign ui = data.ui -%}
+{%- case include.id -%}
+{%- when "about" %}
+<section class="summary">
+    {%- for paragraph in data.about.paragraphs %}
+    <p>{% include inline.html text=paragraph %}</p>
+    {%- endfor %}
+</section>
+{%- when "experience" %}
+<section class="experience">
+    {%- for job in data.experience.jobs limit: include.limit %}
+    {% include job.html job=job %}
+    {%- endfor %}
+    {%- unless include.limit %}
+    {%- if data.experience.earlier_jobs.size > 0 %}
+    <h3 class="earlier-title">{{ data.experience.earlier_title | escape }}</h3>
+    {%- for job in data.experience.earlier_jobs %}
+    {% include job.html job=job %}
+    {%- endfor %}
+    {%- endif %}
+    {%- endunless %}
+</section>
+{%- when "education" %}
+<section class="education">
+    {%- for degree in data.education.degrees %}
+    <div class="degree">
+        <div class="degree-header">
+            <h4>{{ degree.title | escape }}</h4>
+            <div class="institution-location">
+                <span class="institution"><a href="{{ degree.institution_url }}">{{ degree.institution | escape }}</a></span>
+                <span class="location">{{ degree.location | escape }}</span>
+            </div>
+            <span class="duration">{{ degree.period | escape }}</span>
+        </div>
+        {%- if degree.details.size > 0 %}
+        <ul class="degree-details">
+            {%- for detail in degree.details %}
+            <li>{% include inline.html text=detail %}</li>
+            {%- endfor %}
+        </ul>
+        {%- endif %}
+    </div>
+    {%- endfor %}
+</section>
+{%- when "skills" %}
+<section class="skills">
+    <div class="skills-grid">
+        {%- for group in data.skills.groups %}
+        <div class="skill-category">
+            <h4>{{ group.title | escape }}</h4>
+            <div class="skill-tags">
+                {%- for tag in group.tags %}
+                <span class="skill-tag">{{ tag | escape }}</span>
+                {%- endfor %}
+            </div>
+        </div>
+        {%- endfor %}
+    </div>
+</section>
+{%- when "projects" %}
+<section class="projects">
+    {%- for project in data.projects.items limit: include.limit %}
+    <div class="project">
+        <div class="project-header">
+            <h4>{{ project.title | escape }}</h4>
+            {%- if project.links.size > 0 %}
+            <div class="project-links">
+                {%- for link in project.links %}
+                <a href="{{ link.url }}" class="project-link"><i class="{{ link.icon }}"></i> {{ link.label | escape }}</a>
+                {%- endfor %}
+            </div>
+            {%- endif %}
+            <div class="project-org">{{ project.org | escape }}</div>
+            <span class="duration">{{ project.period | escape }}</span>
+        </div>
+        <ul class="project-description">
+            {%- for bullet in project.bullets %}
+            <li>{% include inline.html text=bullet %}</li>
+            {%- endfor %}
+        </ul>
+        <div class="project-tech">
+            {%- for tech in project.tech %}
+            <span class="tech-tag">{{ tech | escape }}</span>
+            {%- endfor %}
+        </div>
+    </div>
+    {%- endfor %}
+</section>
+{%- when "publications" %}
+<section class="publications">
+    {%- for publication in data.publications.items %}
+    <div class="publication">
+        <div class="publication-header">
+            <h4>{{ publication.title | escape }}</h4>
+            <div class="publication-authors">{% include inline.html text=publication.authors %}</div>
+            <div class="publication-venue">
+                <span class="journal">{{ publication.journal | escape }}</span>
+                <span class="details">{{ publication.details | escape }}</span>
+            </div>
+            <div class="publication-links">
+                <a href="{{ publication.url }}" class="publication-link"><i class="fas fa-external-link-alt"></i> {{ publication.link_label | escape }}</a>
+            </div>
+        </div>
+        <div class="publication-abstract">
+            <p>{% include inline.html text=publication.abstract %}</p>
+        </div>
+    </div>
+    {%- endfor %}
+</section>
+{%- when "blog" %}
+{%- assign posts = site.blog | where: "lang", "en" | sort: "date" | reverse %}
+<section class="blog">
+    {%- for post in posts limit: include.limit %}
+    <article class="blog-post">
+        <div class="blog-header">
+            <h4>{{ post.title | escape }}</h4>
+            <div class="blog-meta">
+                <time class="blog-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{% include date.html date=post.date ui=ui %}</time>
+                <span class="blog-category">{{ post.topic | escape }}</span>
+            </div>
+        </div>
+        <div class="blog-content">
+            <p class="blog-excerpt">{% include inline.html text=post.summary %}</p>
+            <div class="blog-full-content" hidden>
+                {{ post.content }}
+            </div>
+            <button class="blog-toggle-btn" type="button">{{ ui.show_more | escape }}</button>
+        </div>
+    </article>
+    {%- endfor %}
+</section>
+{%- when "interests" %}
+<section class="interests">
+    <div class="interests-grid">
+        {%- for interest in data.interests.items %}
+        <div class="interest-card">
+            <div class="interest-icon"><i class="{{ interest.icon }}"></i></div>
+            <h4>{{ interest.title | escape }}</h4>
+            <p>{% include inline.html text=interest.text %}</p>
+        </div>
+        {%- endfor %}
+    </div>
+</section>
+{%- endcase %}
