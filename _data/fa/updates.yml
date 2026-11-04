@@ -1,5 +1,8 @@
 title: تازه‌ها
 items:
+  - date: ۳ نوامبر ۲۰۲۶
+    label: "🎨 پروژه‌ی Open Source جدید:"
+    text: "[Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio) را منتشر کردم؛ یک استودیوی خصوصی تصویر با AI بر پایه‌ی FLUX.2 Klein و SAM 3 و ComfyUI که روی Mac یا PC مجهز به NVIDIA خودتان اجرا می‌شود و از گوشی هم کار می‌کند."
   - date: ۱۰ نوامبر ۲۰۲۵
     label: "🚀 موقعیت شغلی جدید:"
     text: به‌عنوان AI Engineer و Team Lead (پاره‌وقت، دورکاری) به Primentoring.AI پیوستم؛ یک استارتاپ فوق‌العاده در لندن.

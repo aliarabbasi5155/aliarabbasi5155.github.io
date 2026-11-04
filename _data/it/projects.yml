@@ -1,4 +1,24 @@
 items:
+  - title: "Local Image Studio: generazione e modifica di immagini con l'AI, in privato"
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/local-image-studio
+        icon: fab fa-github
+    org: Progetto personale
+    period: ott 2026 - nov 2026
+    bullets:
+      - "Studio self-hosted e open source per creare e modificare immagini sulla propria GPU con FLUX.2 Klein 9B, SAM 3 e ComfyUI: MLX su Apple Silicon, GGUF con CUDA sulle GPU NVIDIA da 6 GB di VRAM. Installazione con un solo comando e deployment con Docker Compose."
+      - "Generazione da testo, modifica tramite istruzioni e modifica di aree con maschere automatiche SAM 3 e protezione dei volti, close-up con dettagli rifiniti, sostituzione della testa o della persona e video da foto con LTX-2.3. I job sopravvivono ai riavvii e ogni immagine conserva una ricetta riproducibile."
+      - "Ho modificato la pipeline MLX perché liberi il text encoder e il transformer tra una fase e l'altra: un'immagine 1024×1024 a 8 bit è passata da 184 s a 76 s con pixel identici. Il motore parte su richiesta e si scarica dopo 10 minuti di inattività."
+      - "PWA installabile sul telefono via HTTPS, con una CA domestica limitata da name constraints, accesso con PIN, condivisione delle foto dalla galleria e libreria offline."
+    tech:
+      - FLUX.2
+      - SAM 3
+      - ComfyUI
+      - MLX
+      - CUDA
+      - Docker
+      - PWA
   - title: Vector DB Manager for Weaviate and Qdrant
     links:
       - label: GitHub

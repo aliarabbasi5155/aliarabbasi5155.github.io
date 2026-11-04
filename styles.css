@@ -884,6 +884,25 @@ a {
     margin-top: 14px;
 }
 
+/* A screenshot inside a post, with a short caption under it */
+.blog-figure {
+    margin: 22px 0 6px;
+}
+
+.blog-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+}
+
+.blog-figure figcaption {
+    margin-top: 10px;
+    font: 400 12px/1.5 var(--mono);
+    color: var(--muted);
+}
+
 /* Byotone-style pill: dashed outline around a solid capsule */
 .blog-toggle-btn {
     display: inline-flex;

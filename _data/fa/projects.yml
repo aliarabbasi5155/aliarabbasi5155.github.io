@@ -1,4 +1,24 @@
 items:
+  - title: "Local Image Studio؛ ساخت و ویرایش خصوصی تصویر با AI"
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/local-image-studio
+        icon: fab fa-github
+    org: پروژه‌ی شخصی
+    period: اکتبر ۲۰۲۶ – نوامبر ۲۰۲۶
+    bullets:
+      - "استودیوی self-hosted و Open Source برای ساخت و ویرایش تصویر روی GPU خود کاربر، بر پایه‌ی FLUX.2 Klein 9B و SAM 3 و ComfyUI: روی Apple Silicon با MLX و روی GPUهای NVIDIA از ۶ گیگابایت VRAM با GGUF و CUDA. نصب با یک دستور و deploy با Docker Compose."
+      - "ساخت تصویر از متن، ویرایش با دستور متنی و ویرایش ناحیه‌ای با maskهای خودکار SAM 3 و محافظت از چهره، بازسازی جزئیات با Close-up، جابه‌جایی سر یا کل آدم و ساخت ویدیو از عکس با LTX-2.3. هر job بعد از restart هم از دست نمی‌رود و هر تصویر recipe قابل‌بازتولید خودش را نگه می‌دارد."
+      - "patch کردن pipeline مبتنی بر MLX برای آزاد کردن text encoder و transformer بین مراحل، که زمان ساخت یک تصویر ۱۰۲۴ × ۱۰۲۴ را با pixelهای کاملاً یکسان از ۱۸۴ به ۷۶ ثانیه رساند. Engine فقط هنگام نیاز روشن می‌شود و بعد از ۱۰ دقیقه بیکاری unload می‌شود."
+      - "اپ PWA قابل نصب روی گوشی با HTTPS از طریق یک home CA با name constraints، ورود با PIN، فرستادن عکس از گالری و کتابخانه‌ی offline."
+    tech:
+      - FLUX.2
+      - SAM 3
+      - ComfyUI
+      - MLX
+      - CUDA
+      - Docker
+      - PWA
   - title: Vector DB Manager for Weaviate and Qdrant
     links:
       - label: GitHub

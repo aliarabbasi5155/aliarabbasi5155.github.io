@@ -1,5 +1,8 @@
 title: Latest Updates
 items:
+  - date: Nov 3 2026
+    label: "🎨 Open-Source Release:"
+    text: "Released [Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio), a private AI image studio built on FLUX.2 Klein, SAM 3 and ComfyUI that runs on your own Mac or NVIDIA PC and works from your phone."
   - date: Nov 10 2025
     label: "🚀 New Position:"
     text: Started as AI Engineer & Team Lead (Part-time, Remote) at Primentoring.AI, a fantastic startup, in London, UK.

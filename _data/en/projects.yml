@@ -1,4 +1,24 @@
 items:
+  - title: "Local Image Studio: Private AI Image Generation and Editing"
+    links:
+      - label: GitHub
+        url: https://github.com/aliarabbasi5155/local-image-studio
+        icon: fab fa-github
+    org: Personal Project
+    period: Oct 2026 - Nov 2026
+    bullets:
+      - "Self-hosted, open-source studio for creating and editing images on your own GPU with FLUX.2 Klein 9B, SAM 3 and ComfyUI: MLX on Apple Silicon, GGUF with CUDA on NVIDIA GPUs from 6 GB of VRAM. One-command installer and Docker Compose deployment."
+      - "Text-to-image, instruction-based and masked editing with SAM 3 automatic masks and face protection, close-up refinement, head and person swaps, and image-to-video with LTX-2.3. Jobs survive restarts, and every image keeps a reproducible recipe."
+      - "Patched the MLX pipeline to free the text encoder and transformer between stages, cutting an 8-bit 1024×1024 image from 184 s to 76 s with identical pixels; the engine starts on demand and unloads after 10 idle minutes."
+      - "Installable phone PWA over HTTPS with a name-constrained home CA, PIN sign-in, photo sharing from the gallery and an offline library."
+    tech:
+      - FLUX.2
+      - SAM 3
+      - ComfyUI
+      - MLX
+      - CUDA
+      - Docker
+      - PWA
   - title: Vector DB Manager for Weaviate and Qdrant
     links:
       - label: GitHub
