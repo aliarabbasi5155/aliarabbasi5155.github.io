@@ -1,11 +1,20 @@
 {%- comment -%}
   The site's languages (site.languages), in order: the page's own (include.lang) marked
-  as current, each other a link to its page.
+  as current, each other a link to its page; on a blog post, to the same post in that
+  language when there is one. include.short shows each as its code (EN), named in full
+  for screen readers and on hover.
 {%- endcomment -%}
 {%- for language in site.languages %}
+{%- assign url = language.url %}
+{%- if page.collection == "blog" %}
+{%- assign version = site.blog | where: "slug", page.slug | where: "lang", language.code | first %}
+{%- if version %}{% assign url = version.url %}{% endif %}
+{%- endif %}
+{%- capture label %}{% if include.short %}{{ language.code | upcase }}{% else %}{{ language.name | escape }}{% endif %}{% endcapture %}
+{%- capture named %}{% if include.short %} aria-label="{{ language.name | escape }}" title="{{ language.name | escape }}"{% endif %}{% endcapture %}
 {%- if language.code == include.lang %}
-<span aria-current="page" lang="{{ language.code }}">{{ language.name | escape }}</span>
+<span aria-current="page" lang="{{ language.code }}"{{ named }}>{{ label }}</span>
 {%- else %}
-<a class="lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}">{{ language.name | escape }}</a>
+<a class="lang-link" href="{{ url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}"{{ named }}>{{ label }}</a>
 {%- endif %}
 {%- endfor %}

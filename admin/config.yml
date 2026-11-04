@@ -62,6 +62,7 @@ collections:
         fields:
           - { name: name, label: Name, widget: string, i18n: true }
           - { name: role, label: Role, widget: string, i18n: true }
+          - { name: pitch, label: Pitch, widget: text, i18n: true, hint: "One or two sentences beside your name at the top of the page: what you do, for someone with ten seconds" }
           - name: resume
             label: Resume button
             widget: object
@@ -247,21 +248,33 @@ collections:
           - { name: title, label: Browser tab title, widget: string, i18n: true }
           - { name: description, label: Search description, widget: text, i18n: true }
           - name: nav
-            label: Menu
+            label: Sections
             widget: list
             i18n: duplicate
-            summary: "{{letter}} · {{label}}"
-            hint: The first entry opens by default. The section title shows the same name.
+            summary: "{{label}}"
+            hint: "The page's sections, in this order, each with its link in the bar along the top. The hero's arrow goes to the first. Interests show inside About."
             fields:
               - name: tab
                 label: Section
                 widget: select
                 i18n: duplicate
-                options: [blog, about, experience, education, skills, projects, publications, interests]
-              - { name: letter, label: Letter, widget: string, i18n: true }
+                options: [about, experience, projects, skills, education, publications, blog, contact]
               - { name: label, label: Name, widget: string, i18n: true }
-          - { name: show_more, label: Show more button, widget: string, i18n: true }
+          - { name: show_more, label: Show more button, widget: string, i18n: true, hint: "Under the latest updates and the blog posts, when there are more than fit" }
           - { name: show_less, label: Show less button, widget: string, i18n: true }
+          - { name: sections, label: Sections label, widget: string, i18n: true, hint: "Read aloud for the links in the bar along the top" }
+          - { name: menu, label: Menu button label, widget: string, i18n: true, hint: "Read aloud for the button that opens the links on narrow screens" }
+          - { name: interests_title, label: Interests title, widget: string, i18n: true, hint: "The heading over your interests, inside About" }
+          - { name: read, label: Read link, widget: string, i18n: true, hint: "At the foot of each blog post's card, e.g. Read" }
+          - { name: all_posts, label: All posts link, widget: string, i18n: true, hint: "On a post's page, back to the blog section" }
+          - { name: previous, label: Previous post, widget: string, i18n: true }
+          - { name: next, label: Next post, widget: string, i18n: true }
+          - name: contact
+            label: Contact section
+            widget: object
+            i18n: true
+            fields:
+              - { name: text, label: Text, widget: text, hint: "A line or two above the ways to reach you" }
           - { name: months, label: Month names, widget: list, i18n: true, hint: "January to December, one per line" }
           - { name: date_pattern, label: Date pattern, widget: string, i18n: true, hint: "Uses {day}, {month} and {year}" }
           - { name: digits, label: Digits, widget: string, i18n: true, required: false, hint: "Ten characters that replace 0–9 in dates, e.g. ۰۱۲۳۴۵۶۷۸۹; empty keeps 0–9" }
@@ -280,14 +293,13 @@ collections:
                   - { name: max, label: Up to, widget: number, value_type: float, min: 0, max: 2, step: 0.05 }
                   - { name: label, label: Readout, widget: string }
           - { name: theme, label: Theme switch label, widget: string, i18n: true, hint: "Read aloud for the switch between the dark and light themes, and shown when hovering it; it reads as pressed while the theme is dark" }
-          - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language, on the opening and in the dock. The languages' names are in _config.yml." }
+          - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language in the bar along the top. The languages' names are in _config.yml." }
           - name: opening
-            label: Opening scene
+            label: Hero
             widget: object
             i18n: true
             fields:
-              - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
-              - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
+              - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow on the rings, which goes on to the first section" }
           - name: picker
             label: Language picker
             widget: object

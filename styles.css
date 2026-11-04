@@ -1,6 +1,7 @@
-/* Ali Abbasi · one-page CV
-   Charcoal ground under a beige dot field, mint accents, liquid-glass panes; in the light
-   theme, warm paper under ink grains, with the mint deepened to stay legible.
+/* Ali Abbasi · CV and blog
+   One page that scrolls, in liquid-glass cards over a dot field: charcoal ground, beige
+   grains and mint accents, or in the light theme warm paper under ink grains, with the
+   mint deepened to stay legible.
    The dot field renders the panes at every screen size (html.gl-glass),
    with CSS glass as a fallback when WebGL is unavailable. */
 
@@ -37,7 +38,6 @@
     --wash-strong: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
     --radius: 28px;
     --gap: 22px;
-    --dock: 76px;
     --display: "Xanh Mono", "Courier New", monospace;
     --sans: "General Sans", "Helvetica Neue", Arial, sans-serif;
     --mono: "Space Mono", ui-monospace, Menlo, monospace;
@@ -58,10 +58,7 @@ html {
 }
 
 body {
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
-    padding: 24px 32px 0;
     background: var(--bg);
     color: var(--text);
     font: 500 16px/1.5 var(--sans);
@@ -144,230 +141,518 @@ a {
     display: none;
 }
 
-/* ---------- Layout ---------- */
+/* ---------- Page ---------- */
 
-.container {
+/* One page that scrolls: the bar along the top, the hero, then a section for each part of
+   the CV, each its own glass card at a comfortable width. Links to a section land just
+   under the bar. */
+html {
+    scroll-padding-top: 96px;
+}
+
+.sections {
     position: relative;
     z-index: 1;
-    display: grid;
-    flex: none;
-    grid-template-columns: minmax(290px, 360px) minmax(190px, 230px) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    gap: var(--gap);
-    height: calc(100vh - 24px - var(--dock));
-    min-height: 560px;
 }
 
-.left-column {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
-    min-height: 0;
+.section {
+    width: min(1200px, 100% - 48px);
+    margin: 0 auto;
+    padding-top: 88px;
 }
 
-.content-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
-    min-width: 0;
-    min-height: 0;
+.section:last-child {
+    padding-bottom: 88px;
 }
 
-/* ---------- Profile ---------- */
-
-.profile-panel {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    /* Keep the photo strip and revealed contacts inside the card on short screens. */
-    min-height: min-content;
-    padding: 10px;
-    overflow: hidden;
+/* A glass card holds each section's content; its children sit over the CSS glass's rim */
+.card {
+    padding: clamp(24px, 3vw, 40px);
 }
 
-.profile-content {
+.card > * {
     position: relative;
     z-index: 1;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
 }
 
-.profile-header {
-    display: flex;
-    flex: 1 1 0;
-    min-height: 0;
-    transition: flex 0.6s var(--ease);
-}
-
-.profile-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    border-radius: 20px;
-    object-fit: cover;
-    object-position: 50% 24%;
-    filter: grayscale(1) contrast(1.05) brightness(0.92);
-    transition: filter 0.6s var(--ease), object-position 0.6s var(--ease);
-}
-
-.profile-info {
-    display: flex;
-    flex-direction: column;
+/* A section's name, framed by corner brackets like the field's tags, with a coral mark */
+.section-title {
+    --corner: var(--hairline);
+    --corner-size: 11px;
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    padding: 16px 10px 8px;
-    text-align: center;
-}
-
-.profile-name {
-    font: 400 clamp(30px, 2.5vw, 40px)/1 var(--display);
+    gap: 16px;
+    margin-bottom: 22px;
+    padding: 12px 24px 12px 20px;
+    background:
+        linear-gradient(var(--corner), var(--corner)) top left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) top right / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom left / 1px var(--corner-size) no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / var(--corner-size) 1px no-repeat,
+        linear-gradient(var(--corner), var(--corner)) bottom right / 1px var(--corner-size) no-repeat;
+    font: 400 clamp(30px, 3vw, 46px)/1 var(--display);
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--mint);
 }
 
-.profile-role {
-    margin-top: 10px;
+.section-title i {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    background: var(--coral);
+}
+
+/* A small heading inside a card */
+.card-title {
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--dash);
     font: 700 12px/1.2 var(--mono);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--soft);
-}
-
-.profile-contacts {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: max-height 0.6s var(--ease), opacity 0.4s ease, margin 0.6s var(--ease);
-}
-
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border: 1px dashed var(--dash);
-    border-radius: 999px;
-    font: 400 13px/1.2 var(--mono);
-    color: var(--soft);
-    text-decoration: none;
-    transition: border-color 0.3s, color 0.3s;
-}
-
-.contact-item i {
-    width: 16px;
-    color: var(--mint);
-    text-align: center;
-}
-
-.contact-item span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.contact-item:hover {
-    border-color: var(--mint);
     color: var(--mint);
 }
 
-/* Always visible, unlike the contacts below it */
-.resume-download {
-    display: inline-flex;
+/* ---------- The bar along the top ---------- */
+
+/* Frosted in CSS rather than drawn by the field, whose glass lies behind the page: the
+   page scrolls under the bar, and blurs there */
+.topbar {
+    position: fixed;
+    top: 14px;
+    inset-inline: max(16px, calc(50% - 640px));
+    z-index: 50;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 14px;
-    padding: 9px 18px;
-    border: 1px solid var(--mint);
+    gap: 16px;
+    height: 60px;
+    padding-inline: 26px 10px;
     border-radius: 999px;
-    font: 700 12px/1.2 var(--mono);
-    letter-spacing: 0.08em;
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    box-shadow:
+        inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.12)),
+        inset 0 0 0 1px var(--line),
+        0 14px 34px light-dark(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.3));
+}
+
+.brand {
+    font: 400 22px/1 var(--display);
+    letter-spacing: 0.02em;
     text-transform: uppercase;
+    white-space: nowrap;
     color: var(--mint);
     text-decoration: none;
-    transition: background-color 0.3s, color 0.3s;
 }
 
-.resume-download:hover {
+.topnav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-inline-start: auto;
+}
+
+.topnav a {
+    padding: 10px 11px;
+    border-radius: 999px;
+    font: 700 11.5px/1 var(--mono);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--soft);
+    text-decoration: none;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+.topnav a:hover {
+    background: var(--wash-strong);
+    color: var(--mint);
+}
+
+/* The section on screen, marked like a section title */
+.topnav a[aria-current] {
+    color: var(--mint);
+}
+
+.topnav a[aria-current]::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-inline-end: 7px;
+    vertical-align: 1px;
+    background: var(--coral);
+}
+
+.topnav .topnav-cta {
+    margin-inline-start: 8px;
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--mint);
+}
+
+.topnav .topnav-cta:hover,
+.topnav .topnav-cta[aria-current] {
     background: var(--mint);
     color: var(--bg);
 }
 
-/* Hovering the card folds the photo into a strip and reveals the links */
-@media (hover: hover) {
-    .profile-panel:hover .profile-header,
-    .profile-panel:focus-within .profile-header {
-        flex: 0 0 64px;
-    }
-
-    .profile-panel:hover .profile-photo,
-    .profile-panel:focus-within .profile-photo {
-        object-position: 50% 30%;
-        filter: none;
-    }
-
-    .profile-panel:hover .profile-contacts,
-    .profile-panel:focus-within .profile-contacts {
-        max-height: 260px;
-        margin-top: 16px;
-        opacity: 1;
-    }
+.topnav .topnav-cta[aria-current]::before {
+    content: none;
 }
 
-/* ---------- Latest updates ---------- */
-
-.updates-panel {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    min-height: 0;
-    padding-block: 24px 6px;
-    padding-inline: 26px 22px;
+/* The languages in full, only in the folded menu */
+.menu-languages {
+    display: none;
 }
 
-.updates-header {
-    position: relative;
-    z-index: 1;
-    padding-bottom: 14px;
-}
-
-.updates-header h3 {
+.topbar-controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font: 400 26px/1 var(--display);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    gap: 6px;
+}
+
+.menu-toggle {
+    display: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--soft);
+    cursor: pointer;
+}
+
+/* Two lines that cross while the menu is open */
+.menu-toggle span,
+.menu-toggle span::before,
+.menu-toggle span::after {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.3s var(--ease), background-color 0.3s;
+}
+
+.menu-toggle span {
+    position: relative;
+    background: transparent;
+}
+
+.menu-toggle span::before,
+.menu-toggle span::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+}
+
+.menu-toggle span::before {
+    top: -3px;
+}
+
+.menu-toggle span::after {
+    top: 3px;
+}
+
+.topbar.open .menu-toggle span::before {
+    transform: translateY(3px) rotate(45deg);
+}
+
+.topbar.open .menu-toggle span::after {
+    transform: translateY(-3px) rotate(-45deg);
+}
+
+.menu-toggle:hover {
     color: var(--mint);
 }
 
-.updates-header h3 i {
-    font-size: 14px;
-    color: var(--coral);
+/* Every language, in the same order on every page: the page's own in mint, each other a
+   link to its page */
+.lang-switch,
+.menu-languages {
+    gap: 2px;
+    direction: ltr;
 }
 
-.updates-content {
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    min-height: 0;
-    padding-inline-end: 8px;
-    overflow-y: auto;
+.lang-switch {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.lang-switch > *,
+.topnav .menu-languages > * {
+    padding: 8px 10px;
+    border-radius: 999px;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+.lang-switch [aria-current],
+.topnav .menu-languages [aria-current] {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.lang-switch a:hover,
+.topnav .menu-languages a:hover {
+    background: var(--wash-strong);
+    color: var(--text);
+}
+
+.menu-languages [lang="fa"] {
+    font-family: "Vazirmatn", Tahoma, sans-serif;
+    letter-spacing: 0;
+}
+
+/* ---------- Hero ---------- */
+
+/* The first screen: the name, the role, a line on what Ali does and the ways to reach
+   him, beside the glass rings over the bare field (the dots gather as the page scrolls
+   on, script.js). Nothing that holds the rings fades as a whole: Chromium would then draw
+   their glass apart from what lies behind it. */
+.hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 64px);
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 110px max(24px, calc(50% - 600px)) 56px;
+}
+
+.hero-text {
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+}
+
+/* One word to a line */
+.hero-name {
+    width: min-content;
+    font: 400 clamp(56px, 8vw, 124px)/0.9 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+    animation: opening-in 1s var(--ease) 0.2s backwards;
+}
+
+.hero-role {
+    font: 700 14px/1.4 var(--mono);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--soft);
+    animation: opening-in 1s var(--ease) 0.45s backwards;
+}
+
+.hero-pitch {
+    max-width: 34em;
+    font-size: clamp(17px, 1.35vw, 20px);
+    line-height: 1.55;
+    color: var(--soft);
+    animation: opening-in 1s var(--ease) 0.65s backwards;
+}
+
+.hero .actions {
+    margin-top: 8px;
+    animation: opening-in 1s var(--ease) 0.85s backwards;
+}
+
+/* ---------- Buttons ---------- */
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 20px;
+    border-radius: 999px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--dash);
+    font: 700 12px/1.2 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+/* An email address reads as written */
+.button [dir="ltr"] {
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.button:hover {
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--mint);
+}
+
+.button-primary {
+    background: var(--mint);
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--bg);
+}
+
+.button-primary:hover {
+    background: transparent;
+}
+
+.icon-links {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.icon-button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--dash);
+    color: var(--soft);
+    text-decoration: none;
+    transition: color 0.3s, box-shadow 0.3s;
+}
+
+.icon-button:hover {
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--mint);
+}
+
+/* More of a list on request: a pill with a dashed outline around a solid capsule */
+.fold-toggle,
+.earlier summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    padding-block: 12px;
+    padding-inline: 14px 22px;
+    border: 1px dashed var(--dash);
+    border-radius: 999px;
+    background: var(--panel);
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mint);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.3s, color 0.3s;
+}
+
+.earlier summary::-webkit-details-marker {
+    display: none;
+}
+
+.fold-toggle::before,
+.earlier summary::before {
+    content: "";
+    width: 18px;
+    height: 14px;
+    background:
+        radial-gradient(circle, currentColor 2px, transparent 2.5px) 0 2px / 7px 7px no-repeat,
+        radial-gradient(circle, currentColor 2.6px, transparent 3.1px) 9px 0 / 8px 8px no-repeat,
+        radial-gradient(circle, currentColor 3px, transparent 3.5px) 6px 6px / 9px 9px no-repeat;
+    transition: transform 0.6s var(--ease);
+}
+
+.fold-toggle:hover,
+.earlier summary:hover {
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.fold-toggle:hover::before,
+.earlier summary:hover::before,
+.earlier[open] summary::before {
+    transform: rotate(140deg);
+}
+
+[data-fold] > .folded {
+    display: none;
+}
+
+/* ---------- About ---------- */
+
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--gap);
+}
+
+.about-card {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    align-items: start;
+    gap: 28px;
+}
+
+.about-photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    object-fit: cover;
+    object-position: 50% 22%;
+    filter: grayscale(1) contrast(1.05) brightness(0.92);
+    transition: filter 0.6s var(--ease);
+}
+
+.about-card:hover .about-photo {
+    filter: none;
+}
+
+.summary p {
+    font-size: clamp(17px, 1.3vw, 20px);
+    line-height: 1.55;
+    color: var(--soft);
+}
+
+.summary p + p {
+    margin-top: 16px;
+}
+
+.summary strong {
+    font-weight: 600;
+    color: var(--mint);
+}
+
+.updates {
+    list-style: none;
 }
 
 .update-item {
+    display: grid;
+    gap: 6px;
     padding: 14px 0;
+}
+
+.update-item + .update-item {
     border-top: 1px dashed var(--dash);
 }
 
 .update-date {
-    margin-bottom: 6px;
     font: 700 11px/1 var(--mono);
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -384,327 +669,115 @@ a {
     color: var(--text);
 }
 
-/* ---------- Section navigation: letters A–H ---------- */
-
-.navigation-panel {
-    min-height: 0;
+.update-text a {
+    color: var(--mint);
 }
 
-.section-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
+.interests-card {
+    margin-top: var(--gap);
 }
 
-.nav-button {
-    display: flex;
-    flex: 1 1 0;
-    align-items: center;
+.interests-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 20px;
+}
+
+.interest {
+    display: grid;
+    align-content: start;
     gap: 14px;
-    min-height: 0;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 26px;
-    font: 700 13px/1 var(--mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--soft);
-    cursor: pointer;
-    transition: flex 0.6s var(--ease), color 0.3s;
 }
 
-.nav-letter,
-.nav-label {
-    position: relative;
-    z-index: 1;
-}
-
-.nav-letter {
+.interest-icon {
     display: grid;
-    flex: none;
     place-items: center;
-    width: 30px;
-    height: 30px;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
-    font: 700 13px/1 var(--mono);
-    transition: width 0.6s var(--ease), height 0.6s var(--ease), font-size 0.6s var(--ease), background 0.3s, color 0.3s, border-color 0.3s;
-}
-
-.nav-button:hover {
-    color: var(--mint);
-}
-
-.nav-button.active {
-    flex: 5 1 0;
-    flex-direction: column;
-    justify-content: center;
-    color: var(--mint);
-}
-
-.nav-button.active .nav-letter {
-    width: 88px;
-    height: 88px;
-    border-color: var(--mint);
-    background: var(--mint);
-    font: 400 46px/1 var(--display);
-    color: var(--bg);
-}
-
-.nav-button.active .nav-label {
-    font-size: 15px;
-}
-
-/* ---------- Section header ---------- */
-
-.section-header-card {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 18px;
-    padding: 22px 26px;
-}
-
-.section-badge {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border: 1px solid var(--mint);
     border-radius: 50%;
-    font: 400 26px/1 var(--display);
+    font-size: 16px;
     color: var(--mint);
 }
 
-/* The section's name, framed by corner brackets like the field's tags */
-.section-title {
-    --corner: var(--hairline);
-    --corner-size: 11px;
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 16px;
-    min-width: 0;
-    padding: 12px 24px 12px 20px;
-    background:
-        linear-gradient(var(--corner), var(--corner)) top left / var(--corner-size) 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top left / 1px var(--corner-size) no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top right / var(--corner-size) 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) top right / 1px var(--corner-size) no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom left / var(--corner-size) 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom left / 1px var(--corner-size) no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom right / var(--corner-size) 1px no-repeat,
-        linear-gradient(var(--corner), var(--corner)) bottom right / 1px var(--corner-size) no-repeat;
-    font: 400 clamp(28px, 2.6vw, 42px)/1 var(--display);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--mint);
-}
-
-.section-title i {
-    flex: none;
-    width: 9px;
-    height: 9px;
-    background: var(--coral);
-}
-
-#section-title {
-    white-space: nowrap;
-    transition: opacity 0.3s ease;
-}
-
-#section-title.fade-out {
-    opacity: 0;
-}
-
-/* ---------- Section content ---------- */
-
-.section-content-card {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-    padding-block: 30px;
-    padding-inline: 34px 18px;
-    overflow: hidden;
-}
-
-.tab-contents {
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    min-height: 0;
-    padding-inline-end: 16px;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.tab-contents,
-.updates-content {
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--mint) 45%, transparent) transparent;
-}
-
-.tab-contents::-webkit-scrollbar,
-.updates-content::-webkit-scrollbar {
-    width: 4px;
-}
-
-.tab-contents::-webkit-scrollbar-thumb,
-.updates-content::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background: color-mix(in srgb, var(--mint) 45%, transparent);
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-    animation: fadeInContent 0.5s var(--ease) forwards;
-}
-
-.tab-content.fade-out {
-    animation: fadeOutContent 0.3s ease forwards;
-}
-
-@keyframes fadeInContent {
-    from {
-        opacity: 0;
-        transform: translateY(14px);
-    }
-
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@keyframes fadeOutContent {
-    to {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-}
-
-/* Shared item rhythm: dashed rules instead of cards */
-.job,
-.degree,
-.project,
-.publication,
-.blog-post {
-    padding: 26px 0;
-    border-bottom: 1px dashed var(--dash);
-}
-
-.job:first-child,
-.degree:first-child,
-.project:first-child,
-.publication:first-child,
-.blog-post:first-child {
-    padding-top: 0;
-}
-
-.job:last-child,
-.degree:last-child,
-.project:last-child,
-.publication:last-child,
-.blog-post:last-child {
-    border-bottom: 0;
-}
-
-.tab-contents h4 {
-    font: 400 clamp(20px, 1.6vw, 26px)/1.15 var(--display);
+.interest h4 {
+    font: 400 20px/1.15 var(--display);
     letter-spacing: 0.01em;
     text-transform: uppercase;
     color: var(--text);
 }
 
-.tab-contents .earlier-title {
-    margin-top: 2rem;
-}
-
-.tab-contents h3 {
-    padding-bottom: 12px;
-    border-bottom: 1px dashed var(--dash);
-    font: 700 12px/1 var(--mono);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--mint);
-}
-
-.tab-contents p {
+.interest p {
+    margin-top: 6px;
+    font-size: 14.5px;
+    line-height: 1.5;
     color: var(--soft);
 }
 
-.tab-contents strong {
-    font-weight: 600;
-    color: var(--text);
+/* ---------- Experience and education: a timeline ---------- */
+
+.timeline {
+    display: grid;
 }
 
-.tab-contents a {
-    color: var(--mint);
-    text-decoration: none;
-    border-bottom: 1px dashed color-mix(in srgb, var(--mint) 50%, transparent);
-    transition: border-color 0.3s;
-}
-
-.tab-contents a:hover {
-    border-bottom-color: var(--mint);
-}
-
-.tab-contents li a[href^="http"]::after,
-.tab-contents .company a::after {
-    content: "\f35d";
-    margin-inline-start: 0.35em;
-    font: 900 0.75em/1 "Font Awesome 6 Free";
-}
-
-.tab-contents a i {
-    font-size: 0.75em;
-}
-
-.job-description,
-.degree-details,
-.project-description {
-    margin-top: 14px;
-    list-style: none;
-}
-
-.job-description li,
-.degree-details li,
-.project-description li {
+/* A dashed line down the side, with a mint mark at each entry and coral at the latest */
+.job,
+.degree {
     position: relative;
-    margin: 8px 0;
-    padding-inline-start: 20px;
-    color: var(--soft);
-    line-height: 1.55;
+    padding-block: 22px;
+    padding-inline-start: 30px;
+    border-inline-start: 1px dashed var(--dash);
 }
 
-.job-description li::before,
-.degree-details li::before,
-.project-description li::before {
+.job::before,
+.degree::before {
     content: "";
     position: absolute;
-    top: 0.62em;
-    inset-inline-start: 2px;
-    width: 6px;
-    height: 6px;
+    top: 31px;
+    inset-inline-start: -5px;
+    width: 9px;
+    height: 9px;
     background: var(--mint);
 }
 
-.company-location,
-.institution-location {
+.timeline > :first-child {
+    padding-top: 4px;
+}
+
+.timeline > :first-child::before {
+    top: 13px;
+}
+
+.timeline > :last-child {
+    padding-bottom: 4px;
+}
+
+.card > .timeline:first-child > :first-child::before {
+    background: var(--coral);
+}
+
+.entry-head {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.entry-head h4,
+.project h4,
+.publication h4 {
+    font: 400 clamp(21px, 1.7vw, 27px)/1.15 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
     gap: 6px 16px;
     margin-top: 8px;
     font-weight: 600;
@@ -724,32 +797,146 @@ a {
 
 .duration {
     display: inline-block;
-    margin-top: 12px;
     padding: 6px 12px;
     border: 1px dashed var(--dash);
     border-radius: 999px;
     font: 400 12px/1 var(--mono);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    white-space: nowrap;
     color: var(--soft);
 }
 
-/* About */
-
-.summary p {
-    font-size: clamp(18px, 1.45vw, 22px);
-    line-height: 1.45;
+.job-description,
+.degree-details,
+.project-description {
+    margin-top: 14px;
+    list-style: none;
 }
 
-.summary p + p {
-    margin-top: 18px;
+.job-description li,
+.degree-details li,
+.project-description li {
+    position: relative;
+    margin: 8px 0;
+    padding-inline-start: 20px;
+    line-height: 1.55;
+    color: var(--soft);
 }
 
-.summary strong {
+.job-description li::before,
+.degree-details li::before,
+.project-description li::before {
+    content: "";
+    position: absolute;
+    top: 0.62em;
+    inset-inline-start: 2px;
+    width: 6px;
+    height: 6px;
+    background: var(--mint);
+}
+
+.card strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Links inside the CV's text, underlined with dashes */
+.card a:not(.button, .icon-button, .post-card, .project-link, .publication-link) {
+    border-bottom: 1px dashed color-mix(in srgb, var(--mint) 50%, transparent);
     color: var(--mint);
+    text-decoration: none;
+    transition: border-color 0.3s;
 }
 
-/* Skills */
+.card a:not(.button, .icon-button, .post-card, .project-link, .publication-link):hover {
+    border-bottom-color: var(--mint);
+}
+
+.job-description a[href^="http"]::after,
+.company a::after,
+.institution a::after,
+.degree-details a[href^="http"]::after {
+    content: "\f35d";
+    margin-inline-start: 0.35em;
+    font: 900 0.75em/1 "Font Awesome 6 Free";
+}
+
+/* The earlier roles, folded away under a pill */
+.earlier {
+    margin-top: 10px;
+}
+
+.earlier[open] summary {
+    margin-bottom: 14px;
+}
+
+/* ---------- Projects ---------- */
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.project {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    border: 1px dashed var(--dash);
+    border-radius: 22px;
+    transition: border-color 0.3s;
+}
+
+.project:hover {
+    border-color: var(--mint);
+}
+
+.project-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+.project-org {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.project .project-description {
+    margin-top: 0;
+}
+
+.project-links,
+.publication-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+}
+
+.project-links {
+    margin-top: auto;
+    padding-top: 4px;
+}
+
+.project-link,
+.publication-link {
+    font: 700 12px/1.4 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mint);
+    text-decoration: none;
+}
+
+.project-link:hover,
+.publication-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* ---------- Skills ---------- */
 
 .skills-grid {
     display: grid;
@@ -790,27 +977,13 @@ a {
     color: var(--mint);
 }
 
-/* Projects and publications */
 
-.project-links,
-.publication-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    margin-top: 10px;
-}
+/* ---------- Publications ---------- */
 
-.tab-contents .project-link,
-.tab-contents .publication-link {
-    font: 700 12px/1.4 var(--mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.project-org {
-    margin-top: 8px;
-    font-size: 14px;
-    color: var(--muted);
+.publication + .publication {
+    margin-top: 26px;
+    padding-top: 26px;
+    border-top: 1px dashed var(--dash);
 }
 
 .publication-authors {
@@ -837,22 +1010,49 @@ a {
 }
 
 .publication-abstract {
-    margin-top: 16px;
+    max-width: 62em;
+    margin: 16px 0;
     padding-top: 16px;
     border-top: 1px dashed var(--dash);
+    line-height: 1.6;
+    color: var(--soft);
 }
 
-/* Blog */
+/* ---------- Blog ---------- */
 
-.blog-meta {
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.post-grid > .fold-toggle {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-top: 6px;
+}
+
+.post-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px;
+    border: 1px dashed var(--dash);
+    border-radius: 22px;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.3s;
+}
+
+.post-card:hover {
+    border-color: var(--mint);
+}
+
+.post-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px 14px;
-    margin-top: 12px;
-}
-
-.blog-date {
+    gap: 8px 14px;
     font: 400 12px/1 var(--mono);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -876,17 +1076,156 @@ a {
     background: var(--mint);
 }
 
-.blog-content {
-    margin-top: 14px;
+.post-title {
+    font: 400 22px/1.2 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    transition: color 0.3s;
 }
 
-.blog-full-content p {
-    margin-top: 14px;
+.post-card:hover .post-title {
+    color: var(--mint);
+}
+
+.post-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--soft);
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+.post-read {
+    margin-top: auto;
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.post-read::after {
+    content: " \2192";
+}
+
+[dir="rtl"] .post-read::after {
+    content: " \2190";
+}
+
+/* ---------- Contact ---------- */
+
+.contact-card {
+    display: grid;
+    justify-items: start;
+    gap: 26px;
+}
+
+.contact-text {
+    max-width: 40em;
+    font-size: clamp(18px, 1.5vw, 22px);
+    line-height: 1.5;
+    color: var(--soft);
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: min(1200px, 100% - 48px);
+    margin: 0 auto;
+    padding: 26px 0 34px;
+    border-top: 1px dashed var(--dash);
+}
+
+.copyright {
+    font: 400 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* ---------- A blog post's page ---------- */
+
+.post {
+    position: relative;
+    z-index: 1;
+    width: min(840px, 100% - 32px);
+    margin: 0 auto;
+    padding: 118px 0 56px;
+}
+
+.post-article {
+    padding: clamp(26px, 5vw, 56px);
+}
+
+.post-heading {
+    margin: 16px 0 30px;
+    font: 400 clamp(32px, 4vw, 50px)/1.08 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.post-body {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--soft);
+}
+
+.post-body > * + * {
+    margin-top: 1.1em;
+}
+
+.post-body h2,
+.post-body h3 {
+    margin-top: 1.8em;
+    font: 400 clamp(24px, 2.4vw, 30px)/1.2 var(--display);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.post-body strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.post-body a {
+    color: var(--mint);
+    text-decoration-style: dashed;
+    text-underline-offset: 4px;
+}
+
+.post-body ul,
+.post-body ol {
+    padding-inline-start: 1.3em;
+}
+
+.post-body li + li {
+    margin-top: 0.4em;
+}
+
+.post-body blockquote {
+    padding-inline-start: 18px;
+    border-inline-start: 2px solid var(--coral);
+    font-style: italic;
+    color: var(--text);
+}
+
+.post-body code {
+    font: 400 0.88em/1.4 var(--mono);
 }
 
 /* A screenshot inside a post, with a short caption under it */
 .blog-figure {
-    margin: 22px 0 6px;
+    margin: 26px 0 8px;
 }
 
 .blog-figure img {
@@ -903,136 +1242,62 @@ a {
     color: var(--muted);
 }
 
-/* Byotone-style pill: dashed outline around a solid capsule */
-.blog-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 18px;
-    padding-block: 12px;
-    padding-inline: 14px 22px;
-    border: 1px dashed var(--dash);
-    border-radius: 999px;
-    background: var(--panel);
-    font: 700 13px/1 var(--mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--mint);
-    cursor: pointer;
-    transition: background 0.3s, color 0.3s;
+.post-page .site-footer {
+    width: min(840px, 100% - 32px);
 }
 
-.blog-toggle-btn::before {
-    content: "";
-    width: 18px;
-    height: 14px;
-    background:
-        radial-gradient(circle, currentColor 2px, transparent 2.5px) 0 2px / 7px 7px no-repeat,
-        radial-gradient(circle, currentColor 2.6px, transparent 3.1px) 9px 0 / 8px 8px no-repeat,
-        radial-gradient(circle, currentColor 3px, transparent 3.5px) 6px 6px / 9px 9px no-repeat;
-    transition: transform 0.6s var(--ease);
-}
-
-.blog-toggle-btn:hover {
-    background: var(--mint);
-    color: var(--bg);
-}
-
-.blog-toggle-btn:hover::before {
-    transform: rotate(140deg);
-}
-
-/* Interests */
-
-.interests-grid {
+.post-pager {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: var(--gap);
+    margin-top: var(--gap);
 }
 
-.interest-card {
-    padding: 26px;
-    border: 1px dashed var(--dash);
-    border-radius: 22px;
-    transition: border-color 0.3s;
-}
-
-.interest-card:hover {
-    border-color: var(--mint);
-}
-
-.interest-icon {
+.pager-link {
     display: grid;
-    place-items: center;
-    width: 50px;
-    height: 50px;
-    border: 1px solid var(--mint);
-    border-radius: 50%;
-    font-size: 18px;
-    color: var(--mint);
-}
-
-.interest-card h4 {
-    margin-top: 18px;
-}
-
-.interest-card p {
-    margin-top: 8px;
-}
-
-/* ---------- Dock ---------- */
-
-.dock {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    height: var(--dock);
-}
-
-.copyright {
-    font: 400 12px/1 var(--mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.dock-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* Every language, in the same order on every page: the page's own in mint, each other a
-   link to its page */
-.lang-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 6px;
-    border-radius: 999px;
-    direction: ltr;
-}
-
-.lang-switch > * {
-    position: relative;
-    z-index: 1;
-    padding: 8px 12px;
-    font: 700 13px/1 var(--mono);
-    color: var(--muted);
+    align-content: start;
+    gap: 8px;
+    padding: 22px 26px;
+    color: var(--text);
     text-decoration: none;
     transition: color 0.3s;
 }
 
-.lang-switch [aria-current] {
+.pager-newer {
+    grid-column: 2;
+    text-align: end;
+}
+
+.pager-label {
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.pager-title {
+    font: 400 19px/1.25 var(--display);
+    text-transform: uppercase;
+}
+
+.pager-link:hover .pager-title {
     color: var(--mint);
 }
 
-.lang-switch a:hover {
-    color: var(--text);
+.pager-older .pager-label::before {
+    content: "\2190  ";
+}
+
+.pager-newer .pager-label::after {
+    content: "  \2192";
+}
+
+[dir="rtl"] .pager-older .pager-label::before {
+    content: "\2192  ";
+}
+
+[dir="rtl"] .pager-newer .pager-label::after {
+    content: "  \2190";
 }
 
 /* The theme: a moon while dark, turning into a sun in daylight. Hidden if the script that
@@ -1050,11 +1315,6 @@ a {
     color: var(--soft);
     cursor: pointer;
     transition: color 0.3s, background-color 0.3s;
-}
-
-.dock .theme-toggle {
-    width: 41px;
-    height: 41px;
 }
 
 :root:not([data-theme]) .theme-toggle {
@@ -1188,43 +1448,7 @@ a {
     background: var(--coral);
 }
 
-/* ---------- Opening scene ---------- */
-
-/* The page's first screen: the name and a stack of glass rings (glass-rings.css) over the
-   bare field. Scrolling down brings the page up from below, unchanged, and the field's
-   dots gather as it comes (script.js); scrolling back up returns here. On wide screens,
-   where the page fills exactly one screen, the script turns between the two in one move,
-   and a light snap catches a scrollbar let go halfway. Nothing that holds the
-   rings fades as a whole: Chromium would then draw their glass apart from what lies
-   behind it, and the bend at their rims would break. */
-.opening {
-    position: relative;
-    flex: none;
-    height: 100vh;
-    height: 100svh;
-    /* Edge to edge, out of the body's padding */
-    margin: -24px -32px 24px;
-    overflow: hidden;
-    cursor: pointer;
-    scroll-snap-align: start;
-}
-
-@media (min-width: 1101px) {
-    html {
-        scroll-snap-type: y proximity;
-    }
-
-    .container {
-        scroll-snap-align: start;
-        scroll-margin-top: 24px;
-    }
-}
-
-@media (max-width: 1100px) {
-    .opening {
-        margin: -16px -16px 16px;
-    }
-}
+/* ---------- The rings ---------- */
 
 @keyframes opening-in {
     from {
@@ -1286,10 +1510,8 @@ a {
     /* On paper the clear glass shows by a darker rim, and the liquid's glow is fainter */
     --gr-hairline: light-dark(rgb(0 0 0 / 0.16), rgb(255 255 255 / 0.12));
     --gr-bloom: light-dark(color-mix(in srgb, var(--coral) 9%, transparent), color-mix(in srgb, var(--coral) 16%, transparent));
-    --size: min(68vh, 46vw);
-    position: absolute;
-    top: calc(52% - var(--size) / 2);
-    inset-inline-start: calc(61% - var(--size) / 2);
+    --size: min(62vh, 40vw);
+    justify-self: center;
     width: var(--size);
     animation: opening-float-in 1.6s var(--ease) 0.1s backwards;
 }
@@ -1299,117 +1521,10 @@ a {
     animation: opening-show 1.4s var(--ease) 0.1s backwards;
 }
 
-.opening-text {
-    position: absolute;
-    top: 50%;
-    inset-inline-start: max(24px, 8vw);
-    display: grid;
-    gap: 18px;
-    translate: 0 -50%;
-}
-
-/* One word to a line */
-.opening-name {
-    width: min-content;
-    font: 400 clamp(56px, 8.5vw, 132px)/0.9 var(--display);
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    color: var(--mint);
-    animation: opening-in 1s var(--ease) 0.2s backwards;
-}
-
-.opening-role {
-    font: 700 14px/1.4 var(--mono);
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--soft);
-    animation: opening-in 1s var(--ease) 0.7s backwards;
-}
-
-.opening-hint {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 22px;
-    font: 400 11px/1 var(--mono);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    animation: opening-in 1s var(--ease) 1.3s backwards;
-}
-
-/* The theme and the choice of language, in the top corner: the page's own language chosen
-   in mint, each other a link to its page. Plain fills rather than glass, so they cost
-   nothing while the field rests under the scene. */
-.opening-controls {
-    position: absolute;
-    top: 24px;
-    inset-inline-end: 32px;
-    z-index: 1;
-    display: flex;
-    gap: 8px;
-    /* The same order and corner on every page: only the choice moves */
-    direction: ltr;
-    cursor: auto;
-    animation: opening-show 1s var(--ease) 1.3s backwards;
-}
-
-.opening-lang,
-.opening-controls .theme-toggle {
-    border-radius: 999px;
-    background: var(--wash);
-    box-shadow: inset 0 0 0 1px var(--line);
-}
-
-.opening-lang {
-    display: flex;
-    gap: 2px;
-    padding: 4px;
-}
-
-.opening-lang > * {
-    padding: 10px 16px;
-    border-radius: 999px;
-    font: 700 12px/1 var(--mono);
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.3s, background-color 0.3s;
-}
-
-.lang-switch [lang="fa"],
-.opening-lang [lang="fa"] {
-    font-family: "Vazirmatn", Tahoma, sans-serif;
-    font-weight: 600;
-    letter-spacing: 0;
-}
-
-.opening-lang [aria-current] {
-    background: var(--mint);
-    color: var(--bg);
-}
-
-.opening-lang a:hover {
-    background: var(--wash-strong);
-    color: var(--text);
-}
-
-.opening-lang a:focus-visible {
-    outline: 2px solid var(--mint);
-    outline-offset: 2px;
-}
-
-@media (max-width: 1100px) {
-    .opening-controls {
-        top: 16px;
-        inset-inline-end: 16px;
-    }
-}
-
-/* The way down: the front ring's coral disc, with a white arrow dropping through it and
-   a ripple spreading over the rings each time it lands. It moves with the ring (the
-   script places it there); a click goes down like one anywhere on the scene, while the
-   rings around it can still be grabbed. */
+/* The way on: the front ring's coral disc, with a white arrow dropping through it and a
+   ripple spreading over the rings each time it lands. It moves with the ring (the script
+   places it there) and leads to the first section, while the rings around it can still
+   be grabbed. */
 .opening-down {
     position: absolute;
     inset: 0;
@@ -1419,6 +1534,7 @@ a {
     border-radius: 50%;
     background: rgb(255 255 255 / 0);
     color: #fff;
+    text-decoration: none;
     cursor: pointer;
     pointer-events: auto;
     transition: background-color 0.4s;
@@ -1478,42 +1594,14 @@ a {
     scale: 0.92;
 }
 
-/* Portrait screens: the name on top, the rings below it */
-@media (max-aspect-ratio: 4 / 5) {
-    .opening-rings {
-        --size: min(86vw, 52vh);
-        top: auto;
-        bottom: 14vh;
-        inset-inline-start: calc(50% - var(--size) / 2);
-    }
-
-    .opening-text {
-        top: 14vh;
-        gap: 14px;
-        translate: none;
-    }
-
-    .opening-name {
-        font-size: clamp(52px, 17vw, 96px);
-    }
-
-    .opening-role {
-        font-size: 12px;
-    }
-
-    .opening-hint {
-        margin-top: 12px;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .opening-rings,
     .opening-rings .gr-bloom,
     .opening-rings .gr-disc,
-    .opening-name,
-    .opening-role,
-    .opening-hint,
-    .opening-controls,
+    .hero-name,
+    .hero-role,
+    .hero-pitch,
+    .hero .actions,
     .opening-down,
     .opening-down::before,
     .opening-down::after,
@@ -1529,7 +1617,7 @@ a {
    tints it mint while hovered and tilts it with the pointer). Each greets in its language,
    framed like a section title, over a dim pattern of its culture (patterns/*.svg, a mask,
    so the theme colours it). The panes rise in, and a choice widens one over the others;
-   English then lets them fall away onto the opening, which waits underneath with its
+   English then lets them fall away onto the page, which waits underneath with its
    entrance held (script.js). The field's glass follows the panes' boxes, not their
    opacity, so they come and go by moving. */
 .language-picker {
@@ -1551,13 +1639,19 @@ html.picking {
     overflow: hidden;
 }
 
-.picking .opening > * {
+/* The page waits underneath: the bar out of the way (the field would still draw its
+   glass), the hero hidden with its entrance held at the start, to play once the picker
+   has gone */
+.picking .topbar {
+    display: none;
+}
+
+.picking .hero > * {
     visibility: hidden;
 }
 
-/* Held at their start, so the opening's entrance plays once the picker has gone */
-.picking .opening,
-.picking .opening * {
+.picking .hero,
+.picking .hero * {
     animation-play-state: paused;
 }
 
@@ -1929,163 +2023,204 @@ html.picking {
     }
 }
 
-/* ---------- Stacked layout: tablets and phones ---------- */
+/* ---------- Narrower screens ---------- */
 
-@media (max-width: 1100px) {
-    body {
-        padding: 16px 16px 0;
+/* The links and languages fold into a menu that drops from the bar */
+@media (max-width: 1180px) {
+    .menu-toggle {
+        display: grid;
     }
 
-    .container {
+    .brand {
+        margin-inline-end: auto;
+    }
+
+    .topnav {
+        position: absolute;
+        top: calc(100% + 10px);
+        inset-inline: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        margin: 0;
+        padding: 12px;
+        border-radius: 24px;
+        background: color-mix(in srgb, var(--panel) 94%, transparent);
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+        box-shadow: inset 0 0 0 1px var(--line), 0 18px 40px light-dark(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.45));
+    }
+
+    .topbar.open .topnav {
         display: flex;
-        flex-direction: column;
-        height: auto;
-        min-height: 0;
-        gap: 16px;
     }
 
-    .left-column {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-    }
-
-    .profile-panel,
-    .updates-panel {
-        flex: none;
-    }
-
-    /* Beside the profile, the updates take the profile's height and scroll inside it */
-    .updates-panel {
-        contain: size;
-    }
-
-    .profile-header,
-    .profile-panel:hover .profile-header,
-    .profile-panel:focus-within .profile-header {
-        flex: none;
-    }
-
-    .profile-photo {
-        height: auto;
-        aspect-ratio: 3 / 2;
-    }
-
-    .profile-contacts,
-    .profile-panel:hover .profile-contacts,
-    .profile-panel:focus-within .profile-contacts {
-        max-height: none;
-        margin-top: 16px;
-        opacity: 1;
-    }
-
-    .section-nav {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        height: auto;
-    }
-
-    .nav-button,
-    .nav-button.active {
-        flex-direction: column;
-        justify-content: center;
-        gap: 10px;
-        min-height: 88px;
-        padding: 14px 8px;
-        border-radius: 22px;
-    }
-
-    .nav-button.active .nav-letter {
-        width: 34px;
-        height: 34px;
-        font: 400 20px/1 var(--display);
-    }
-
-    .nav-button.active .nav-label {
+    .topnav a {
+        padding: 14px 16px;
         font-size: 13px;
     }
 
-    .content-panel {
-        gap: 16px;
+    .topnav .topnav-cta {
+        margin: 6px 0 0;
+        text-align: center;
     }
 
-    .section-content-card {
-        overflow: visible;
-    }
-
-    .tab-contents {
-        overflow: visible;
-    }
-
-    .dock {
-        flex-direction: column-reverse;
-        height: auto;
-        padding: 26px 0 30px;
-    }
-
-    .dock-controls {
-        flex-wrap: wrap;
+    .menu-languages {
+        display: flex;
         justify-content: center;
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px dashed var(--dash);
+    }
+
+    .topnav .menu-languages > * {
+        padding: 10px 16px;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: none;
     }
 }
 
-@media (max-width: 640px) {
-    .left-column {
+@media (max-width: 1000px) {
+    .hero {
+        grid-template-columns: minmax(0, 1fr);
+        align-content: center;
+        padding-top: 104px;
+    }
+
+    .opening-rings {
+        --size: min(70vw, 42vh);
+    }
+
+    .about-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .updates-panel {
-        contain: none;
-    }
-
-    .updates-content {
-        max-height: 360px;
-    }
-
-    .section-nav {
+    .interests-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .nav-button,
-    .nav-button.active {
-        flex-direction: row;
-        justify-content: flex-start;
-        min-height: 58px;
-        padding: 0 14px;
+    .post-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    :root {
+        --radius: 24px;
+        --gap: 16px;
     }
 
-    .section-header-card {
-        flex-wrap: wrap;
-        gap: 14px;
-        padding: 18px 20px;
+    html {
+        scroll-padding-top: 84px;
     }
 
-    .section-badge {
-        width: 40px;
-        height: 40px;
-        font-size: 22px;
+    .topbar {
+        top: 10px;
+        inset-inline: 10px;
+        height: 54px;
+        padding-inline: 20px 6px;
+    }
+
+    .brand {
+        font-size: 20px;
+    }
+
+    .topbar-controls .lang-switch {
+        display: none;
+    }
+
+    .hero {
+        padding: 96px 20px 40px;
+    }
+
+    .hero-name {
+        font-size: clamp(52px, 17vw, 96px);
+    }
+
+    .hero-role {
+        font-size: 12px;
+    }
+
+    .section {
+        width: calc(100% - 32px);
+        padding-top: 64px;
+    }
+
+    .section:last-child {
+        padding-bottom: 64px;
     }
 
     .section-title {
         --corner-size: 9px;
         gap: 12px;
+        margin-bottom: 16px;
         padding: 10px 18px 10px 16px;
+        font-size: clamp(28px, 8vw, 36px);
     }
 
-    .section-content-card {
-        padding: 24px 20px;
+    .card {
+        padding: 22px 20px;
     }
 
-    .tab-contents {
-        padding-inline-end: 0;
-    }
-
-    .interests-grid {
+    .about-card {
         grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .about-photo {
+        width: 112px;
+    }
+
+    .project-grid,
+    .post-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .project,
+    .post-card {
+        padding: 20px;
+    }
+
+    .job,
+    .degree {
+        padding-inline-start: 22px;
+    }
+
+    .site-footer {
+        flex-direction: column-reverse;
+        width: calc(100% - 32px);
     }
 
     .energy input {
         width: 120px;
+    }
+
+    .post {
+        padding-top: 92px;
+    }
+
+    .post-body {
+        font-size: 17px;
+    }
+
+    .post-pager {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pager-newer {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .interests-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .button {
+        padding: 12px 16px;
     }
 }
 
@@ -2109,18 +2244,16 @@ html[lang="fa"] body {
     line-height: 1.8;
 }
 
-html[lang="fa"] .profile-name {
-    font-size: clamp(34px, 2.8vw, 44px);
-    line-height: 1.3;
+html[lang="fa"] .hero-name {
+    line-height: 1.15;
 }
 
-html[lang="fa"] .profile-role {
+html[lang="fa"] .hero-role {
     direction: ltr;
 }
 
-html[lang="fa"] .updates-header h3 {
-    font-size: 30px;
-    line-height: 1.3;
+html[lang="fa"] .brand {
+    font-size: 26px;
 }
 
 html[lang="fa"] .section-title {
@@ -2128,54 +2261,46 @@ html[lang="fa"] .section-title {
     line-height: 1.3;
 }
 
-html[lang="fa"] .tab-contents h4 {
-    font-size: clamp(22px, 1.8vw, 28px);
+html[lang="fa"] .entry-head h4,
+html[lang="fa"] .project h4,
+html[lang="fa"] .publication h4,
+html[lang="fa"] .interest h4,
+html[lang="fa"] .post-title,
+html[lang="fa"] .pager-title {
     line-height: 1.4;
 }
 
-html[lang="fa"] .skill-category h4 {
-    font-size: 14px;
+html[lang="fa"] .post-heading {
+    line-height: 1.3;
+}
+
+html[lang="fa"] .topnav a,
+html[lang="fa"] .card-title,
+html[lang="fa"] .skill-category h4,
+html[lang="fa"] .update-date,
+html[lang="fa"] .location,
+html[lang="fa"] .duration,
+html[lang="fa"] .post-meta,
+html[lang="fa"] .blog-category,
+html[lang="fa"] .post-read,
+html[lang="fa"] .copyright,
+html[lang="fa"] .button,
+html[lang="fa"] .fold-toggle,
+html[lang="fa"] .earlier summary,
+html[lang="fa"] .energy {
+    font-size: 13px;
 }
 
 html[lang="fa"] .summary p,
 html[lang="fa"] .job-description li,
 html[lang="fa"] .degree-details li,
-html[lang="fa"] .project-description li {
+html[lang="fa"] .project-description li,
+html[lang="fa"] .post-body {
     line-height: 1.9;
-}
-
-html[lang="fa"] .update-text {
-    line-height: 1.8;
-}
-
-html[lang="fa"] .nav-label,
-html[lang="fa"] .update-date,
-html[lang="fa"] .location,
-html[lang="fa"] .duration,
-html[lang="fa"] .blog-date,
-html[lang="fa"] .blog-category,
-html[lang="fa"] .copyright,
-html[lang="fa"] .resume-download,
-html[lang="fa"] .energy {
-    font-size: 13px;
-}
-
-html[lang="fa"] .nav-button.active .nav-letter,
-html[lang="fa"] .section-badge {
-    padding-bottom: 0.15em;
-}
-
-html[lang="fa"] .opening-name {
-    line-height: 1.15;
 }
 
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
-    }
-
-    .tab-content.active,
-    .tab-content.fade-out {
-        animation-duration: 0.01s;
     }
 }

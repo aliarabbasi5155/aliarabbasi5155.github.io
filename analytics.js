@@ -64,7 +64,7 @@
     const attention = new Map();
     const IDLE_MS = 60000;
     const MILESTONES = [10, 30, 60, 120];
-    const content = document.querySelector('.tab-contents');
+    const content = document.querySelector('.sections');
 
     function stats() {
         if (!attention.has(currentSection)) {
@@ -156,7 +156,7 @@
         enabled = true;
         for (const id of ids) window['ga-disable-' + id] = false;
         lastTick = lastActivity = lastReport = performance.now();
-        currentSection = document.querySelector('.tab-content.active')?.id || '';
+        currentSection = document.querySelector('.section.current')?.id || '';
         wasEligible = false;
         const hasIncomingCampaign = [...incoming.searchParams.keys()].some(key => key.startsWith('utm_'));
         outreachId = campaign.get('utm_content') || (hasIncomingCampaign ? '' : read(session, OUTREACH_KEY)) || '';
@@ -280,14 +280,11 @@
             const details = { link_kind: kind, ...(item ? { item_id: item.dataset.analyticsItem.slice(0, 100) } : {}) };
             if (link.matches('.project-link') || link.closest('.project')) emit('project_click', details);
             else if (link.matches('.publication-link') || link.closest('.publication')) emit('publication_click', details);
-            else if (link.closest('.profile-contacts')) emit('contact_click', details);
             else if (link.hasAttribute('download') || /\.(pdf|docx?)$/i.test(url.pathname)) emit('cv_download', { link_kind: 'document' });
+            else if (link.closest('.actions')) emit('contact_click', details);
+            else if (link.matches('.post-card') && item) emit('article_open', { item_id: item.dataset.analyticsItem.slice(0, 100) });
             else if (link.matches('.lang-link')) emit('language_switch', { target_language: link.hreflang });
             else if (/^https?:$/.test(url.protocol) && url.origin !== location.origin) emit('outbound_click', details);
-        }
-        const button = event.target.closest('.blog-toggle-btn');
-        if (button && button.closest('.blog-post')?.querySelector('.blog-full-content')?.style.display !== 'none') {
-            emit('article_expand', { item_id: button.closest('.blog-post').dataset.analyticsItem.slice(0, 100) });
         }
     });
     window.setInterval(tick, 1000);

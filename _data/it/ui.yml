@@ -1,32 +1,31 @@
 title: Ali Abbasi - Fullstack AI Engineer
 description: "Ali Abbasi, Fullstack AI Engineer e technical lead operativo: agentic RAG, fine-tuning, valutazione e sistemi LLM in produzione su AWS."
 nav:
-  - tab: blog
-    letter: A
-    label: Blog
   - tab: about
-    letter: B
     label: Chi sono
   - tab: experience
-    letter: C
     label: Esperienza
-  - tab: education
-    letter: D
-    label: Formazione
-  - tab: skills
-    letter: E
-    label: Competenze
   - tab: projects
-    letter: F
     label: Progetti
+  - tab: skills
+    label: Competenze
+  - tab: education
+    label: Formazione
   - tab: publications
-    letter: G
     label: Pubblicazioni
-  - tab: interests
-    letter: H
-    label: Interessi
+  - tab: blog
+    label: Blog
+  - tab: contact
+    label: Contatti
 show_more: Mostra di più
 show_less: Mostra di meno
+sections: Sezioni
+menu: Menu
+interests_title: Interessi
+read: Leggi
+all_posts: Tutti gli articoli
+previous: Precedente
+next: Successivo
 months:
   - gennaio
   - febbraio
@@ -59,12 +58,13 @@ temperature:
 languages: Lingua
 theme: Tema scuro
 opening:
-  hint: Scorri o tocca per entrare
-  enter: Entra nel sito
+  enter: Continua
 picker:
   greeting: Ciao
   prompt: Scegli una lingua
   continue: Continua in italiano
+contact:
+  text: "Disponibile per ruoli di AI engineering e technical lead, e sempre felice di parlare di sistemi LLM. L'email è il modo più rapido per contattarmi."
 copyright: © 2025 Ali Abbasi. Tutti i diritti riservati.
 analytics:
   settings: Impostazioni privacy
