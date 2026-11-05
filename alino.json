@@ -1,0 +1,6 @@
+---
+layout: null
+permalink: /alino.json
+---
+{%- comment -%} Which AI writes Alino's answers (_data/alino.yml), for the Worker in cloudflare/alino {%- endcomment -%}
+{{ site.data.alino | jsonify }}

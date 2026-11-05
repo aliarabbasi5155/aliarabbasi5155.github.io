@@ -57,6 +57,7 @@ canvas:
   hint: "Trascina per guardarti intorno · {arrows} per spostarti · {esc} per la mappa"
   arrows: Frecce
   news: Novità
+  touch_hint: "Scorri per spostarti · pizzica per la mappa intera"
 # Alino, Ali's assistant in the coral orb
 alino:
   name: Alino
@@ -120,11 +121,11 @@ alino:
     lead: "Ecco cosa dice il suo CV:"
     not_found: "Mmm, il suo CV non ne parla. Però puoi chiederlo direttamente a lui: la sua email è sul suo biglietto da visita"
     teases:
-      - Fammi controllare i miei appunti… oh no, ci ho rovesciato sopra il caffè! Scherzo, stanno benissimo.
-      - Mmm, è un’informazione riservata… scherzo, è proprio nel suo CV.
-      - Un attimo, mi sto ancora avviando… scherzo, ero pronto da un pezzo.
-      - Oh, questa è difficile! Fammi pensare bene… scherzo, è una delle mie preferite.
-      - Aspetta, sei un recruiter o una spia? Scherzo, ti dico tutto.
+      - Fammi controllare i miei appunti… oh no, ci ho rovesciato sopra il caffè! Scherzo, stanno benissimo. 😜
+      - Mmm, è un’informazione riservata… scherzo, è proprio nel suo CV. 😄
+      - Un attimo, mi sto ancora avviando… scherzo, ero pronto da un pezzo. 🙈
+      - Oh, questa è difficile! Fammi pensare bene… scherzo, è una delle mie preferite. 😅
+      - Aspetta, sei un recruiter o una spia? Scherzo, ti dico tutto. 🤭
     thanks: Di niente! C’è altro che vuoi sapere su Ali?
     bye: A presto! È stato bello chiacchierare. Torna quando vuoi saperne di più su Ali 👋
     how: Malissimo, nessuno mi ha chiesto di Ali per un minuto intero! …Scherzo, sto benissimo, grazie. E tu come stai? Vuoi sapere qualcosa di lui?

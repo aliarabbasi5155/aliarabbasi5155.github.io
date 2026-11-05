@@ -1,0 +1,9 @@
+# Which AI writes Alino's answers, for every visitor (Settings → Alino's AI in the CMS).
+# Published as /alino.json; the Worker (cloudflare/alino) reads it every few minutes.
+# provider: deepseek or openai (its key must be among the Worker's secrets)
+provider: deepseek
+# The provider's model, e.g. deepseek-chat, or gpt-4.1-mini, gpt-4.1, gpt-4o-mini
+model: deepseek-chat
+# How often Alino pulls the visitor's leg before answering, in percent; the first question
+# of a visit always gets one unless this is 0
+pranks: 50

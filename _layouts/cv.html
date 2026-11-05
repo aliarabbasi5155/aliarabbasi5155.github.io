@@ -8,27 +8,42 @@
   (ask.js). script.js moves the camera, places the panes and wires them.
 
   Every word comes from _data/<lang>/*.yml and _blog/<lang>/*.md, which the CMS at /admin/
-  edits; this file only arranges them. `places` is the panes' order, clockwise from the top
+  edits; this file only arranges them.
+
+  The lab (/lab/, page.lab) is this same page for trying things out before they go live: a
+  file copied into lab/ (script.js, canvas.css…) is used there instead of the site's own
+  (_includes/asset.html, and the import map below for scripts). It is kept out of search
+  results and analytics, and its language links stay in the lab. `places` is the panes' order, clockwise from the top
   left (mirrored on right-to-left pages): each pane's centre (x, y) and size, in world pixels.
 {%- endcomment -%}
 {%- assign lang = page.lang | default: "en" -%}
 {%- assign data = site.data[lang] -%}
 {%- assign ui = data.ui -%}
+{%- assign base = "" -%}
+{%- if page.lab %}{% assign base = "/lab" %}{% endif -%}
+{%- assign front = false -%}
+{%- if page.url == "/" or page.url == "/lab/" %}{% assign front = true %}{% endif -%}
 {%- assign places = "about:-1120:-760:760:540,experience:0:-800:900:620,projects:1140:-810:860:640,skills:1140:0:860:480,education:1140:740:860:500,publications:0:720:900:460,blog:-1120:770:760:560,interests:-1120:0:760:380" | split: "," -%}
 <html lang="{{ lang }}" dir="{{ page.direction | default: 'ltr' }}">
 <head>
+    {%- unless page.lab %}
     <script defer src="{{ '/analytics.js' | relative_url }}"
         data-hosts="{{ site.analytics.allowed_hosts | jsonify | escape }}"
         data-measurement-ids="{{ site.analytics.measurement_ids | jsonify | escape }}"></script>
+    {%- endunless %}
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ ui.title | escape }}</title>
     <meta name="description" content="{{ ui.description | escape }}">
+    {%- if page.lab %}
+    <meta name="robots" content="noindex">
+    {%- else %}
     {%- for language in site.languages %}
     <link rel="alternate" hreflang="{{ language.code }}" href="{{ language.url | absolute_url }}">
     {%- endfor %}
     <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
+    {%- endif %}
     <meta name="theme-color" content="#191a1e">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
@@ -44,14 +59,14 @@
             document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f1eee7' : '#191a1e';
         })();
     </script>
-    {%- if page.url == "/" %}
+    {%- if front %}
     <!-- The language, before anything is drawn: a first visit here meets the language
          picker (html.picking), a visitor who chose another language before goes straight to
          its page, and a campaign link has chosen already. ?picker always shows the picker,
          and a choice made there isn't remembered (html.picker-preview). -->
     <script>
         (() => {
-            const pages = { {%- for language in site.languages %}{{ language.code | jsonify }}: {{ language.url | relative_url | jsonify }}{% unless forloop.last %}, {% endunless %}{%- endfor %} };
+            const pages = { {%- for language in site.languages %}{{ language.code | jsonify }}: {{ base | append: language.url | jsonify }}{% unless forloop.last %}, {% endunless %}{%- endfor %} };
             const query = new URLSearchParams(location.search);
             if (query.has('picker')) {
                 document.documentElement.classList.add('picking', 'picker-preview');
@@ -74,7 +89,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
     <!-- Just the letters of the language switch's Persian name, so it joins up -->
     {%- assign persian = site.languages | where: "code", "fa" | first %}
-    {%- if page.url == "/" %}
+    {%- if front %}
     <!-- and of the language picker's Persian words -->
     {%- assign persian_picker = site.data.fa.ui.picker %}
     {%- capture persian_text %}{{ persian.name }}{{ persian_picker.greeting }}{{ persian_picker.prompt }}{{ persian_picker.continue }}{% endcapture %}
@@ -84,16 +99,22 @@
     {%- endif %}
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ '/glass-rings.css' | relative_url }}">
-    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    <link rel="stylesheet" href="{{ '/canvas.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{% include asset.html path='glass-rings.css' %}">
+    <link rel="stylesheet" href="{% include asset.html path='styles.css' %}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{% include asset.html path='canvas.css' %}?v={{ site.time | date: '%s' }}">
+    {%- if page.lab %}
+    <!-- The lab: a script with a copy in lab/ is loaded from there, wherever it is imported -->
+    {%- assign modules = "script.js,ask.js,live-photo.js,dot-field.js,dot-portrait.js,glass-rings.js" | split: "," %}
+    <script type="importmap">{ "imports": { {%- for module in modules %}{% assign own = "/" | append: module %}{% assign copy = "/lab/" | append: module %}{% assign found = site.static_files | where: "path", copy | first %}{% if found %}"{{ own }}": "{{ copy }}"{% else %}"{{ copy }}": "{{ own }}"{% endif %}{% unless forloop.last %}, {% endunless %}{% endfor %} } }</script>
+    {%- else %}
     <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
+    {%- endif %}
 </head>
 <body class="canvas-page">
     <!-- The dot field, which also draws every .glass element as liquid glass -->
     <canvas id="canvas" aria-hidden="true"></canvas>
 
-    {%- if page.url == "/" %}
+    {%- if front %}
     <!-- Language picker: the first screen of a first visit here, shown only when the head
          script asks for it. A glass pane for each language, greeting in it over a pattern of
          its culture (patterns/), leads to its page; English stays. -->
@@ -110,7 +131,7 @@
         <nav class="picker-choices" aria-label="{{ ui.languages | escape }}">
             {%- for language in site.languages %}
             {%- assign their = site.data[language.code].ui.picker %}
-            <a class="pick glass lang-link" href="{{ language.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" dir="{% if language.code == 'fa' %}rtl{% else %}ltr{% endif %}">
+            <a class="pick glass lang-link" href="{{ base | append: language.url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" dir="{% if language.code == 'fa' %}rtl{% else %}ltr{% endif %}">
                 <span class="pick-pattern" aria-hidden="true"></span>
                 <span class="pick-head">
                     <span class="pick-badge" aria-hidden="true">{{ language.code | upcase }}</span>
@@ -146,8 +167,12 @@
                     {%- if news %}
                     {%- capture news_text %}{% include plain.txt text=news.text %}{% endcapture %}
                     <button type="button" class="home-news" data-news="update-0">
-                        <span class="home-news-tag"><i class="fas fa-bolt" aria-hidden="true"></i>{{ ui.canvas.news | escape }}</span>
-                        <span class="home-news-text">{{ news.label | escape }} {{ news_text | escape }}</span>
+                        <span class="home-news-head">
+                            <span class="home-news-tag"><i class="fas fa-bolt" aria-hidden="true"></i>{{ ui.canvas.news | escape }}</span>
+                            <span class="home-news-date">{{ news.date | escape }}</span>
+                        </span>
+                        <span class="home-news-text"><strong>{{ news.label | escape }}</strong> {{ news_text | escape }}</span>
+                        <i class="fas fa-arrow-right home-news-go" aria-hidden="true"></i>
                     </button>
                     {%- endif %}
                 </div>
@@ -235,16 +260,23 @@
 
     <!-- The language and the theme, top right (top left right to left) -->
     <div class="canvas-top">
+        {%- if page.lab %}
+        {%- assign live = site.languages | where: "code", lang | first %}
+        <a class="lab-badge" href="{{ live.url }}" title="The lab: a copy of the site for trying things out. This goes to the live site.">Lab</a>
+        {%- endif %}
         <nav class="lang-switch" aria-label="{{ ui.languages | escape }}">
-            {%- include languages.html lang=lang %}
+            {%- include languages.html lang=lang base=base %}
         </nav>
         {%- include theme-toggle.html id="canvas" label=ui.theme class="canvas-theme" %}
     </div>
 
     <footer class="canvas-foot">
         <p class="copyright">{{ ui.copyright | escape }}</p>
+        {%- unless page.lab %}
         <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
+        {%- endunless %}
     </footer>
+    {%- unless page.lab %}
 
     <section id="analytics-consent" class="analytics-consent" aria-label="{{ ui.analytics.title | escape }}" hidden>
         <strong>{{ ui.analytics.title | escape }}</strong>
@@ -254,8 +286,9 @@
             <button type="button" data-analytics-choice="granted">{{ ui.analytics.allow | escape }}</button>
         </div>
     </section>
+    {%- endunless %}
 
     <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
-    <script type="module" src="{{ '/script.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+    <script type="module" src="{% include asset.html path='script.js' %}?v={{ site.time | date: '%s' }}"></script>
 </body>
 </html>

@@ -32,9 +32,12 @@ then **Create → Create Worker** (or **Start with Hello World**). Name it `ask-
 **Deploy**. Then **Edit code**: select everything in the editor, delete it, paste all of
 [`worker.js`](worker.js), and click **Deploy** again.
 
-**4. The key.** Back on the Worker's page: **Settings → Variables and Secrets → Add**.
-Type **Secret**, name `API_KEY`, value: your key. **Deploy**. (For OpenAI, also add a
-**Text** variable `PROVIDER` with the value `openai`.)
+**4. The keys.** Back on the Worker's page: **Settings → Variables and Secrets → Add**.
+Type **Secret**, name `DEEPSEEK_API_KEY`, value: your DeepSeek key; and if you have one,
+another **Secret** named `OPENAI_API_KEY` with your OpenAI key. **Deploy**. With both, you can
+switch between them from the CMS at any time (below); with one, Alino uses that one. (A key
+saved earlier as `API_KEY` still works, as the DeepSeek key, or as the OpenAI key if a
+**Text** variable `PROVIDER` says `openai`.)
 
 **5. Its address.** On the Worker's page you'll see its address, like
 `https://ask-ali.your-name.workers.dev`. That address is public and safe to share: send it
@@ -49,8 +52,8 @@ Console), paste this with your Worker's address, and press Enter:
 fetch('https://ask-ali.your-name.workers.dev', { method: 'POST', body: JSON.stringify({ question: 'Where does Ali work?', lang: 'en', first: true }) }).then(r => r.text()).then(console.log)
 ```
 
-You should see a first line like `§{"kind":"about"}`, then a short answer that pulls your leg
-first and then gives the real one, with references like `[job-0-0]`. Try `lang: 'fa'` or
+You should see a first line like `§{"kind":"about","prank":true}`, then a made-up "fact"
+with a "just kidding 😜", then the real answer with references like `[job-0-0]`. Try `lang: 'fa'` or
 `lang: 'it'` too, and `question: 'hey, how is it going?'` for a bit of chat.
 
 ## What keeps it safe
@@ -61,10 +64,19 @@ first and then gives the real one, with references like `[job-0-0]`. Try `lang: 
   else gets one of ten fixed refusals, and after five of those, a goodbye for the visit.
 - To stop it at once: delete the key in **Settings**, or the key itself at DeepSeek.
 
-Settings it understands (all optional, as **Text** variables): `MODEL` (default
-`deepseek-chat`, or `gpt-4.1-mini` for OpenAI), `ORIGINS` (sites allowed to ask), `SITE`
-(where the site and its `cv.txt` files are published, default
-`https://aliarabbasi5155.github.io`), `RATE` (questions a minute per visitor, default 6).
+## Switching the AI
+
+In the CMS, **Settings → Alino's AI**: the provider (DeepSeek or OpenAI), the model (for
+example `deepseek-chat`, `gpt-4.1-mini`, `gpt-4.1`), and how often Alino pulls the visitor's
+leg. Save, and a few minutes later (the site rebuilds, then the Worker reads `/alino.json`
+again) every visitor gets the new choice. No need to touch Cloudflare. If the chosen provider
+has no key on the Worker, Alino uses the other one; if the model's name is wrong, it uses the
+provider's default model.
+
+Other settings it understands (all optional, as **Text** variables on the Worker): `ORIGINS`
+(sites allowed to ask), `SITE` (where the site, its `alino.json` and `cv.txt` files are
+published, default `https://aliarabbasi5155.github.io`), `RATE` (questions a minute per
+visitor, default 6), and `PROVIDER` and `MODEL`, used only if `alino.json` can't be read.
 
 ## When `worker.js` changes
 

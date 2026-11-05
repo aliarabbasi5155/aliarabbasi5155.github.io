@@ -57,6 +57,7 @@ canvas:
   hint: "Drag to look around · {arrows} to move · {esc} for the map"
   arrows: Arrows
   news: Latest
+  touch_hint: "Swipe to move around · pinch for the whole map"
 # Alino, Ali's assistant in the coral orb
 alino:
   name: Alino
@@ -120,11 +121,11 @@ alino:
     lead: "Here’s what his CV says:"
     not_found: "Hmm, his CV doesn’t mention that one. You could ask him directly, though: his email is on his card"
     teases:
-      - Let me check my notes… oh no, I spilled coffee all over them! Just kidding, they’re fine.
-      - Hmm, that’s classified information… I’m kidding, it’s right there in his CV.
-      - Give me a second, I’m still booting up… just kidding, I was ready the whole time.
-      - Oh, a tough one! Let me think really hard… I’m kidding, it’s one of my favourites.
-      - Wait, are you a recruiter or a spy? Just kidding, I’ll tell you everything.
+      - Let me check my notes… oh no, I spilled coffee all over them! Just kidding, they’re fine. 😜
+      - Hmm, that’s classified information… I’m kidding, it’s right there in his CV. 😄
+      - Give me a second, I’m still booting up… just kidding, I was ready the whole time. 🙈
+      - Oh, a tough one! Let me think really hard… I’m kidding, it’s one of my favourites. 😅
+      - Wait, are you a recruiter or a spy? Just kidding, I’ll tell you everything. 🤭
     thanks: You’re very welcome! Anything else you’d like to know about Ali?
     bye: Bye for now! It was lovely chatting. Come back anytime you’re curious about Ali 👋
     how: Terrible, nobody asked me about Ali for a whole minute! …Kidding, I’m great, thanks for asking. How about you? Anything you’d like to know about him?
