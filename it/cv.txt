@@ -1,0 +1,6 @@
+---
+layout: null
+permalink: /it/cv.txt
+---
+{%- comment -%} The CV as plain text, in this language, for Alino (_includes/cv.txt) {%- endcomment -%}
+{% include cv.txt lang="it" %}

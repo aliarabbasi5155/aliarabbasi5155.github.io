@@ -48,6 +48,7 @@ defaults:
 
 exclude:
   - README.md
+  - cloudflare
   - tests
   - bin
   - vendor

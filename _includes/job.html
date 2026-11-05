@@ -1,6 +1,11 @@
+{%- comment -%}
+  One job: its title, company, place and dates, and what he did there. Each line carries its
+  reference (include.ref, then ref-0, ref-1… for the bullets), the same that heads it in
+  cv.txt, so an answer from Alino can point at it.
+{%- endcomment -%}
 <div class="job">
     <div class="job-header">
-        <h4>{{ include.job.title | escape }}</h4>
+        <h4 data-ref="{{ include.ref }}">{{ include.job.title | escape }}</h4>
         <div class="company-location">
             <span class="company">
                 {%- if include.job.company_url != blank -%}
@@ -15,7 +20,7 @@
     </div>
     <ul class="job-description">
         {%- for bullet in include.job.bullets %}
-        <li>{% include inline.html text=bullet %}</li>
+        <li data-ref="{{ include.ref }}-{{ forloop.index0 }}">{% include inline.html text=bullet %}</li>
         {%- endfor %}
     </ul>
 </div>
