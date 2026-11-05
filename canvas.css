@@ -147,6 +147,11 @@ html:has(.canvas-page),
     cursor: auto;
 }
 
+/* A pane gets focus when a link ends in its #name; the camera shows where it is */
+.pane:focus {
+    outline: none;
+}
+
 .pane > * {
     position: relative;
     z-index: 1;
@@ -664,6 +669,21 @@ html:has(.canvas-page),
 
 .canvas-theme {
     border-radius: 999px;
+}
+
+/* In the lab (/lab/), a tag that says so, and goes to the live page */
+.lab-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--coral);
+    font: 700 10px/1 var(--mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    text-decoration: none;
 }
 
 /* The copyright and the privacy settings, quietly in a corner */
@@ -1245,7 +1265,21 @@ html:has(.canvas-page),
 .ask-text {
     font-size: 15px;
     line-height: 1.6;
+    /* A leg-pull comes on a line of its own, before the real answer */
+    white-space: pre-line;
     color: var(--text);
+}
+
+/* A leg-pull, before the real answer: said with a wink */
+.ask-prank {
+    display: block;
+    margin-bottom: 6px;
+    font-style: italic;
+    color: var(--soft);
+}
+
+html[lang="fa"] .ask-prank {
+    font-style: normal;
 }
 
 /* Thinking: three dots that breathe in turn */
@@ -1516,46 +1550,93 @@ html[lang="fa"] .home-role {
     padding: 0;
 }
 
-/* The latest update, one line; it opens the list on the About pane */
+/* The latest update, as a card: what it is, when, and the start of it; it opens the list of
+   updates on the About pane */
 .home-news {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    max-width: 100%;
-    padding: 0;
+    position: relative;
+    display: grid;
+    gap: 7px;
+    width: min(100%, 560px);
+    padding-block: 12px 13px;
+    padding-inline: 16px 44px;
     border: 0;
-    background: none;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--coral) 8%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 32%, transparent);
     font: inherit;
     text-align: start;
     color: var(--soft);
     cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.home-news:hover {
+    background: color-mix(in srgb, var(--coral) 13%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 60%, transparent);
+}
+
+.home-news-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .home-news-tag {
     display: inline-flex;
     flex: none;
     align-items: center;
-    gap: 7px;
-    padding: 6px 10px;
+    gap: 6px;
+    padding: 5px 9px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--coral) 16%, transparent);
-    font: 700 10px/1 var(--mono);
+    background: var(--coral);
+    font: 700 9.5px/1 var(--mono);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--coral);
+    color: #fff;
+}
+
+.home-news-date {
+    font: 700 10px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 .home-news-text {
+    display: -webkit-box;
     min-width: 0;
     overflow: hidden;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: color 0.3s;
+    font-size: 14.5px;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
-.home-news:hover .home-news-text {
-    color: var(--mint);
+.home-news-text strong {
+    color: var(--text);
+}
+
+.home-news-go {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 16px;
+    font-size: 13px;
+    color: var(--coral);
+    translate: 0 -50%;
+    transition: translate 0.3s var(--ease);
+}
+
+.home-news:hover .home-news-go {
+    translate: 3px -50%;
+}
+
+[dir="rtl"] .home-news-go {
+    scale: -1 1;
+}
+
+[dir="rtl"] .home-news:hover .home-news-go {
+    translate: -3px -50%;
 }
 
 /* The updates, under About */
@@ -1665,8 +1746,9 @@ html[lang="fa"] .home-role {
         font-size: calc(clamp(52px, 16vw, 80px) * var(--d-size));
     }
 
-    .home-news-text {
-        white-space: normal;
+    /* On a phone the latest update comes right under the photo, where it is seen */
+    .home-news {
+        order: -1;
     }
 
     .interests-grid {

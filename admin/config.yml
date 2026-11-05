@@ -51,6 +51,18 @@ collections:
         hint: "Shown before Show More. Markdown works: **bold**, *italic*, [link](https://…)"
       - { name: body, label: Body, widget: markdown, i18n: true }
 
+  - name: settings
+    label: Settings
+    files:
+      - name: alino
+        label: Alino's AI
+        file: _data/alino.yml
+        hint: "Which AI writes Alino's answers, for every visitor. A change reaches Alino a few minutes after the site rebuilds. The provider's key must be among the Worker's secrets on Cloudflare (DEEPSEEK_API_KEY, OPENAI_API_KEY); without it, Alino uses the other provider."
+        fields:
+          - { name: provider, label: Provider, widget: select, options: [deepseek, openai] }
+          - { name: model, label: Model, widget: string, hint: "DeepSeek: deepseek-chat. OpenAI: gpt-4.1-mini (fast and cheap), gpt-4.1, gpt-4o-mini. Reasoning models (o…, gpt-5…) work but answer more slowly. A model the provider doesn't know falls back to its default." }
+          - { name: pranks, label: Leg-pulls (%), widget: number, value_type: int, min: 0, max: 100, step: 5, hint: "How often Alino opens with a made-up fact and a “just kidding 😜” before the real answer. The first question of a visit always gets one, unless this is 0." }
+
   - name: cv
     label: CV
     i18n: true
@@ -301,6 +313,7 @@ collections:
               - { name: hint, label: Hint, widget: string, hint: "Shown at the top until the visitor moves; {arrows} and {esc} become keys" }
               - { name: arrows, label: Arrow keys, widget: string, hint: "The arrow keys' name in the hint" }
               - { name: news, label: Latest, widget: string, hint: "The tag before the latest update, on your pane" }
+              - { name: touch_hint, label: Touch hint, widget: string, required: false, hint: "On a phone's first visit, for a moment: how to get around" }
           - name: alino
             label: Alino
             widget: object

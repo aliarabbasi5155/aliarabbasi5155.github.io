@@ -108,7 +108,7 @@ function createField(initial) {
         return null;
     }
     created.start();
-    samplePortrait(new URL('profile-photo.jpg', import.meta.url).href, created.count)
+    samplePortrait(new URL('/profile-photo.jpg', location.href).href, created.count)
         .then(points => created.setPortrait(points))
         .catch(() => {});
     created.setGlass(document.querySelectorAll(root.classList.contains('picking') ? '.pick' : '.pane'));

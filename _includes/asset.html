@@ -1,0 +1,12 @@
+{%- comment -%}
+  A file's address (include.path, from the site's root, no leading slash): on a lab page
+  (page.lab), its copy in lab/ when there is one, otherwise the site's own. So the lab is the
+  live site until a file is copied into lab/ to be worked on.
+{%- endcomment -%}
+{%- assign _asset = "/" | append: include.path -%}
+{%- if page.lab -%}
+{%- assign _copy = "/lab/" | append: include.path -%}
+{%- assign _found = site.static_files | where: "path", _copy | first -%}
+{%- if _found -%}{%- assign _asset = _copy -%}{%- endif -%}
+{%- endif -%}
+{{- _asset -}}

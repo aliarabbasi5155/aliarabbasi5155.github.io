@@ -59,7 +59,24 @@ text, generated from the same data as the pages. If the Worker can't be reached,
 answers on its own from the lines that match best.
 
 Alino's own words on the page (its hello, suggested questions, the bubbles beside the
-orb, the refusals) are under **Site text → Alino** in each language.
+orb, the refusals) are under **Site text → Alino** in each language. Which AI writes its
+answers, for every visitor, is under **Settings → Alino's AI** in the CMS: DeepSeek or OpenAI,
+the model, and how often it pulls the visitor's leg (`_data/alino.yml`, published as
+`/alino.json`, which the Worker reads every few minutes).
+
+## The lab
+
+[/lab/](https://aliarabbasi5155.github.io/lab/) (and `/lab/it/`, `/lab/fa/`) is the same site,
+for trying changes out on the real GitHub Pages before they go live. It is kept out of search
+results and analytics, wears a coral **Lab** tag, and its language links stay in the lab.
+
+It uses the site's own files, except those with a copy in `lab/`: a stylesheet or script
+copied there (`lab/canvas.css`, `lab/script.js`, any of the scripts it imports…) is used in
+the lab instead (`_includes/asset.html`, and an import map in `_layouts/cv.html`). The text
+comes from the same data, so new words can be added there freely. To work on something, copy
+the file into `lab/` and change the copy; to put it live, move the copy over the original
+(`git mv -f lab/script.js script.js`); with nothing in `lab/` but its three pages, the lab is
+simply the live site.
 
 ## Themes
 
