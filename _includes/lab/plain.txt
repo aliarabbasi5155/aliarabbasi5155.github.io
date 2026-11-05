@@ -1,0 +1,2 @@
+{%- comment -%} Lab only: one line of Markdown as plain words, for lab/cv.txt (links keep their text) {%- endcomment -%}
+{{- include.text | markdownify | strip_html | strip_newlines | replace: "&amp;", "&" | replace: "&lt;", "<" | replace: "&gt;", ">" | replace: "&quot;", '"' | replace: "&#39;", "'" | strip -}}

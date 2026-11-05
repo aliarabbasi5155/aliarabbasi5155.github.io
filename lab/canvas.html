@@ -110,27 +110,27 @@
         <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask about Ali</span><kbd>/</kbd></span>
     </div>
 
-    {%- comment -%} data-endpoint: the URL of an AI proxy that keeps its key on a server (lab/ask-proxy), when there is one {%- endcomment %}
+    {%- comment -%} data-endpoint: the URL of the AI proxy that keeps its key on a server (lab/ask-proxy), once there is one {%- endcomment %}
     <section class="ask" id="ask" aria-label="Ask about Ali" data-endpoint="" hidden>
-        <form class="ask-form" role="search">
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" name="q" placeholder="Ask anything about Ali&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali" aria-controls="ask-results">
-            <kbd>Esc</kbd>
+        <form class="ask-form">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+            <input type="text" name="q" maxlength="300" placeholder="Ask anything about Ali&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali">
+            <button type="submit" class="ask-send" aria-label="Ask"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
         </form>
-        <p class="ask-answer" aria-live="polite"></p>
-        <button type="button" class="ask-best" hidden>
-            <span class="ask-best-kind"></span>
-            <span class="ask-best-text"></span>
-            <span class="ask-where"></span>
-        </button>
         <div class="ask-suggest">
-            {%- assign asks = "Has he led a team?|What has he built with RAG?|Which cloud does he use?|Has he published research?|How can I reach him?" | split: "|" %}
+            <p class="ask-hint">Ask in your own words, or try one of these:</p>
+            {%- assign asks = "Has he led a team?|What has he built with RAG?|Which cloud does he use?|Has he published research?|What does he do for fun?|How can I reach him?" | split: "|" %}
             {%- for ask in asks %}
             <button type="button" class="ask-chip">{{ ask }}</button>
             {%- endfor %}
         </div>
-        <ol class="ask-results" id="ask-results"></ol>
-        <p class="ask-mode"><i class="fa-solid fa-microchip" aria-hidden="true"></i><span class="ask-mode-text">Searching by words</span></p>
+        <div class="ask-reply" hidden>
+            <p class="ask-question"></p>
+            <p class="ask-text" aria-live="polite"></p>
+            <ol class="ask-refs" aria-label="References" hidden></ol>
+            <p class="ask-by"></p>
+        </div>
+        <p class="ask-mode"><i class="fa-solid fa-microchip" aria-hidden="true"></i><span class="ask-mode-text">Answers from his CV</span></p>
     </section>
 
     <!-- Typefaces to try: the pick is kept in this browser -->

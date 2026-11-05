@@ -3,8 +3,8 @@
   every other contact as a round icon.
 {%- endcomment -%}
 {%- assign profile = site.data.en.profile -%}
-<div class="actions">
-    <a href="../Resume_Ali_Abbasi.pdf" class="act act-primary" download><i class="fas fa-download" aria-hidden="true"></i><span>{{ profile.resume.label | escape }}</span></a>
+<div class="actions" data-ref="contact">
+    <a href="../Resume_Ali_Abbasi.pdf" class="act act-primary" data-ref="resume" download><i class="fas fa-download" aria-hidden="true"></i><span>{{ profile.resume.label | escape }}</span></a>
     {%- for contact in profile.contacts %}
     {%- if contact.url contains "mailto:" %}
     <a href="{{ contact.url }}" class="act"><i class="{{ contact.icon }}" aria-hidden="true"></i><span class="act-mail">{{ contact.label | escape }}</span></a>

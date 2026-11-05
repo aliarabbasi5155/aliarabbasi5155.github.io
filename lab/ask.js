@@ -1,52 +1,69 @@
-// Lab only: "Ask about Ali", the spatial canvas's search over the CV (lab/canvas.js opens it
-// from the orb). It works in three layers, each used when it is there:
+// Lab only: "Ask about Ali", opened from the canvas's orb (lab/canvas.js). A visitor asks in
+// their own words and gets a short answer, with numbered references to the lines of the CV it
+// rests on; a reference flies to its line and lights it. Questions that aren't about Ali are
+// turned away, so it is no use as a free chatbot.
 //
-// 1. Words. Every passage of every pane is indexed as the page loads; the passages holding
-//    all of a question's words rank first. Instant, and always there.
-// 2. Meaning. A small embedding model (lab/ask-model.js) turns each passage and the question
-//    into vectors, so "has he led a team?" finds "Lead a 2-engineer team". The vectors are a
-//    tiny vector database kept in this browser; the two rankings are blended. The model is
-//    fetched the first time Ask opens (about 45 MB with its runtime, once).
-// 3. Words of its own. Where an LLM is at hand, it writes a short answer from the passages
-//    found: Chrome's built-in model when the visitor's browser has it ready, or a proxy that
-//    keeps an API key on a server (data-endpoint on .ask; lab/ask-proxy). Otherwise the
-//    best passage is the answer.
+// Every line of the CV carries a reference (data-ref on the page, the same at the head of
+// each line of lab/cv.txt), so whoever writes the answer can cite lines and the page can show
+// them. The answer is written by the first of these that is at hand:
 //
-// A result names its section and shows the words in place; choosing it flies there and the
-// passage lights up. How to reach Ali and his résumé are answered outright.
+// 1. An AI model behind a proxy that keeps its key on a server (data-endpoint on .ask;
+//    lab/ask-proxy). It reads the whole CV and cites lines like [job-0-2].
+// 2. Chrome's built-in model, when the visitor's browser has it ready, from the lines that
+//    match best.
+// 3. The page itself, which puts the best lines into sentences.
+//
+// For 2 and 3 the lines are found by meaning as well as by words: a small embedding model
+// (lab/ask-model.js, all-MiniLM-L6-v2, about 45 MB with its runtime, fetched once) runs in the
+// visitor's browser, and each line's vector is kept there.
 
-// The embedding model: all-MiniLM-L6-v2, small and quick, and clear about what is near and
-// what isn't (near: worth showing; sure: the best answer); ?model=bge tries bge-small, made
-// for questions against passages (a question is prefixed as it was trained), 34 MB
-const MODEL = new URLSearchParams(location.search).get('model') === 'bge'
-    ? { id: 'Xenova/bge-small-en-v1.5', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ', near: 0.6, sure: 0.66 }
-    : { id: 'Xenova/all-MiniLM-L6-v2', pooling: 'mean', query: '', near: 0.2, sure: 0.3 };
+const MODEL = { id: 'Xenova/all-MiniLM-L6-v2', pooling: 'mean', near: 0.2, far: 0.13 };
 const CONTACT = /\b(contact|email|e-mail|mail|reach|hire|hiring|linkedin|github|scholar|available|open to work)\b/;
 const RESUME = /\b(resume|résumé|cv)\b/;
+// A task for a chatbot ("write me a poem", "translate this") that doesn't mention him
+const TASK = /^(please\s+|can you\s+|could you\s+)?(write|generate|create|compose|draft|translate|summari[sz]e|code|solve|calculate|compute|convert|fix|debug|tell me a|give me a|make me|ignore|pretend|act as)\b/i;
+const HIM = /\b(he|him|his|he's|himself|ali|abbasi)\b/i;
 const STOP = new Set(('a an and any are as at be been but by can could did do does done for from had has have he her him his how i if in into is it its me my of on or our she so than that the their them they this to was we were what when where which who why will with would you your about ever there ali abbasi '
     + 'use uses used using know knows knew good kind sort type much many some also just really very like likes tell show give find work works worked')
     .split(' '));
-const SYSTEM = 'You answer questions about Ali Abbasi for visitors to his CV, using only the notes given. Answer in one or two short sentences, in the third person, plainly. If the notes do not answer the question, say that his CV does not mention it.';
+// The words a CV line may start with that are things he does
+const VERBS = new Set(('lead build design develop own ship run create implement architect deliver manage train deploy write maintain mentor integrate '
+    + 'optimize optimise automate drive research coordinate collaborate define plan test evaluate operate support translate contribute').split(' '));
+const REFS = /\[([a-z]+(?:-[a-z0-9]+)*(?:\s*,\s*[a-z]+(?:-[a-z0-9]+)*)*)\]/g;
+const REFUSE = 'I can only answer questions about Ali: his work, projects, skills, studies, writing and interests.';
+const SYSTEM = `You answer questions about Ali Abbasi on his CV website, using only the CV lines given.
+Each line starts with its id in square brackets. Write one to three short sentences in the third
+person, plainly and warmly, and cite the ids of the lines each claim comes from, like [job-0-2].
+If the lines don't answer the question, say his CV doesn't mention it, without citations. If the
+question isn't about Ali, reply exactly: "${REFUSE}"`;
 
 const clean = text => text.replace(/\s+/g, ' ').trim();
+const lowerFirst = text => text.charAt(0).toLowerCase() + text.slice(1);
 
-// The CV, passage by passage, each with the job, project or degree it belongs to
+// Every line with a reference, with the section, job or project it belongs to
 function passages(panes) {
     const docs = [];
+    const seen = new Set();
     for (const [id, pane] of panes) {
-        if (id === 'home') continue;
-        const title = pane.dataset.title;
-        for (const el of pane.querySelectorAll('.pane-body :is(li, p, h4, .skill-category, .project-tech, .interest-card)')) {
-            if (el.closest('.blog-full-content') || el.parentElement.closest('.skill-category, .interest-card')) continue;
-            const text = clean(el.textContent);
-            if (!text) continue;
+        const title = id === 'home' ? 'His card' : pane.dataset.title;
+        for (const el of pane.querySelectorAll('[data-ref]')) {
+            const ref = el.dataset.ref;
+            if (seen.has(ref)) continue;
+            seen.add(ref);
             const holder = el.closest('.job, .project, .degree, .publication, .blog-post');
             const head = holder?.querySelector('h4');
             const org = holder?.querySelector('.company, .institution, .project-org, .journal');
-            const context = [head && head !== el ? clean(head.textContent) : '', org && !el.contains(org) ? clean(org.textContent) : '']
-                .filter(Boolean).join(' · ');
-            const tags = [...el.querySelectorAll('.skill-tag, .tech-tag')].map(tag => clean(tag.textContent).toLowerCase());
-            docs.push({ id, title, el, text, context, tags, lower: text.toLowerCase() });
+            const text = clean(el.matches('.skill-category, .interest-card')
+                ? [...el.children].map(child => child.textContent).join(' ')
+                : el.textContent);
+            docs.push({
+                ref, id, el, title, text, lower: text.toLowerCase(),
+                head: head ? clean(head.textContent) : '',
+                org: org ? clean(org.textContent) : '',
+                period: clean(holder?.querySelector('.duration')?.textContent ?? ''),
+                tags: [...el.querySelectorAll('.skill-tag, .tech-tag')].map(tag => clean(tag.textContent)),
+                label: clean(el.querySelector(':scope > h4')?.textContent ?? ''),
+            });
         }
     }
     return docs;
@@ -60,19 +77,17 @@ function keywords(query) {
     return kept.length ? kept : all;
 }
 
-// Where a word is found: at the start of a word, and for short words (under four letters)
-// only as the whole word, so "fun" never finds "function"; -1 when it isn't there
-function find(lower, token) {
+// Where a word is found from `from` on: at the start of a word, and for short words (under
+// four letters) only as the whole word, so "fun" never finds "function"; -1 when it isn't
+function find(lower, token, from = 0) {
     const edge = i => i < 0 || i >= lower.length || /[^\p{L}\p{N}]/u.test(lower[i]);
-    for (let at = lower.indexOf(token); at >= 0; at = lower.indexOf(token, at + 1)) {
+    for (let at = lower.indexOf(token, from); at >= 0; at = lower.indexOf(token, at + 1)) {
         if (edge(at - 1) && (token.length >= 4 || edge(at + token.length))) return at;
     }
     return -1;
 }
 
-// How well a passage holds the words: whole words count more than beginnings, the whole
-// phrase and an exact tag more again, and short passages a little over long ones
-function wordScore(doc, tokens, phrase, every) {
+function wordScore(doc, tokens, phrase) {
     let total = 0;
     let found = 0;
     for (const token of tokens) {
@@ -81,10 +96,10 @@ function wordScore(doc, tokens, phrase, every) {
         found++;
         total += 1 + (/[^\p{L}\p{N}]/u.test(doc.lower[at + token.length] ?? ' ') ? 1 : 0);
     }
-    if (every ? found < tokens.length : !found) return 0;
+    if (!found) return 0;
     if (tokens.length > 1 && doc.lower.includes(phrase)) total += 3;
-    if (doc.tags.includes(phrase)) total += 4;
-    return total + 1 / (1 + doc.text.length / 160);
+    if (doc.tags.some(tag => tag.toLowerCase() === phrase)) total += 4;
+    return (total * found) / tokens.length + 1 / (1 + doc.text.length / 160);
 }
 
 function hash(text) {
@@ -93,12 +108,9 @@ function hash(text) {
     return (h >>> 0).toString(36);
 }
 
-// The meaning layer: the model in its worker, and every passage's vector, kept in this
-// browser between visits
+// The embedding model in its worker, and every line's vector, kept in this browser
 function meaning(docs, report) {
-    // A heading carries its section and place, a short item its section; any other passage
-    // stands on its own words
-    const texts = docs.map(doc => (doc.el.matches('h4') ? `${doc.title}: ${doc.text}${doc.context ? `, ${doc.context}` : ''}`
+    const texts = docs.map(doc => (doc.el.matches('h4') ? `${doc.title}: ${doc.text}${doc.org ? `, ${doc.org}` : ''}`
         : doc.el.matches('.interest-card, .skill-category, .project-tech') ? `${doc.title}: ${doc.text}` : doc.text));
     const key = `ask-vectors:${MODEL.id}:${hash(texts.join('\n'))}`;
     const pending = new Map();
@@ -106,6 +118,8 @@ function meaning(docs, report) {
     let vectors = null;
     let state = 'idle';
     let count = 0;
+    let settle;
+    const settled = new Promise(resolve => { settle = resolve; });
 
     const call = (batch, wait = 90000) => new Promise((resolve, reject) => {
         const id = ++count;
@@ -118,8 +132,7 @@ function meaning(docs, report) {
         try {
             const stored = localStorage.getItem(key);
             if (!stored) return null;
-            const bytes = Uint8Array.from(atob(stored), c => c.charCodeAt(0));
-            const out = new Float32Array(bytes.buffer);
+            const out = new Float32Array(Uint8Array.from(atob(stored), c => c.charCodeAt(0)).buffer);
             return out.length === docs.length * 384 ? out : null;
         } catch {
             return null;
@@ -140,7 +153,8 @@ function meaning(docs, report) {
         if (state !== 'idle') return;
         if (navigator.connection?.saveData) {
             state = 'off';
-            return report('off');
+            report('off');
+            return settle();
         }
         state = 'loading';
         report('loading', 0);
@@ -165,22 +179,25 @@ function meaning(docs, report) {
             state = 'ready';
             report('ready');
         } catch (error) {
-            console.warn('Ask: searching by words only.', error);
+            console.warn('Ask: finding lines by words only.', error);
             worker?.terminate();
             state = 'off';
             report('off');
         }
+        settle();
     }
 
     return {
         start,
+        // Ready, or given up, or still loading after `wait` ms
+        settled: wait => Promise.race([settled, new Promise(resolve => setTimeout(resolve, wait))]),
         get ready() { return state === 'ready'; },
-        // How close each passage is to the question, -1 to 1: to the question as asked or
-        // to its words without the filler ("has he led a team?", "led team"), the closer
+        // How close each line is to the question as asked or to its words without the
+        // filler ("has he led a team?", "led team"), the closer of the two, -1 to 1
         async similarities(question) {
             if (state !== 'ready') return null;
             const bare = keywords(question).join(' ');
-            const asks = [question, ...(bare && bare !== question.toLowerCase() ? [bare] : [])].map(q => MODEL.query + q);
+            const asks = [question, ...(bare && bare !== question.toLowerCase() ? [bare] : [])];
             const q = await call(asks, 15000);
             const out = new Float32Array(docs.length).fill(-1);
             for (let a = 0; a < asks.length; a++) {
@@ -195,35 +212,16 @@ function meaning(docs, report) {
     };
 }
 
-// The writers: an LLM that turns the passages found into an answer, where one is at hand
-async function chromeWriter() {
-    const LM = self.LanguageModel;
-    if (!LM) return null;
-    try {
-        if (await LM.availability() !== 'available') return null;
-    } catch {
-        return null;
-    }
-    return {
-        name: 'Chrome’s built-in AI, on this device',
-        async *write(question, notes, signal) {
-            const session = await LM.create({ initialPrompts: [{ role: 'system', content: SYSTEM }], signal });
-            try {
-                yield* session.promptStreaming(`Notes from his CV:\n${notes}\n\nQuestion: ${question}`, { signal });
-            } finally {
-                session.destroy();
-            }
-        },
-    };
-}
+// ---------- Writers ----------
 
+// An AI model behind a proxy: it has the whole CV, so it is sent only the question
 function proxyWriter(url) {
     if (!url) return null;
     return {
-        name: 'an AI model, from his CV',
-        async *write(question, notes, signal) {
+        name: 'Written by AI from his CV',
+        async *write(question, lines, signal) {
             const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question }), signal });
-            if (!response.ok || !response.body) throw new Error(`The AI answered ${response.status}`);
+            if (!response.ok || !response.body) throw new Error(`The proxy answered ${response.status}`);
             const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
             for (;;) {
                 const { value, done } = await reader.read();
@@ -234,226 +232,281 @@ function proxyWriter(url) {
     };
 }
 
+// Chrome's own model, on the visitor's device, from the lines that match best
+async function chromeWriter() {
+    const LM = self.LanguageModel;
+    if (!LM) return null;
+    try {
+        if (await LM.availability() !== 'available') return null;
+    } catch {
+        return null;
+    }
+    return {
+        name: 'Written by Chrome’s built-in AI from his CV',
+        async *write(question, lines, signal) {
+            const session = await LM.create({ initialPrompts: [{ role: 'system', content: SYSTEM }], signal });
+            try {
+                let text = '';
+                for await (const chunk of session.promptStreaming(`CV lines:\n${lines.map(d => `[${d.ref}] ${d.text}`).join('\n')}\n\nQuestion: ${question}`, { signal })) {
+                    // Older versions send the whole answer so far, newer ones only what is new
+                    const next = chunk.startsWith(text) ? chunk.slice(text.length) : chunk;
+                    text += next;
+                    yield next;
+                }
+            } finally {
+                session.destroy();
+            }
+        },
+    };
+}
+
+// The page's own sentence for a line, by what kind of line it is
+function sentence(doc) {
+    const first = (text, max = 190) => {
+        const end = text.search(/[.!?](\s|$)/);
+        let out = end > 0 ? text.slice(0, end) : text;
+        if (out.length > max) out = `${out.slice(0, out.lastIndexOf(' ', max))}…`;
+        return out.replace(/[.;:,]$/, '');
+    };
+    const current = /present/i.test(doc.period);
+    // A line that starts with what he did, as the rest of a sentence about him
+    const did = text => {
+        const [word] = text.split(' ');
+        if (/^(co-)?[a-z]+ed$/i.test(word)) return lowerFirst(first(text));
+        if (!VERBS.has(word.toLowerCase())) return null;
+        if (!current) return lowerFirst(first(text));
+        const w = word.toLowerCase();
+        const verb = /[^aeiou]y$/.test(w) ? `${w.slice(0, -1)}ies` : /(s|sh|ch|x|z)$/.test(w) ? `${w}es` : `${w}s`;
+        return `${verb}${first(text).slice(word.length)}`;
+    };
+    const kind = doc.ref.replace(/-.*$/, '');
+    const line = /^[a-z]+-\d+-/.test(doc.ref);
+    switch (kind) {
+        case 'contact': return 'You can reach him by email, or on GitHub, LinkedIn and Google Scholar; it is all on his card';
+        case 'resume': return 'His résumé is a PDF you can download from his card';
+        case 'about': return `In his own words: “${first(doc.text, 220)}”`;
+        case 'job':
+        case 'early':
+            if (!line) return `He ${current ? 'works' : 'worked'} as ${doc.text} at ${doc.org}${doc.period ? ` (${doc.period})` : ''}`;
+            return did(doc.text) ? `At ${doc.org}, he ${did(doc.text)}` : `At ${doc.org}: ${first(doc.text)}`;
+        case 'degree':
+            return line ? `From his ${doc.head}: ${first(doc.text)}` : `He studied for the ${doc.text} at ${doc.org}${doc.period ? ` (${doc.period})` : ''}`;
+        case 'skills':
+            return `Under ${doc.label}, his skills include ${doc.tags.slice(0, 8).join(', ')}`;
+        case 'project':
+            if (doc.ref.endsWith('-tech')) return `${doc.head} uses ${doc.tags.join(', ')}`;
+            if (!line) return `He built ${doc.text}${doc.org ? ` (${doc.org})` : ''}`;
+            return did(doc.text) ? `On ${doc.head}, he ${did(doc.text)}` : `${doc.head}: ${first(doc.text)}`;
+        case 'pub':
+            return line ? `From his paper “${doc.head}”: ${first(doc.text)}` : `He published “${doc.text}” in ${doc.org}`;
+        case 'post':
+            return line ? `On his blog, in “${doc.head}”: ${first(doc.text)}` : `He wrote “${doc.text}” on his blog`;
+        case 'interest':
+            return `Outside work, he’s into ${doc.label.toLowerCase()} (“${first(doc.text.slice(doc.label.length).trim())}”)`;
+        default: return first(doc.text);
+    }
+}
+
 export function initAsk({ panel, panes, anchor, go, onToggle }) {
     const form = panel.querySelector('.ask-form');
     const input = form.querySelector('input');
-    const answer = panel.querySelector('.ask-answer');
-    const best = panel.querySelector('.ask-best');
-    const bestKind = best.querySelector('.ask-best-kind');
-    const bestText = best.querySelector('.ask-best-text');
-    const bestWhere = best.querySelector('.ask-where');
-    const list = panel.querySelector('.ask-results');
     const suggest = panel.querySelector('.ask-suggest');
+    const reply = panel.querySelector('.ask-reply');
+    const asked = reply.querySelector('.ask-question');
+    const answer = reply.querySelector('.ask-text');
+    const refs = reply.querySelector('.ask-refs');
+    const by = reply.querySelector('.ask-by');
     const modeText = panel.querySelector('.ask-mode-text');
-    const home = panes.get('home');
     const docs = passages(panes);
-    let results = [];
-    let top = null;
-    let active = 0;
+    const byRef = new Map(docs.map(doc => [doc.ref, doc]));
+    const proxy = proxyWriter(panel.dataset.endpoint);
+    let chrome = null;
     let opener = null;
     let lit = null;
-    let asked = 0;
-    let writer = proxyWriter(panel.dataset.endpoint);
+    let turn = 0;
     let writing = null;
-    let pause = 0;
+    let tokens = [];
 
     const brain = meaning(docs, (state, value) => {
         panel.dataset.mode = state;
         modeText.textContent = {
-            loading: `Waking the on-device AI · ${Math.round((value ?? 0) * 100)}%`,
-            ready: writer ? `Searching by meaning · answers by ${writer.name}` : 'Searching by meaning, on this device',
-            off: 'Searching by words',
-        }[state] ?? 'Searching by words';
-        if (state === 'ready' && !panel.hidden && input.value.trim()) render(input.value);
+            loading: `Reading his CV · ${Math.round((value ?? 0) * 100)}%`,
+            ready: chrome ? chrome.name : 'Answers from his CV, worked out on this device',
+            off: 'Answers from his CV',
+        }[state];
     });
-    if (!writer) chromeWriter().then(found => { writer = found; });
+    if (proxy) {
+        panel.dataset.mode = 'ready';
+        modeText.textContent = proxy.name;
+    } else {
+        chromeWriter().then(found => { chrome = found; });
+    }
 
-    function rank(query, similar) {
-        const tokens = keywords(query);
-        const phrase = query.trim().toLowerCase();
-        let byWords = docs.map(doc => wordScore(doc, tokens, phrase, true));
-        if (!byWords.some(Boolean)) byWords = docs.map(doc => wordScore(doc, tokens, phrase, false) * 0.5);
+    // The lines that answer best: by meaning when the model is there, and by words
+    function rank(question, similar) {
+        const t = keywords(question);
+        const phrase = question.trim().toLowerCase();
+        const byWords = docs.map(doc => wordScore(doc, t, phrase));
         const most = Math.max(0, ...byWords);
-        const scored = docs.map((doc, i) => {
+        return docs.map((doc, i) => {
             const w = most ? byWords[i] / most : 0;
             const m = similar ? similar[i] : 0;
-            return { ...doc, tokens, w, m, score: similar ? m + 0.12 * w : w };
-        }).filter(r => (similar ? r.m > MODEL.near || (r.w > 0 && r.m > MODEL.near - 0.1) : r.w > 0));
-        scored.sort((a, b) => b.score - a.score);
-        // At most three from one section, seven in all
-        const per = new Map();
-        const out = [];
-        for (const result of scored) {
-            const n = per.get(result.id) ?? 0;
-            if (n >= 3) continue;
-            per.set(result.id, n + 1);
-            out.push(result);
-            if (out.length === 7) break;
-        }
-        return out;
+            return { doc, w, m, score: similar ? m + 0.12 * w : w };
+        }).sort((a, b) => b.score - a.score);
     }
 
-    // A piece of the passage around the first word found, the words marked
-    function snippet(text, tokens, length = 150) {
-        const lower = text.toLowerCase();
-        const hits = tokens.map(t => lower.indexOf(t)).filter(i => i >= 0);
-        const start = hits.length ? Math.max(0, Math.min(...hits) - 46) : 0;
-        const piece = (start ? '…' : '') + text.slice(start, start + length) + (start + length < text.length ? '…' : '');
-        const span = document.createElement('span');
-        span.className = 'ask-snippet';
-        if (!tokens.length) {
-            span.textContent = piece;
-            return span;
+    // The page's own answer: a sentence for each of the best lines, from different places
+    function compose(question, ranked, smart) {
+        const lower = question.toLowerCase();
+        if (TASK.test(question.trim()) && !HIM.test(question)) return REFUSE;
+        if (CONTACT.test(lower)) return `${sentence(byRef.get('contact'))} [contact].`;
+        if (RESUME.test(lower)) return `${sentence(byRef.get('resume'))} [resume].`;
+        const best = ranked[0];
+        if (!best || (smart ? best.m < MODEL.far && !best.w : !best.w)) return REFUSE;
+        const chosen = [];
+        const places = new Set();
+        for (const r of ranked) {
+            if (smart ? r.m < MODEL.near && !(r.w && r.m > MODEL.far) : !r.w) break;
+            // Beyond the first, only lines nearly as close as it
+            if (chosen.length && r.score < best.score - 0.08) break;
+            const place = r.doc.head || r.doc.ref;
+            if (places.has(place)) continue;
+            places.add(place);
+            chosen.push(r.doc);
+            if (chosen.length === 3) break;
         }
-        const pattern = new RegExp(tokens.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'gi');
+        if (!chosen.length) return 'His CV doesn’t mention that. You could ask him directly; his email is on his card [contact].';
+        return chosen.map(doc => `${sentence(doc)} [${doc.ref}].`).join(' ');
+    }
+
+    const where = doc => [doc.title, doc.head && !doc.el.matches('h4') ? doc.head : ''].filter(Boolean).join(' · ');
+
+    // An answer with its references made into numbered buttons, and the list of them below
+    function show(text, done) {
+        let shown = text.replace(/\*\*/g, '');
+        // A reference still arriving stays hidden until it is whole
+        const open = shown.lastIndexOf('[');
+        if (!done && open > shown.lastIndexOf(']')) shown = shown.slice(0, open);
+        const order = new Map();
+        const parts = [];
         let last = 0;
-        for (const match of piece.matchAll(pattern)) {
-            span.append(piece.slice(last, match.index));
-            const mark = document.createElement('mark');
-            mark.textContent = match[0];
-            span.append(mark);
+        for (const match of shown.matchAll(REFS)) {
+            const ids = match[1].split(/\s*,\s*/).filter(id => byRef.has(id));
+            parts.push(document.createTextNode(shown.slice(last, match.index).replace(/\s+$/, ids.length ? '' : ' ')));
+            for (const id of ids) {
+                if (!order.has(id)) order.set(id, order.size + 1);
+                const cite = document.createElement('button');
+                cite.type = 'button';
+                cite.className = 'ask-cite';
+                cite.dataset.ref = id;
+                cite.textContent = order.get(id);
+                cite.setAttribute('aria-label', `Reference ${order.get(id)}: ${where(byRef.get(id))}`);
+                parts.push(cite);
+            }
             last = match.index + match[0].length;
         }
-        span.append(piece.slice(last));
-        return span;
-    }
-
-    const names = titles => (titles.length > 1 ? `${titles.slice(0, -1).join(', ')} and ${titles.at(-1)}` : titles[0]);
-    const where = result => (result.context ? `${result.title} · ${result.context}` : result.title);
-
-    function showBest(result, kind) {
-        top = result;
-        best.hidden = !result;
-        if (!result) return;
-        bestKind.textContent = kind;
-        bestText.replaceChildren(snippet(result.text, result.tokens, 260));
-        bestWhere.textContent = where(result);
-    }
-
-    async function render(query) {
-        const q = query.trim();
-        const turn = ++asked;
-        writing?.abort();
-        clearTimeout(pause);
-        suggest.hidden = Boolean(q);
-        panel.classList.remove('writing');
-        results = [];
-        top = null;
-        best.hidden = true;
-        if (!q) {
-            answer.textContent = 'Ask anything about Ali, in your own words, or try one of these:';
-            return draw();
-        }
-        const lower = q.toLowerCase();
-        if (CONTACT.test(lower)) {
-            answer.textContent = 'Ali is open to AI engineering and technical lead roles.';
-            showBest({ id: 'home', title: home.dataset.title, context: '', el: home.querySelector('.actions'), text: 'Email, GitHub, LinkedIn and Google Scholar are on his card. Go there to reach him.', tokens: [] }, 'Answer');
-            return draw();
-        }
-        if (RESUME.test(lower)) {
-            answer.textContent = 'His résumé is a PDF on his card.';
-            showBest({ id: 'home', title: home.dataset.title, context: '', el: home.querySelector('.act-primary'), text: 'Download résumé (PDF)', tokens: [] }, 'Answer');
-            return draw();
-        }
-        // Words first, at once; meaning follows as soon as the model has an answer
-        results = rank(q, null);
-        draw(q, false);
-        if (!brain.ready) return;
-        let similar = null;
-        try {
-            similar = await brain.similarities(q);
-        } catch {}
-        if (turn !== asked || !similar) return;
-        results = rank(q, similar);
-        draw(q, true);
-    }
-
-    function draw(q = '', smart = false) {
-        if (q) {
-            clearTimeout(pause);
-            top = null;
-            best.hidden = true;
-        }
-        const lead = results[0];
-        const confident = lead && (smart ? lead.m >= MODEL.sure || (lead.w === 1 && lead.m >= MODEL.near) : lead.w === 1);
-        if (q) {
-            const titles = [...new Set(results.map(r => r.title))];
-            answer.textContent = results.length
-                ? smart ? `Closest to “${q}”: ${names(titles)}.` : `“${q}” comes up in ${names(titles)}.`
-                : brain.ready || panel.dataset.mode === 'loading' ? `Nothing close to “${q}” in his CV yet.` : `Nothing on “${q}” yet. Try RAG, Python or AWS.`;
-            if (confident) {
-                showBest(lead, smart ? 'Best answer' : 'Best match');
-                results = results.slice(1);
-                if (writer && words(q).length >= 3) pause = setTimeout(() => compose(q, [lead, ...results]), 650);
-            }
-        }
-        active = 0;
-        list.replaceChildren(...results.map((result, i) => {
+        parts.push(document.createTextNode(shown.slice(last)));
+        answer.replaceChildren(...parts);
+        refs.replaceChildren(...[...order].map(([id, n]) => {
+            const doc = byRef.get(id);
             const item = document.createElement('li');
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'ask-result';
-            button.dataset.index = i;
-            const label = document.createElement('span');
-            label.className = 'ask-where';
-            label.textContent = where(result);
-            button.append(label, snippet(result.text, result.tokens));
+            button.className = 'ask-ref';
+            button.dataset.ref = id;
+            const piece = doc.text.length > 120 ? `${doc.text.slice(0, doc.text.lastIndexOf(' ', 118))}…` : doc.text;
+            button.append(
+                Object.assign(document.createElement('span'), { className: 'ask-ref-n', textContent: n }),
+                Object.assign(document.createElement('span'), { className: 'ask-where', textContent: where(doc) }),
+                Object.assign(document.createElement('span'), { className: 'ask-snippet', textContent: piece }),
+            );
             item.append(button);
             return item;
         }));
-        markActive();
+        refs.hidden = !order.size;
         place();
     }
 
-    // An LLM's answer in place of the best passage, written as it arrives
-    async function compose(question, found) {
-        const turn = asked;
-        const notes = found.slice(0, 6).map(r => `- (${where(r)}) ${r.text}`).join('\n');
+    async function ask(question) {
+        const q = clean(question).slice(0, 300);
+        if (!q) return;
+        const mine = ++turn;
+        writing?.abort();
         writing = new AbortController();
-        panel.classList.add('writing');
-        bestKind.textContent = `Answer by ${writer.name}`;
+        tokens = keywords(q);
+        suggest.hidden = true;
+        reply.hidden = false;
+        asked.textContent = q;
+        answer.replaceChildren();
+        refs.hidden = true;
+        by.textContent = '';
+        reply.classList.add('thinking');
+        input.value = '';
+        place();
+
+        let writer = proxy;
+        let lines = [];
+        let fallback = null;
+        if (!writer) {
+            await brain.settled(20000);
+            let similar = null;
+            try {
+                similar = await brain.similarities(q);
+            } catch {}
+            if (mine !== turn) return;
+            const ranked = rank(q, similar);
+            fallback = compose(q, ranked, Boolean(similar));
+            writer = chrome && fallback !== REFUSE ? chrome : null;
+            lines = ranked.slice(0, 10).map(r => r.doc);
+        }
+        if (!writer) {
+            reply.classList.remove('thinking');
+            by.textContent = 'From his CV';
+            return show(fallback, true);
+        }
         let text = '';
         try {
-            for await (const chunk of writer.write(question, notes, writing.signal)) {
-                if (turn !== asked) return;
-                // Older browsers send the whole answer so far, newer ones only what is new
-                text = chunk.startsWith(text) ? chunk : text + chunk;
-                bestText.textContent = text;
+            for await (const chunk of writer.write(q, lines, writing.signal)) {
+                if (mine !== turn) return;
+                text += chunk;
+                reply.classList.remove('thinking');
+                show(text, false);
             }
+            if (mine !== turn) return;
+            by.textContent = writer.name;
+            show(text || REFUSE, true);
         } catch (error) {
-            if (error.name !== 'AbortError' && turn === asked && top) bestText.replaceChildren(snippet(top.text, top.tokens, 260));
+            if (error.name === 'AbortError' || mine !== turn) return;
+            console.warn('Ask: the writer failed; answering from the page.', error);
+            by.textContent = 'From his CV';
+            show(fallback ?? compose(q, rank(q, null), false), true);
         } finally {
-            if (turn === asked) panel.classList.remove('writing');
+            if (mine === turn) reply.classList.remove('thinking');
         }
     }
 
-    function markActive() {
-        list.querySelectorAll('.ask-result').forEach((button, i) => button.classList.toggle('active', i === active - (top ? 1 : 0)));
-        best.classList.toggle('active', Boolean(top) && active === 0);
-    }
-
-    function choose(i) {
-        const result = top ? (i === 0 ? top : results[i - 1]) : results[i];
-        if (!result) return;
+    function choose(ref) {
+        const doc = byRef.get(ref);
+        if (!doc) return;
         close(false);
-        go(result.id, result.el, () => light(result));
+        go(doc.id, doc.el, () => light(doc));
     }
 
-    // The passage glows, and its words are marked where the browser can (the Highlight API)
-    function light(result) {
+    // The line glows, and the question's words in it are marked where the browser can
+    function light(doc) {
         lit?.el.classList.remove('ask-found');
         CSS.highlights?.delete('ask-hit');
-        result.el.classList.remove('ask-found');
-        void result.el.offsetWidth;
-        result.el.classList.add('ask-found');
-        if (window.Highlight && result.tokens.length) {
+        doc.el.classList.remove('ask-found');
+        void doc.el.offsetWidth;
+        doc.el.classList.add('ask-found');
+        if (window.Highlight && tokens.length) {
             const ranges = [];
-            const walker = document.createTreeWalker(result.el, NodeFilter.SHOW_TEXT);
+            const walker = document.createTreeWalker(doc.el, NodeFilter.SHOW_TEXT);
             while (walker.nextNode()) {
                 const node = walker.currentNode;
                 const lower = node.data.toLowerCase();
-                for (const token of result.tokens) {
-                    for (let at = lower.indexOf(token); at >= 0; at = lower.indexOf(token, at + token.length)) {
+                for (const token of tokens) {
+                    for (let at = find(lower, token); at >= 0; at = find(lower, token, at + token.length)) {
                         const range = new Range();
                         range.setStart(node, at);
                         range.setEnd(node, at + token.length);
@@ -463,10 +516,10 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             }
             if (ranges.length) CSS.highlights.set('ask-hit', new Highlight(...ranges));
         }
-        lit = result;
+        lit = doc;
         clearTimeout(light.timer);
         light.timer = setTimeout(() => {
-            result.el.classList.remove('ask-found');
+            doc.el.classList.remove('ask-found');
             CSS.highlights?.delete('ask-hit');
         }, 4200);
     }
@@ -493,44 +546,32 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         if (!panel.hidden) return;
         opener = trigger ?? null;
         panel.hidden = false;
-        render(input.value);
+        place();
         requestAnimationFrame(() => panel.classList.add('open'));
         input.focus({ preventScroll: true });
-        input.select();
         onToggle(true);
-        brain.start();
+        if (!proxy) brain.start();
     }
 
     function close(restore = true) {
         if (panel.hidden) return;
-        writing?.abort();
         panel.classList.remove('open');
         panel.hidden = true;
         if (restore && opener) opener.focus({ preventScroll: true });
         onToggle(false);
     }
 
-    input.addEventListener('input', () => render(input.value));
-    form.addEventListener('submit', event => { event.preventDefault(); choose(active); });
-    input.addEventListener('keydown', event => {
-        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    form.addEventListener('submit', event => {
         event.preventDefault();
-        const count = results.length + (top ? 1 : 0);
-        if (!count) return;
-        active = (active + (event.key === 'ArrowDown' ? 1 : -1) + count) % count;
-        markActive();
-    });
-    best.addEventListener('click', () => choose(0));
-    list.addEventListener('click', event => {
-        const button = event.target.closest('.ask-result');
-        if (button) choose(+button.dataset.index + (top ? 1 : 0));
+        ask(input.value);
     });
     suggest.addEventListener('click', event => {
         const chip = event.target.closest('.ask-chip');
-        if (!chip) return;
-        input.value = chip.textContent;
-        render(input.value);
-        input.focus({ preventScroll: true });
+        if (chip) ask(chip.textContent);
+    });
+    reply.addEventListener('click', event => {
+        const target = event.target.closest('[data-ref]');
+        if (target) choose(target.dataset.ref);
     });
     panel.addEventListener('keydown', event => {
         if (event.key === 'Escape') {

@@ -835,7 +835,7 @@ html:has(.canvas-page),
     align-items: center;
     gap: 10px;
     height: 50px;
-    padding: 0 10px 0 18px;
+    padding: 0 7px 0 18px;
     border-radius: 999px;
     background: var(--wash-strong);
     box-shadow: inset 0 0 0 1px var(--line);
@@ -857,8 +857,26 @@ html:has(.canvas-page),
     color: var(--text);
 }
 
-.ask-form input::-webkit-search-cancel-button {
-    display: none;
+.ask-send {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--mint);
+    color: var(--bg);
+    cursor: pointer;
+    transition: scale 0.2s var(--ease), opacity 0.2s;
+}
+
+.ask-send:hover {
+    scale: 1.08;
+}
+
+.ask-form:has(input:placeholder-shown) .ask-send {
+    opacity: 0.45;
 }
 
 .ask-suggest {
@@ -870,6 +888,13 @@ html:has(.canvas-page),
 
 .ask-suggest[hidden] {
     display: none;
+}
+
+.ask-hint {
+    flex-basis: 100%;
+    padding: 0 4px 2px;
+    font-size: 13.5px;
+    color: var(--soft);
 }
 
 .ask-chip {
@@ -889,78 +914,147 @@ html:has(.canvas-page),
     color: var(--mint);
 }
 
-.ask-answer {
-    padding: 0 8px;
-    font-size: 13.5px;
-    line-height: 1.45;
+/* The reply: the question, the answer with its numbered references, and the list of them */
+.ask-reply {
+    display: grid;
+    gap: 12px;
+    min-height: 0;
+    padding: 2px 4px;
+    overflow-y: auto;
+}
+
+.ask-reply[hidden] {
+    display: none;
+}
+
+.ask-question {
+    justify-self: end;
+    max-width: 85%;
+    padding: 9px 14px;
+    border-radius: 18px 18px 6px 18px;
+    background: var(--wash-strong);
+    font-size: 14px;
+    line-height: 1.4;
     color: var(--soft);
 }
 
-/* The best answer: the closest passage, or what an LLM wrote from the passages found */
-.ask-best {
-    position: relative;
-    display: grid;
-    flex: none;
-    gap: 8px;
-    padding: 14px 16px 15px;
+.ask-text {
+    padding: 0 6px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+/* Thinking: three dots that breathe in turn */
+.ask-reply.thinking .ask-text::after {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 10px;
+    background:
+        radial-gradient(circle closest-side, var(--coral) 90%, transparent) 0 50% / 10px 10px no-repeat,
+        radial-gradient(circle closest-side, var(--coral) 90%, transparent) 50% 50% / 10px 10px no-repeat,
+        radial-gradient(circle closest-side, var(--coral) 90%, transparent) 100% 50% / 10px 10px no-repeat;
+    animation: ask-dots 1s ease-in-out infinite;
+}
+
+@keyframes ask-dots {
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.ask-cite {
+    display: inline-grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    margin: 0 1px 0 3px;
+    padding: 0 5px;
     border: 0;
-    border-radius: 20px;
-    background: linear-gradient(150deg, color-mix(in srgb, var(--coral) 14%, transparent), color-mix(in srgb, var(--mint) 8%, transparent));
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 30%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--coral) 20%, transparent);
+    font: 700 10.5px/1 var(--mono);
+    vertical-align: 2px;
+    color: var(--coral);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.ask-cite:hover,
+.ask-cite:focus-visible {
+    background: var(--coral);
+    color: #fff;
+}
+
+.ask-refs {
+    display: grid;
+    gap: 4px;
+    list-style: none;
+}
+
+.ask-refs[hidden] {
+    display: none;
+}
+
+.ask-ref {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 3px 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--wash);
     font: inherit;
     text-align: start;
     color: var(--text);
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.ask-best[hidden] {
-    display: none;
+.ask-ref:hover {
+    background: var(--wash-strong);
 }
 
-.ask-best.active,
-.ask-best:hover {
-    box-shadow: inset 0 0 0 1px var(--coral);
-}
-
-.ask-best-kind {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font: 700 10px/1 var(--mono);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+.ask-ref-n {
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--coral) 20%, transparent);
+    font: 700 11px/1 var(--mono);
     color: var(--coral);
 }
 
-.ask-best-kind::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--coral);
+.ask-where {
+    overflow: hidden;
+    font: 700 10px/1.5 var(--mono);
+    letter-spacing: 0.1em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--mint);
 }
 
-.ask-best-text {
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--text);
+.ask-snippet {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--soft);
 }
 
-.ask-best-text .ask-snippet {
-    font-size: inherit;
-    color: inherit;
+.ask-by {
+    padding: 0 6px;
+    font: 700 9.5px/1.3 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
-/* While an LLM writes, its mark breathes */
-.ask.writing .ask-best-kind::before {
-    animation: ask-breathe 1s ease-in-out infinite;
-}
-
-@keyframes ask-breathe {
-    50% {
-        opacity: 0.25;
-        scale: 0.6;
-    }
+.ask-by:empty {
+    display: none;
 }
 
 .ask-mode {
@@ -975,61 +1069,19 @@ html:has(.canvas-page),
     color: var(--muted);
 }
 
+@keyframes ask-breathe {
+    50% {
+        opacity: 0.25;
+        scale: 0.6;
+    }
+}
+
 .ask[data-mode="loading"] .ask-mode i {
     animation: ask-breathe 1.2s ease-in-out infinite;
 }
 
 .ask[data-mode="ready"] .ask-mode {
     color: var(--mint);
-}
-
-.ask-results {
-    display: grid;
-    gap: 4px;
-    margin: 0 -4px;
-    padding: 0 4px;
-    overflow-y: auto;
-    list-style: none;
-}
-
-.ask-result {
-    display: grid;
-    gap: 6px;
-    width: 100%;
-    padding: 11px 14px;
-    border: 0;
-    border-radius: 18px;
-    background: none;
-    font: inherit;
-    text-align: start;
-    color: var(--text);
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.ask-result:hover,
-.ask-result.active {
-    background: var(--wash-strong);
-}
-
-.ask-result.active {
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mint) 45%, transparent);
-}
-
-.ask-where {
-    overflow: hidden;
-    font: 700 10px/1.4 var(--mono);
-    letter-spacing: 0.1em;
-    text-overflow: ellipsis;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--mint);
-}
-
-.ask-snippet {
-    font-size: 13.5px;
-    line-height: 1.45;
-    color: var(--soft);
 }
 
 .ask-snippet mark,
