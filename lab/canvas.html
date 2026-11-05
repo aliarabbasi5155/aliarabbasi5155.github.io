@@ -2,12 +2,15 @@
 ---
 {%- comment -%}
   Concept 2, the spatial canvas (lab only): the CV as glass panes laid out like a map over
-  the dot field, around a pane for Ali himself. The rail's letters fly the view to a pane;
-  the overview zooms out to the whole constellation; drag, arrow keys or a swipe move on.
-  Each pane's place (data-x, data-y: its centre) and size are in world pixels.
+  the dot field, around a pane for Ali himself, his photo in it. Wires run from his pane to
+  each section like a node graph. The rail lists the sections by name, with a small map of
+  the whole canvas under them; a pill at the bottom steps through them in the CV's order.
+  The order of `places` is that order, clockwise from the top left. Each pane's place
+  (data-x, data-y: its centre) and size are in world pixels.
 {%- endcomment -%}
 {%- assign data = site.data.en -%}
 {%- assign ui = data.ui -%}
+{%- assign places = "about:-1120:-760:760:540,experience:0:-800:900:620,projects:1140:-810:860:640,skills:1140:0:860:480,education:1140:740:860:500,publications:0:720:900:460,blog:-1120:770:760:560,interests:-1120:0:760:380" | split: "," -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,49 +22,73 @@
 
     <div class="viewport">
         <div class="world">
-            <svg class="links" aria-hidden="true"></svg>
+            <svg class="wires" aria-hidden="true"></svg>
 
-            <section class="pane pane-home glass" id="home" data-x="0" data-y="0" data-w="900" data-h="560" aria-label="{{ data.profile.name | escape }}">
+            <section class="pane pane-home glass" id="home" data-x="0" data-y="0" data-w="1000" data-h="580" data-title="{{ data.profile.name | escape }}" aria-label="{{ data.profile.name | escape }}">
+                <div class="home-visual">
+                    <figure class="home-photo">
+                        <img src="../profile-photo.jpg" alt="{{ data.profile.name | escape }}" width="963" height="825" decoding="async" draggable="false">
+                    </figure>
+                    <div class="home-rings"></div>
+                </div>
                 <div class="home-text">
                     <p class="home-role">{{ data.profile.role | escape }}</p>
                     <h1 class="home-name">{{ data.profile.name | escape }}</h1>
                     <p class="home-pitch">I build production GenAI systems end to end, from agentic RAG and fine-tuning to evaluation and reliable deployment on AWS, and lead the small teams that ship them.</p>
                     {%- include lab/actions.html %}
                 </div>
-                <div class="home-rings"></div>
             </section>
 
-            {%- assign places = "about:-1120:-430:760:540,experience:1120:-430:840:620,skills:0:-960:960:480,education:-1120:440:760:500,projects:1120:450:840:640,publications:-580:1010:760:460,blog:580:1040:780:560,interests:0:1600:760:380" | split: "," %}
             {%- for place in places %}
             {%- assign bits = place | split: ":" %}
             {%- assign id = bits[0] %}
             {%- assign item = ui.nav | where: "tab", id | first %}
-            <section class="pane glass" id="{{ id }}" data-x="{{ bits[1] }}" data-y="{{ bits[2] }}" data-w="{{ bits[3] }}" data-h="{{ bits[4] }}" aria-labelledby="{{ id }}-title">
+            <section class="pane glass" id="{{ id }}" data-x="{{ bits[1] }}" data-y="{{ bits[2] }}" data-w="{{ bits[3] }}" data-h="{{ bits[4] }}" data-title="{{ item.label | escape }}" aria-labelledby="{{ id }}-title">
                 <header class="pane-head">
-                    <span class="badge">{{ item.letter }}</span>
                     <h2 class="section-title" id="{{ id }}-title"><i aria-hidden="true"></i><span>{{ item.label | escape }}</span></h2>
+                    <span class="pane-count" aria-hidden="true">{{ forloop.index | prepend: "0" | slice: -2, 2 }} / {{ places.size | prepend: "0" | slice: -2, 2 }}</span>
                 </header>
                 <div class="pane-body">
                     <div class="tab-contents lab-content">{% include lab/section.html id=id %}</div>
                 </div>
+                <span class="pane-label" aria-hidden="true">{{ item.label | escape }}</span>
             </section>
             {%- endfor %}
         </div>
     </div>
 
-    <!-- The way around: Ali, a letter for each pane, and the whole map -->
+    <!-- The way around: Ali, every section by name, and a map of the whole canvas -->
     <nav class="rail" aria-label="Sections">
-        <button type="button" data-go="home" class="rail-home" title="{{ data.profile.name | escape }}" aria-label="{{ data.profile.name | escape }}"><span></span></button>
-        {%- assign order = "blog,about,experience,education,skills,projects,publications,interests" | split: "," %}
-        {%- for id in order %}
-        {%- assign item = ui.nav | where: "tab", id | first %}
-        <button type="button" data-go="{{ id }}" title="{{ item.label | escape }}" aria-label="{{ item.label | escape }}">{{ item.letter }}</button>
-        {%- endfor %}
-        <button type="button" data-go="overview" class="rail-overview" title="The whole map" aria-label="The whole map"><span></span></button>
+        <div class="rail-list">
+            <button type="button" class="rail-item rail-home" data-go="home">
+                <img class="rail-avatar" src="../profile-photo.jpg" alt="" width="24" height="24" draggable="false">
+                <span class="rail-label">{{ data.profile.name | escape }}</span>
+            </button>
+            {%- for place in places %}
+            {%- assign id = place | split: ":" | first %}
+            {%- assign item = ui.nav | where: "tab", id | first %}
+            <button type="button" class="rail-item" data-go="{{ id }}">
+                <span class="rail-dot" aria-hidden="true"></span>
+                <span class="rail-label">{{ item.label | escape }}</span>
+            </button>
+            {%- endfor %}
+        </div>
+        <button type="button" class="rail-map" data-go="overview" aria-label="The whole map">
+            <svg class="minimap" aria-hidden="true"></svg>
+            <span class="rail-map-caption"><span>The whole map</span><kbd>Esc</kbd></span>
+        </button>
     </nav>
 
+    <!-- The CV in order: back, where you are, on -->
+    <nav class="stepper" aria-label="Previous and next section">
+        <button type="button" class="step step-prev" data-step="-1"><span aria-hidden="true">&larr;</span><span class="step-name"></span></button>
+        <span class="step-count"></span>
+        <button type="button" class="step step-next" data-step="1"><span class="step-name"></span><span aria-hidden="true">&rarr;</span></button>
+    </nav>
+
+    <p class="canvas-hint" aria-hidden="true">Drag to look around &middot; <kbd>Arrows</kbd> to move &middot; <kbd>Esc</kbd> for the map</p>
+
     <div class="canvas-top">
-        <p class="canvas-where" aria-live="polite"></p>
         {%- include theme-toggle.html id="canvas" label=ui.theme class="concept-theme" %}
     </div>
 
