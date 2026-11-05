@@ -1,6 +1,6 @@
-# Written answers for "Ask about Ali"
+# Alino, the AI behind "Ask"
 
-Ask writes answers with an AI model (DeepSeek or OpenAI) through a small program on
+Alino writes its answers with an AI model (DeepSeek or OpenAI) through a small program on
 Cloudflare, a *Worker*. The Worker holds your API key in Cloudflare's encrypted secrets, adds
 your CV to each question and sends it to the model. The key never goes in this repository, in
 the page, or in a chat: nobody visiting the site can see it.
@@ -59,3 +59,9 @@ key and the Worker work.
 Settings it understands (all optional, as **Text** variables): `MODEL` (default
 `deepseek-chat`, or `gpt-4.1-mini` for OpenAI), `ORIGINS` (sites allowed to ask), `CV_URL`
 (where `cv.txt` is published), `RATE` (questions a minute per visitor, default 6).
+
+## When `worker.js` changes
+
+Cloudflare runs the copy you pasted. When this file changes (Alino's personality, its rules),
+open the Worker → **Edit code**, replace everything with the new [`worker.js`](worker.js) and
+**Deploy**. The key and settings stay as they are.

@@ -269,6 +269,23 @@ html:has(.canvas-page),
     -webkit-user-drag: none;
 }
 
+/* The photo alive (lab/live-photo.js), drawn over the still one, cropped the same way */
+.home-photo .live-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 51% 30%;
+    opacity: 0;
+    transition: opacity 0.6s;
+    pointer-events: none;
+}
+
+.home-photo .live-photo.on {
+    opacity: 1;
+}
+
 /* A fine rim, and a little shade at the foot for the rings to sit in */
 .home-photo::after {
     content: "";
@@ -829,6 +846,10 @@ html:has(.canvas-page),
     display: none;
 }
 
+.ask-form:has(input:disabled) {
+    opacity: 0.55;
+}
+
 .ask-form {
     display: flex;
     flex: none;
@@ -890,13 +911,6 @@ html:has(.canvas-page),
     display: none;
 }
 
-.ask-hint {
-    flex-basis: 100%;
-    padding: 0 4px 2px;
-    font-size: 13.5px;
-    color: var(--soft);
-}
-
 .ask-chip {
     padding: 8px 13px;
     border: 0;
@@ -914,17 +928,77 @@ html:has(.canvas-page),
     color: var(--mint);
 }
 
-/* The reply: the question, the answer with its numbered references, and the list of them */
-.ask-reply {
-    display: grid;
+/* Alino at the top: a coral drop, its name and what it does */
+.ask-head {
+    display: flex;
+    flex: none;
+    align-items: center;
     gap: 12px;
-    min-height: 0;
-    padding: 2px 4px;
-    overflow-y: auto;
+    padding: 2px 6px 4px;
 }
 
-.ask-reply[hidden] {
-    display: none;
+.ask-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff9a7a, var(--coral) 55%, #c9402a);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35), 0 6px 16px color-mix(in srgb, var(--coral) 35%, transparent);
+    font-size: 15px;
+    color: #fff;
+}
+
+.ask-who {
+    display: grid;
+    flex: 1;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ask-who strong {
+    font: var(--d-weight, 400) 21px/1 var(--display);
+    letter-spacing: var(--d-track, 0);
+    color: var(--text);
+}
+
+.ask-who span {
+    font-size: 12.5px;
+    color: var(--muted);
+}
+
+.ask-head kbd {
+    color: var(--muted);
+}
+
+/* The conversation: every message of the session, the latest at the foot */
+.ask-thread {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    min-height: 60px;
+    padding: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--mint) 45%, transparent) transparent;
+}
+
+.ask-turn {
+    display: grid;
+    gap: 8px;
+}
+
+.ask-answer {
+    display: grid;
+    gap: 10px;
+    justify-self: start;
+    max-width: 94%;
+    padding: 12px 14px;
+    border-radius: 6px 20px 20px 20px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .ask-question {
@@ -939,14 +1013,13 @@ html:has(.canvas-page),
 }
 
 .ask-text {
-    padding: 0 6px;
-    font-size: 15.5px;
+    font-size: 15px;
     line-height: 1.6;
     color: var(--text);
 }
 
 /* Thinking: three dots that breathe in turn */
-.ask-reply.thinking .ask-text::after {
+.ask-turn.thinking .ask-text::after {
     content: "";
     display: inline-block;
     width: 34px;
@@ -1046,7 +1119,6 @@ html:has(.canvas-page),
 }
 
 .ask-by {
-    padding: 0 6px;
     font: 700 9.5px/1.3 var(--mono);
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1470,4 +1542,9 @@ html:has(.canvas-page),
     .wire-flow {
         display: none;
     }
+}
+
+/* Only the latest answer says who wrote it */
+.ask-turn:not(:last-child) .ask-by {
+    display: none;
 }

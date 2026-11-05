@@ -1,17 +1,24 @@
-// Lab only: "Ask about Ali", opened from the canvas's orb (lab/canvas.js). A visitor asks in
-// their own words and gets a short answer, with numbered references to the lines of the CV it
-// rests on; a reference flies to its line and lights it. Questions that aren't about Ali are
-// turned away, so it is no use as a free chatbot.
+// Lab only: Alino, Ali's assistant, opened from the canvas's orb (lab/canvas.js). A visitor
+// chats with it in their own words. About Ali, it answers in a few warm sentences with
+// numbered references to the lines of the CV it rests on (a reference flies to its line and
+// lights it); it takes a little small talk; anything else it turns away with one of ten
+// friendly refusals, and after a few of those it says goodbye for the session. The first
+// question of a session it meets with a joke.
+//
+// The conversation is kept for the session (sessionStorage): every message, to show again,
+// and, for Alino to remember, a short summary of what came before and the last few messages
+// (up to four; every fifth message they are folded into the summary).
 //
 // Every line of the CV carries a reference (data-ref on the page, the same at the head of
 // each line of cv.txt), so whoever writes the answer can cite lines and the page can show
 // them. The answer is written by the first of these that is at hand:
 //
 // 1. An AI model behind a proxy that keeps its key on a server (data-endpoint on .ask;
-//    lab/ask-proxy). It reads the whole CV and cites lines like [job-0-2].
+//    lab/ask-proxy, deployed on Cloudflare). It reads the whole CV, decides what kind of
+//    question it is, and keeps Alino's rules where a visitor can't change them.
 // 2. Chrome's built-in model, when the visitor's browser has it ready, from the lines that
 //    match best.
-// 3. The page itself, which puts the best lines into sentences.
+// 3. The page itself, which puts the best lines into sentences, in the same voice.
 //
 // For 2 and 3 the lines are found by meaning as well as by words: a small embedding model
 // (lab/ask-model.js, all-MiniLM-L6-v2, about 45 MB with its runtime, fetched once) runs in the
@@ -30,12 +37,46 @@ const STOP = new Set(('a an and any are as at be been but by can could did do do
 const VERBS = new Set(('lead build design develop own ship run create implement architect deliver manage train deploy write maintain mentor integrate '
     + 'optimize optimise automate drive research coordinate collaborate define plan test evaluate operate support translate contribute').split(' '));
 const REFS = /\[([a-z]+(?:-[a-z0-9]+)*(?:\s*,\s*[a-z]+(?:-[a-z0-9]+)*)*)\]/g;
-const REFUSE = 'I can only answer questions about Ali: his work, projects, skills, studies, writing and interests.';
-const SYSTEM = `You answer questions about Ali Abbasi on his CV website, using only the CV lines given.
-Each line starts with its id in square brackets. Write one to three short sentences in the third
-person, plainly and warmly, and cite the ids of the lines each claim comes from, like [job-0-2].
-If the lines don't answer the question, say his CV doesn't mention it, without citations. If the
-question isn't about Ali, reply exactly: "${REFUSE}"`;
+// What the page's own answer is when a question isn't about Ali
+const REFUSE = 'off';
+// How much small talk, and how many questions off the topic, before Alino stops (as on the proxy)
+const CHATS = 3;
+const STRIKES = 5;
+// The ten ways Alino turns a question away, and its goodbye: the same as the proxy's
+const REFUSALS = [
+    'Ooh, tempting! But my brain has room for exactly one topic, and it’s Ali. Want to know what he’s building these days?',
+    'I’d love to help, but I’m a one-trick pony, and the trick is Ali 🐴 Ask me about his work, his projects or his studies?',
+    'That one’s above my pay grade. I’m paid in questions about Ali, so let’s spend some of those!',
+    'Plot twist: I only know about Ali. Shall I tell you about the AI systems he’s shipped?',
+    'My manual has a single chapter, and it’s called “Ali”. Want to open it together?',
+    'I could guess, but I’d only make something up, and Ali raised me better than that. Ask me about him instead?',
+    'You’ve found my one weakness: everything that isn’t Ali. Got a question about him?',
+    'I’ll leave that one to the search engines. I’m here for the Ali questions, so fire away!',
+    'If I answered that, I’d have to explain myself to Ali. Let’s stick to him: skills, projects, research?',
+    'Hmm, that’s outside my little corner of the internet. My corner is all about Ali. What would you like to know?',
+];
+const CLOSING = 'I think we’ve wandered quite far from Ali, so I’ll take a little break here ☕ Come back anytime with a question about him, and I’ll be all ears!';
+// The page's own jokes for a session's first question, and its small talk
+const TEASES = [
+    'Let me check my notes… oh no, I spilled coffee all over them! Just kidding, they’re fine.',
+    'Hmm, that’s classified information… I’m kidding, it’s right there in his CV.',
+    'Give me a second, I’m still booting up… just kidding, I was ready the whole time.',
+    'Oh, a tough one! Let me think really hard… I’m kidding, it’s one of my favourites.',
+    'Wait, are you a recruiter or a spy? Just kidding, I’ll tell you everything.',
+];
+const SMALL_TALK = [
+    [/\b(thanks|thank you|thx|cheers|grazie|merci|mersi|mamnoon)\b/i, 'You’re very welcome! Anything else you’d like to know about Ali?'],
+    [/\b(bye|goodbye|see you|ciao ciao|khodahafez)\b/i, 'Bye for now! It was lovely chatting. Come back anytime you’re curious about Ali 👋'],
+    [/\b(how are you|how('?s| is) it going|how do you do|what'?s up)\b/i, 'Doing great, thanks for asking! I spend my days talking about Ali, so I can’t complain. What would you like to know about him?'],
+    [/\b(who are you|what('?s| is) your name|what are you|your name)\b/i, 'I’m Alino, Ali’s little assistant. I know his CV inside out, so ask away!'],
+    [/^(hi|hello|hey|hiya|yo|salam|salaam|ciao|buongiorno|buonasera|good (morning|afternoon|evening))\b/i, 'Hi there! 👋 I’m Alino. Ask me anything about Ali: his work, his projects, his studies…'],
+];
+const SYSTEM = `You are Alino, the friendly assistant on Ali Abbasi's CV website. Using only the CV lines
+given, answer the visitor's question about Ali in one to three short, warm, easy-going sentences, in the
+third person, speaking of him kindly. Each line starts with its id in square brackets: cite the ids of
+the lines each claim comes from, like [job-0-2]. If the lines don't answer it, say so lightly and suggest
+emailing him [contact]. Plain text, in the visitor's language.`;
+const STORE = 'alino:v1';
 
 const clean = text => text.replace(/\s+/g, ' ').trim();
 const lowerFirst = text => text.charAt(0).toLowerCase() + text.slice(1);
@@ -212,20 +253,22 @@ function meaning(docs, report) {
     };
 }
 
+
 // ---------- Writers ----------
 
-// An AI model behind a proxy: it has the whole CV, so it is sent only the question
+// The proxy: it has the whole CV and keeps Alino's rules, so it is sent the question and what
+// Alino remembers. Its reply's first line says what kind of question it was; the summary, when
+// there is one, comes after a record separator.
 function proxyWriter(url) {
     if (!url) return null;
     return {
-        name: 'Written by AI from his CV',
-        async *write(question, lines, signal) {
+        name: 'Alino · written by AI from his CV',
+        async *write(payload, signal) {
             // Sent as plain text, so the browser asks once rather than checking first
-            const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ question }), signal });
+            const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: JSON.stringify(payload), signal });
             // Asked too often: the proxy's own words say so
             if (response.status === 429) {
-                this.busy = true;
-                yield await response.text();
+                yield `§${JSON.stringify({ kind: 'busy' })}\n${await response.text()}`;
                 return;
             }
             if (!response.ok || !response.body) throw Object.assign(new Error(`The proxy answered ${response.status}`), { status: response.status });
@@ -239,6 +282,23 @@ function proxyWriter(url) {
     };
 }
 
+// The proxy's reply so far: what kind it was, the answer, and the summary if it has come
+function unpack(raw) {
+    if (!raw.startsWith('§')) return { kind: 'about', text: raw, summary: '' };
+    const end = raw.indexOf('\n');
+    if (end < 0) return { kind: null, text: '', summary: '' };
+    let meta = {};
+    try {
+        meta = JSON.parse(raw.slice(1, end));
+    } catch {}
+    const [text, extra = ''] = raw.slice(end + 1).split('\u001e');
+    let summary = '';
+    try {
+        summary = extra ? JSON.parse(extra).summary ?? '' : '';
+    } catch {}
+    return { ...meta, text: text.replace(/^\s+/, ''), summary };
+}
+
 // Chrome's own model, on the visitor's device, from the lines that match best
 async function chromeWriter() {
     const LM = self.LanguageModel;
@@ -249,7 +309,7 @@ async function chromeWriter() {
         return null;
     }
     return {
-        name: 'Written by Chrome’s built-in AI from his CV',
+        name: 'Alino · written by Chrome’s built-in AI from his CV',
         async *write(question, lines, signal) {
             const session = await LM.create({ initialPrompts: [{ role: 'system', content: SYSTEM }], signal });
             try {
@@ -317,12 +377,9 @@ function sentence(doc) {
 export function initAsk({ panel, panes, anchor, go, onToggle }) {
     const form = panel.querySelector('.ask-form');
     const input = form.querySelector('input');
+    const send = form.querySelector('.ask-send');
     const suggest = panel.querySelector('.ask-suggest');
-    const reply = panel.querySelector('.ask-reply');
-    const asked = reply.querySelector('.ask-question');
-    const answer = reply.querySelector('.ask-text');
-    const refs = reply.querySelector('.ask-refs');
-    const by = reply.querySelector('.ask-by');
+    const thread = panel.querySelector('.ask-thread');
     const modeText = panel.querySelector('.ask-mode-text');
     const docs = passages(panes);
     const byRef = new Map(docs.map(doc => [doc.ref, doc]));
@@ -335,13 +392,29 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
     let tokens = [];
     let proxyDown = false;
 
-    const brain = meaning(docs, (state, value) => {
-        panel.dataset.mode = state;
+    // The conversation, kept for the session
+    const state = (() => {
+        const fresh = { turns: [], summary: '', recent: [], chats: 0, strikes: 0, closed: false, last: -1 };
+        try {
+            return { ...fresh, ...JSON.parse(sessionStorage.getItem(STORE) || '{}') };
+        } catch {
+            return fresh;
+        }
+    })();
+    const save = () => {
+        try {
+            sessionStorage.setItem(STORE, JSON.stringify(state));
+        } catch {}
+    };
+
+    const brain = meaning(docs, (mode, value) => {
+        if (proxy && !proxyDown) return;
+        panel.dataset.mode = mode;
         modeText.textContent = {
-            loading: `Reading his CV · ${Math.round((value ?? 0) * 100)}%`,
-            ready: chrome ? chrome.name : 'Answers from his CV, worked out on this device',
-            off: 'Answers from his CV',
-        }[state];
+            loading: `Alino is reading his CV · ${Math.round((value ?? 0) * 100)}%`,
+            ready: chrome ? chrome.name : 'Alino · answers from his CV, worked out on this device',
+            off: 'Alino · answers from his CV',
+        }[mode];
     });
     if (proxy) {
         panel.dataset.mode = 'ready';
@@ -383,15 +456,39 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             chosen.push(r.doc);
             if (chosen.length === 3) break;
         }
-        if (!chosen.length) return 'His CV doesn’t mention that. You could ask him directly; his email is on his card [contact].';
+        if (!chosen.length) return 'Hmm, his CV doesn’t mention that one. You could ask him directly, though: his email is on his card [contact].';
         return chosen.map(doc => `${sentence(doc)} [${doc.ref}].`).join(' ');
     }
 
     const where = doc => [doc.title, doc.head && !doc.el.matches('h4') ? doc.head : ''].filter(Boolean).join(' · ');
 
-    // An answer with its references made into numbered buttons, and the list of them below
-    function show(text, done) {
-        let shown = text.replace(/\*\*/g, '');
+    // ---------- The thread ----------
+
+    function bubble(className, text) {
+        return Object.assign(document.createElement('p'), { className, textContent: text });
+    }
+
+    // A message: the visitor's question, and Alino's answer below it
+    function addTurn(question) {
+        const view = document.createElement('div');
+        view.className = 'ask-turn';
+        const answer = document.createElement('div');
+        answer.className = 'ask-answer';
+        const text = bubble('ask-text', '');
+        const refs = Object.assign(document.createElement('ol'), { className: 'ask-refs', hidden: true });
+        refs.setAttribute('aria-label', 'References');
+        const by = bubble('ask-by', '');
+        answer.append(text, refs, by);
+        view.append(bubble('ask-question', question), answer);
+        thread.append(view);
+        Object.assign(view, { text, refs, by });
+        return view;
+    }
+
+    // An answer with its references made into numbered buttons, and (for the latest answer)
+    // the list of them below it
+    function render(view, raw, done, list = true) {
+        let shown = raw.replace(/\*\*/g, '');
         // A reference still arriving stays hidden until it is whole
         const open = shown.lastIndexOf('[');
         if (!done && open > shown.lastIndexOf(']')) shown = shown.slice(0, open);
@@ -414,8 +511,8 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             last = match.index + match[0].length;
         }
         parts.push(document.createTextNode(shown.slice(last)));
-        answer.replaceChildren(...parts);
-        refs.replaceChildren(...[...order].map(([id, n]) => {
+        view.text.replaceChildren(...parts);
+        view.refs.replaceChildren(...(list ? [...order] : []).map(([id, n]) => {
             const doc = byRef.get(id);
             const item = document.createElement('li');
             const button = document.createElement('button');
@@ -431,12 +528,33 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             item.append(button);
             return item;
         }));
-        refs.hidden = !order.size;
+        view.refs.hidden = !list || !order.size;
+        thread.scrollTop = thread.scrollHeight;
         place();
     }
 
-    // The page's own answer from the lines nearest the question, by meaning once the model
-    // is ready (it starts here if it hasn't), otherwise by words
+    // Alino's hello, when there is no conversation yet
+    function hello() {
+        const view = document.createElement('div');
+        view.className = 'ask-turn ask-hello';
+        const answer = document.createElement('div');
+        answer.className = 'ask-answer';
+        answer.append(bubble('ask-text', 'Hi! I’m Alino 👋 Ask me anything about Ali, his work, his projects, his studies, and I’ll show you where his CV says so.'));
+        view.append(answer);
+        thread.append(view);
+    }
+
+    function lock() {
+        input.disabled = true;
+        send.disabled = true;
+        input.placeholder = 'Alino is taking a little break ☕';
+        suggest.hidden = true;
+    }
+
+    // ---------- Answers ----------
+
+    // The lines nearest the question, by meaning once the model is ready (it starts here if it
+    // hasn't), otherwise by words, and the page's own answer from them
     async function nearby(q, mine) {
         brain.start();
         await brain.settled(20000);
@@ -446,69 +564,119 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         } catch {}
         if (mine !== turn) return null;
         const ranked = rank(q, similar);
-        return { ranked, fallback: compose(q, ranked, Boolean(similar)) };
+        return { ranked, answer: compose(q, ranked, Boolean(similar)) };
+    }
+
+    function refusal() {
+        if (state.strikes + 1 >= STRIKES) return { kind: 'closed', text: CLOSING };
+        let pick = Math.floor(Math.random() * REFUSALS.length);
+        if (pick === state.last) pick = (pick + 1) % REFUSALS.length;
+        return { kind: 'off', refusal: pick, text: REFUSALS[pick] };
+    }
+
+    // Through the proxy, as it streams
+    async function viaProxy(q, view, mine) {
+        const payload = {
+            question: q,
+            summary: state.summary,
+            recent: state.recent.slice(-4),
+            first: !state.turns.length,
+            chats: state.chats,
+            strikes: state.strikes,
+            last: state.last,
+            summarize: (state.turns.length + 1) % 5 === 0,
+        };
+        let raw = '';
+        for await (const chunk of proxy.write(payload, writing.signal)) {
+            if (mine !== turn) return null;
+            raw += chunk;
+            const now = unpack(raw);
+            if (now.text) {
+                view.classList.remove('thinking');
+                render(view, now.text, false);
+            }
+        }
+        return { ...unpack(raw), by: proxy.name };
+    }
+
+    // On the page: small talk, a refusal, or the answer from the nearest lines (written by
+    // Chrome's model when it has one), with a joke first in a session's first question
+    async function viaPage(q, view, mine) {
+        const tease = state.turns.length ? '' : `${TEASES[Math.floor(Math.random() * TEASES.length)]} `;
+        const talk = SMALL_TALK.find(([pattern]) => pattern.test(q));
+        if (talk && !HIM.test(q)) return state.chats >= CHATS ? refusal() : { kind: 'chat', text: tease + talk[1], by: 'Alino' };
+        const found = await nearby(q, mine);
+        if (!found) return null;
+        if (found.answer === REFUSE) return refusal();
+        if (chrome) {
+            try {
+                let text = '';
+                for await (const chunk of chrome.write(q, found.ranked.slice(0, 10).map(r => r.doc), writing.signal)) {
+                    if (mine !== turn) return null;
+                    text += chunk;
+                    view.classList.remove('thinking');
+                    render(view, tease + text, false);
+                }
+                if (text.trim()) return { kind: 'about', text: tease + text, by: chrome.name };
+            } catch (error) {
+                if (error.name === 'AbortError') return null;
+            }
+        }
+        return { kind: 'about', text: tease + found.answer, by: 'Alino · from his CV' };
     }
 
     async function ask(question) {
         const q = clean(question).slice(0, 300);
-        if (!q) return;
+        if (!q || state.closed) return;
         const mine = ++turn;
         writing?.abort();
         writing = new AbortController();
         tokens = keywords(q);
+        thread.querySelector('.ask-hello')?.remove();
+        // Only the latest answer lists its references
+        for (const old of thread.querySelectorAll('.ask-refs')) old.hidden = true;
+        const view = addTurn(q);
+        view.classList.add('thinking');
         suggest.hidden = true;
-        reply.hidden = false;
-        asked.textContent = q;
-        answer.replaceChildren();
-        refs.hidden = true;
-        by.textContent = '';
-        reply.classList.add('thinking');
         input.value = '';
         place();
 
-        let writer = proxy && !proxyDown ? proxy : null;
-        let lines = [];
-        let fallback = null;
-        if (!writer) {
-            const found = await nearby(q, mine);
-            if (!found) return;
-            fallback = found.fallback;
-            writer = chrome && fallback !== REFUSE ? chrome : null;
-            lines = found.ranked.slice(0, 10).map(r => r.doc);
-        }
-        if (!writer) {
-            reply.classList.remove('thinking');
-            by.textContent = 'From his CV';
-            return show(fallback, true);
-        }
-        let text = '';
-        try {
-            for await (const chunk of writer.write(q, lines, writing.signal)) {
-                if (mine !== turn) return;
-                text += chunk;
-                reply.classList.remove('thinking');
-                show(text, false);
+        let result = null;
+        if (proxy && !proxyDown) {
+            try {
+                result = await viaProxy(q, view, mine);
+            } catch (error) {
+                if (error.name === 'AbortError' || mine !== turn) return;
+                console.warn('Ask: the proxy failed; Alino answers on the page.', error);
+                // Out of reach, or not taking questions from here: the page answers from now on
+                if (!error.status || error.status === 403) proxyDown = true;
             }
-            if (mine !== turn) return;
-            by.textContent = writer.busy ? '' : writer.name;
-            writer.busy = false;
-            show(text || REFUSE, true);
-        } catch (error) {
-            if (error.name === 'AbortError' || mine !== turn) return;
-            console.warn('Ask: the writer failed; answering from the page.', error);
-            // A proxy out of reach, or one that won't take questions from here, stays so
-            // until the page is opened again; the page answers from now on
-            if (writer === proxy && (!error.status || error.status === 403)) proxyDown = true;
-            if (!fallback) {
-                const found = await nearby(q, mine);
-                if (!found) return;
-                fallback = found.fallback;
-            }
-            by.textContent = 'From his CV';
-            show(fallback, true);
-        } finally {
-            if (mine === turn) reply.classList.remove('thinking');
         }
+        if (mine !== turn) return;
+        result ??= await viaPage(q, view, mine);
+        if (!result || mine !== turn) return;
+        view.classList.remove('thinking');
+        const text = result.text || CLOSING;
+        render(view, text, true);
+        view.by.textContent = result.kind === 'busy' ? '' : result.by;
+
+        // What Alino remembers, and how the conversation stands
+        state.turns.push({ q, a: text, kind: result.kind });
+        if (result.kind === 'chat') state.chats++;
+        if (result.kind === 'off' || result.kind === 'closed') {
+            state.strikes++;
+            state.last = result.refusal ?? state.last;
+        }
+        if (result.kind === 'closed') state.closed = true;
+        if (result.kind !== 'busy') state.recent.push({ q, a: text });
+        if (result.summary) {
+            state.summary = result.summary;
+            state.recent = [];
+        } else {
+            state.recent = state.recent.slice(-4);
+        }
+        save();
+        if (state.closed) lock();
     }
 
     function choose(ref) {
@@ -573,8 +741,9 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         opener = trigger ?? null;
         panel.hidden = false;
         place();
+        thread.scrollTop = thread.scrollHeight;
         requestAnimationFrame(() => panel.classList.add('open'));
-        input.focus({ preventScroll: true });
+        if (!state.closed) input.focus({ preventScroll: true });
         onToggle(true);
         if (!proxy) brain.start();
     }
@@ -587,6 +756,18 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         onToggle(false);
     }
 
+    // The conversation so far, as it was left
+    if (state.turns.length) {
+        state.turns.forEach((saved, i) => {
+            const view = addTurn(saved.q);
+            render(view, saved.a, true, i === state.turns.length - 1);
+        });
+        suggest.hidden = true;
+    } else {
+        hello();
+    }
+    if (state.closed) lock();
+
     form.addEventListener('submit', event => {
         event.preventDefault();
         ask(input.value);
@@ -595,7 +776,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         const chip = event.target.closest('.ask-chip');
         if (chip) ask(chip.textContent);
     });
-    reply.addEventListener('click', event => {
+    thread.addEventListener('click', event => {
         const target = event.target.closest('[data-ref]');
         if (target) choose(target.dataset.ref);
     });

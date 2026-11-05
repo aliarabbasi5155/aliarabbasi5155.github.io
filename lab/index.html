@@ -1,13 +1,15 @@
 ---
 ---
 {%- comment -%}
-  Lab only: the four one-page concepts side by side, to open and compare.
+  The lab's home, at /lab/: the development space for the site's next design, kept out of
+  search results (noindex). The four one-page concepts side by side, to open and compare,
+  and the earlier experiments.
 {%- endcomment -%}
 {%- assign ui = site.data.en.ui -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {%- include lab/head.html title="One-page concepts" %}
+    {%- include lab/head.html title="Lab" %}
     <style>
         .concepts {
             position: relative;
@@ -136,7 +138,7 @@
                 <span class="concept-open">Open &rarr;</span>
             </a>
         </div>
-        <p class="concepts-foot">Prototypes in English, with the real content, both themes and phones. The live site is unchanged: <a href="../index.html">open it</a>.</p>
+        <p class="concepts-foot">The lab: where the next design is built, in English, with the real content, both themes and phones. The live site is unchanged: <a href="../">open it</a>. Earlier experiments: <a href="button.html">the ember button</a>, <a href="rings.html">the glass rings</a>.</p>
     </main>
     <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
     <script type="module">

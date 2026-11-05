@@ -10,12 +10,13 @@
 // in view (each pane's .orb-slot) on a spring, so it trails a flight, stretching with its
 // speed, and rings as it lands; on the map it marks where you are, and off screen it waits
 // at the edge. Its middle shows the section in view, flipping over to the next. Pressed, it
-// opens "Ask about Ali" (lab/ask.js). Picked up, it follows the pointer on a looser spring,
+// opens Alino, Ali’s assistant (lab/ask.js). Picked up, it follows the pointer on a looser spring,
 // lifted and stretching with its speed; let go over a pane or a name in the rail, it takes
 // you there; anywhere else, it springs back to its place.
 import { GlassRings } from '../glass-rings.js';
 import { SCENES, REDUCE_MOTION, createField, initTheme, scramble, initBlogToggles, initExternalLinks } from './concepts.js';
 import { initAsk } from './ask.js';
+import { livePhoto } from './live-photo.js';
 
 const IDS = Object.keys(SCENES);
 const ORDER = [...IDS, { shape: 'ripples', wide: [0.3, 0, 1], tall: [0, 0.1, 0.9] }, { shape: 'globe', wide: [0, 0, 1.15], tall: [0, 0, 1] }];
@@ -62,6 +63,8 @@ const orbTip = orb.querySelector('.orb-tip-text');
 // The orb takes its own presses (to carry it), so the rings don't grab them
 const rings = new GlassRings(orbRings, { reduceMotion: REDUCE_MOTION, grab: false });
 rings.start();
+// Ali's photo, alive: it blinks, glances, breathes, and smiles as the pointer comes near
+window.livePhoto = livePhoto(document.querySelector('.home-photo img'), { reduceMotion: REDUCE_MOTION });
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -344,7 +347,7 @@ function showIcon(key) {
 function orbState() {
     if (ask?.isOpen()) return;
     showIcon(mode === 'map' ? 'map' : current);
-    orbTip.textContent = mode === 'map' ? 'You are here' : 'Ask about Ali';
+    orbTip.textContent = mode === 'map' ? 'You are here' : 'Ask Alino';
     orb.classList.toggle('here', mode === 'map');
 }
 
@@ -471,7 +474,7 @@ for (const body of document.querySelectorAll('.pane-body')) {
     new ResizeObserver(more).observe(body);
 }
 
-// ---------- Ask about Ali ----------
+// ---------- Alino ----------
 
 const ask = initAsk({
     panel: document.querySelector('.ask'),
