@@ -5,8 +5,15 @@
 // like a node graph, and the one to the pane in view lights up. The rail lists the panes by
 // name over a small map that shows what is on screen. The field takes the shape of the
 // pane in view, and a globe for the map.
+//
+// The orb, the coral glass rings, goes with you everywhere: it rides the corner of the pane
+// in view (each pane's .orb-slot) on a spring, so it trails a flight, stretching with its
+// speed, and rings as it lands; on the map it marks where you are, and off screen it waits
+// at the edge. Its middle shows the section in view, flipping over to the next. Pressed, it
+// opens "Ask about Ali" (lab/ask.js).
 import { GlassRings } from '../glass-rings.js';
 import { SCENES, REDUCE_MOTION, createField, initTheme, scramble, initBlogToggles, initExternalLinks } from './concepts.js';
+import { initAsk } from './ask.js';
 
 const IDS = Object.keys(SCENES);
 const ORDER = [...IDS, { shape: 'ripples', wide: [0.3, 0, 1], tall: [0, 0.1, 0.9] }, { shape: 'globe', wide: [0, 0, 1.15], tall: [0, 0, 1] }];
@@ -34,7 +41,6 @@ const RIM = { bevel: 28, refraction: 34 };
 let flight = null;
 let mode = 'focus';
 let current = 'home';
-let frame = null;
 let intro = 0;
 
 // ?radius=32 tries other corners (world pixels)
@@ -46,7 +52,13 @@ const field = createField(ORDER, { initial: deferField ? MAP : HOME });
 initTheme(() => field);
 initBlogToggles();
 initExternalLinks();
-new GlassRings(document.querySelector('.home-rings'), { reduceMotion: REDUCE_MOTION }).start();
+const orb = document.querySelector('.orb');
+const orbRings = orb.querySelector('.orb-rings');
+const orbCore = orb.querySelector('.orb-core');
+const orbIcon = orb.querySelector('.orb-icon');
+const orbTip = orb.querySelector('.orb-tip-text');
+const rings = new GlassRings(orbRings, { reduceMotion: REDUCE_MOTION });
+rings.start();
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -188,7 +200,11 @@ function apply() {
 }
 
 // Each frame, before the field measures its glass, so the glass never trails the panes
+let lastTick = 0;
+const landings = [];
 function tick(now) {
+    const dt = lastTick ? Math.min(1 / 30, (now - lastTick) / 1000) : 1 / 60;
+    lastTick = now;
     if (flight) {
         const t = Math.min(1, (now - flight.start) / flight.duration);
         const e = ease(t);
@@ -200,6 +216,7 @@ function tick(now) {
             Object.assign(cam, flight.to);
             flight = null;
             world.classList.remove('moving');
+            for (const landed of landings.splice(0)) setTimeout(landed);
         }
         apply();
     }
@@ -208,13 +225,115 @@ function tick(now) {
         field.glass.bevel = Math.max(7, RIM.bevel * cam.s);
         field.glass.refraction = Math.max(9, RIM.refraction * cam.s);
     }
+    moveOrb(dt);
+}
+
+// Run something once the camera is still
+function afterLanding(callback) {
+    if (flight) landings.push(callback);
+    else setTimeout(callback);
 }
 
 if (field) field.onFrame(() => tick(performance.now()));
-
-function loop(now) {
+else requestAnimationFrame(function loop(now) {
     tick(now);
-    frame = flight ? requestAnimationFrame(loop) : null;
+    requestAnimationFrame(loop);
+});
+
+// ---------- The orb ----------
+
+// The rings are drawn at one size and scaled to the slot: a new size would repaint them
+const ORB = 150;
+const orbAt = { x: 0, y: 0, vx: 0, vy: 0, size: 132, vs: 0, away: false, placed: false };
+const written = { transform: '', rings: '', size: '' };
+
+function orbTarget() {
+    const slot = panes.get(current).querySelector('.orb-slot');
+    const box = slot.getBoundingClientRect();
+    const size = Math.min(ORB, Math.max(phone.matches ? 72 : 64, box.width));
+    // Off screen it waits at the nearest edge, pointing the way back
+    const margin = 8 + size / 2;
+    return {
+        x: Math.min(innerWidth - margin, Math.max(margin, box.left + box.width / 2)),
+        y: Math.min(innerHeight - margin, Math.max(margin, box.top + box.height / 2)),
+        size,
+    };
+}
+
+// On springs a little short of critical damping, so it overshoots a touch and settles
+function moveOrb(dt) {
+    const target = orbTarget();
+    const o = orbAt;
+    if (!o.placed || REDUCE_MOTION) {
+        Object.assign(o, { x: target.x, y: target.y, size: target.size, vx: 0, vy: 0, vs: 0, placed: true });
+    } else {
+        const k = 130;
+        const c = 2 * 0.74 * Math.sqrt(k);
+        o.vx += (k * (target.x - o.x) - c * o.vx) * dt;
+        o.vy += (k * (target.y - o.y) - c * o.vy) * dt;
+        o.vs += (220 * (target.size - o.size) - 2 * 0.9 * Math.sqrt(220) * o.vs) * dt;
+        o.x += o.vx * dt;
+        o.y += o.vy * dt;
+        o.size += o.vs * dt;
+    }
+    const distance = Math.hypot(target.x - o.x, target.y - o.y);
+    if (distance > 60) o.away = true;
+    // Home again: the rings ring
+    if (o.away && distance < 2 && Math.hypot(o.vx, o.vy) < 40) {
+        o.away = false;
+        rings.poke();
+    }
+    // Stretched along its way, the faster the more, like a drop
+    const speed = Math.hypot(o.vx, o.vy);
+    const stretch = Math.min(0.16, speed / 7000);
+    const angle = Math.atan2(o.vy, o.vx);
+    const scale = o.size / ORB;
+    write('transform', orb, 'transform', `translate(${(o.x - ORB / 2).toFixed(1)}px, ${(o.y - ORB / 2).toFixed(1)}px)`);
+    write('rings', orbRings, 'transform', stretch > 0.004
+        ? `rotate(${angle.toFixed(3)}rad) scale(${(scale * (1 + stretch)).toFixed(4)}, ${(scale * (1 - stretch * 0.55)).toFixed(4)}) rotate(${(-angle).toFixed(3)}rad)`
+        : `scale(${scale.toFixed(4)})`);
+    write('size', orb, '--orb-size', `${o.size.toFixed(1)}px`);
+}
+
+function write(key, element, property, value) {
+    if (written[key] === value) return;
+    written[key] = value;
+    element.style.setProperty(property, value);
+}
+
+// What the orb's middle shows
+const ICONS = {
+    home: 'fa-hand', about: 'fa-user', experience: 'fa-briefcase', projects: 'fa-flask', skills: 'fa-code',
+    education: 'fa-graduation-cap', publications: 'fa-book-open', blog: 'fa-pen-nib', interests: 'fa-futbol',
+    map: 'fa-location-dot', ask: 'fa-wand-magic-sparkles',
+};
+
+// The middle flips over like a coin to its new face
+function showIcon(key) {
+    if (orb.dataset.icon === key) return;
+    const first = !orb.dataset.icon;
+    orb.dataset.icon = key;
+    const swap = () => {
+        orbIcon.classList.remove(...Object.values(ICONS));
+        orbIcon.classList.add(ICONS[key]);
+    };
+    if (first || REDUCE_MOTION) return swap();
+    orbIcon.getAnimations().forEach(animation => animation.cancel());
+    orbIcon.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(90deg) scale(0.85)' }], { duration: 150, easing: 'ease-in' }).finished.then(() => {
+        swap();
+        orbIcon.animate([
+            { transform: 'rotateY(-90deg) scale(0.85)' },
+            { transform: 'rotateY(16deg) scale(1.12)', offset: 0.65 },
+            { transform: 'rotateY(0deg) scale(1)' },
+        ], { duration: 460, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' });
+    }, () => {});
+}
+
+function orbState() {
+    if (ask?.isOpen()) return;
+    showIcon(mode === 'map' ? 'map' : current);
+    orbTip.textContent = mode === 'map' ? 'You are here' : 'Ask about Ali';
+    orb.classList.toggle('here', mode === 'map');
 }
 
 // Fly to a camera { tx, ty, s }. The point at the middle of the screen travels in a
@@ -238,7 +357,6 @@ function flyTo(to, instant = false) {
     const pull = phone.matches ? 0 : Math.min(2, Math.max(0, middle / fit - 1));
     flight = { start: performance.now(), duration: 720 + 380 * Math.min(1, pull), c0, c1, l0: Math.log(cam.s), l1: Math.log(to.s), pull, to };
     world.classList.add('moving');
-    if (!field && !frame) frame = requestAnimationFrame(loop);
 }
 
 // ---------- Where you are ----------
@@ -284,6 +402,7 @@ function focus(id, { instant = false, push = true } = {}) {
     mark(id);
     updateStepper();
     field?.morphTo(id === 'home' ? HOME : IDS.indexOf(id));
+    orbState();
     const title = panes.get(id).querySelector('.section-title span');
     if (title && fresh) setTimeout(() => scramble(title), instant ? 0 : 450);
     if (push) history.replaceState(null, '', id === 'home' ? location.pathname : `#${id}`);
@@ -305,6 +424,7 @@ function overview(instant = false) {
     for (const pane of panes.values()) pane.classList.remove('focused');
     mark('overview');
     field?.morphTo(MAP);
+    orbState();
 }
 
 function step(direction) {
@@ -331,10 +451,82 @@ function neighbour(dx, dy) {
 
 // A long pane fades at its foot while there is more of it below
 for (const body of document.querySelectorAll('.pane-body')) {
-    const more = () => body.classList.toggle('more', body.scrollTop + body.clientHeight < body.scrollHeight - 4);
+    const more = () => {
+        body.classList.toggle('more', body.scrollTop + body.clientHeight < body.scrollHeight - 4);
+        body.classList.toggle('scrolled', body.scrollTop > 4);
+    };
     body.addEventListener('scroll', more, { passive: true });
     new ResizeObserver(more).observe(body);
 }
+
+// ---------- Ask about Ali ----------
+
+const ask = initAsk({
+    panel: document.querySelector('.ask'),
+    panes,
+    anchor: () => ({ x: orbAt.x, y: orbAt.y, size: orbAt.size }),
+    // Fly to a pane, bring the line into its view and light it
+    go(id, element, light) {
+        focus(id);
+        afterLanding(() => {
+            const body = element.closest('.pane-body');
+            if (body) {
+                const offset = (element.getBoundingClientRect().top - body.getBoundingClientRect().top) / cam.s;
+                body.scrollTo({ top: Math.max(0, body.scrollTop + offset - body.clientHeight * 0.3), behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+            }
+            light();
+        });
+    },
+    onToggle(open) {
+        orbCore.setAttribute('aria-expanded', open);
+        orb.classList.toggle('asking', open);
+        if (open) showIcon('ask');
+        else orbState();
+    },
+});
+
+// A press on the orb that doesn't pull it opens Ask (the rings take the press, and the
+// click after it, for their squeeze)
+let orbPress = null;
+orb.addEventListener('pointerdown', event => {
+    interacted();
+    orbPress = { x: event.clientX, y: event.clientY, at: performance.now() };
+});
+orb.addEventListener('pointerup', event => {
+    const press = orbPress;
+    orbPress = null;
+    if (!press || event.target.closest('.orb-core')) return;
+    if (Math.hypot(event.clientX - press.x, event.clientY - press.y) < 6 && performance.now() - press.at < 600) ask.toggle(orbCore);
+});
+orbCore.addEventListener('click', () => ask.toggle(orbCore));
+
+// ---------- Typefaces ----------
+
+const fontsButton = document.querySelector('.fonts-button');
+const fontsMenu = document.querySelector('.fonts-menu');
+function markFonts() {
+    for (const option of fontsMenu.querySelectorAll('[data-fonts]')) option.setAttribute('aria-checked', option.dataset.fonts === document.documentElement.dataset.fonts);
+}
+function showFonts(open) {
+    fontsMenu.hidden = !open;
+    fontsButton.setAttribute('aria-expanded', open);
+}
+markFonts();
+fontsButton.addEventListener('click', () => showFonts(fontsMenu.hidden));
+fontsMenu.addEventListener('click', event => {
+    const option = event.target.closest('[data-fonts]');
+    if (!option) return;
+    document.documentElement.dataset.fonts = option.dataset.fonts;
+    try { localStorage.setItem('lab-fonts', option.dataset.fonts); } catch {}
+    markFonts();
+    showFonts(false);
+    scramble(document.querySelector('.home-name'), undefined, 700);
+    const title = panes.get(current).querySelector('.section-title span');
+    if (title) scramble(title);
+});
+document.addEventListener('pointerdown', event => {
+    if (!fontsMenu.hidden && !event.target.closest('.fonts')) showFonts(false);
+});
 
 // ---------- Input ----------
 
@@ -376,7 +568,7 @@ for (const button of stepper.querySelectorAll('.step')) {
 // follows the finger and lets go onto the next or previous pane, or back.
 let drag = null;
 viewport.addEventListener('pointerdown', event => {
-    if (!event.isPrimary || event.target.closest('a, button, input, .home-rings')) return;
+    if (!event.isPrimary || event.target.closest('a, button, input')) return;
     drag = { x: event.clientX, y: event.clientY, tx: cam.tx, ty: cam.ty, moved: false, target: event.target, mouse: event.pointerType === 'mouse' };
 });
 window.addEventListener('pointermove', event => {
@@ -467,6 +659,17 @@ viewport.addEventListener('wheel', event => {
 
 document.addEventListener('keydown', event => {
     if (event.target.closest('input, textarea') || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === '/') {
+        event.preventDefault();
+        interacted();
+        ask.open(orbCore);
+        return;
+    }
+    if (event.key === 'Escape' && !fontsMenu.hidden) {
+        showFonts(false);
+        fontsButton.focus();
+        return;
+    }
     const moves = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
     const inPane = event.target.closest('.pane-body');
     if (moves[event.key] && !inPane) {
@@ -511,3 +714,6 @@ if (panes.has(start) || !deferField || phone.matches) {
     intro = setTimeout(() => focus('home', { push: false }), 1100);
 }
 scramble(document.querySelector('.home-name'), undefined, 900);
+// The orb says what it does, for a moment
+orb.classList.add('tip-show');
+setTimeout(() => orb.classList.remove('tip-show'), 5200);

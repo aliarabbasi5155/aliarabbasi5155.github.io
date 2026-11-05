@@ -5,6 +5,9 @@
   the dot field, around a pane for Ali himself, his photo in it. Wires run from his pane to
   each section like a node graph. The rail lists the sections by name, with a small map of
   the whole canvas under them; a pill at the bottom steps through them in the CV's order.
+  The coral orb goes everywhere with you, riding the corner of the pane in view (its
+  .orb-slot), and opens "Ask about Ali", a search over the CV that flies to what it finds.
+  The font switcher tries pairings of typefaces (data-fonts on <html>, canvas.css).
   The order of `places` is that order, clockwise from the top left. Each pane's place
   (data-x, data-y: its centre) and size are in world pixels.
 {%- endcomment -%}
@@ -15,6 +18,16 @@
 <html lang="en">
 <head>
     {%- include lab/head.html title="Concept 2 · Spatial canvas" %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+    <script>
+        // The pairing of typefaces chosen last time (or ?fonts=), before the first paint
+        (() => {
+            const pairs = ['instrument', 'geist', 'bricolage', 'original'];
+            let pick = new URLSearchParams(location.search).get('fonts');
+            try { pick ||= localStorage.getItem('lab-fonts'); } catch {}
+            document.documentElement.dataset.fonts = pairs.includes(pick) ? pick : pairs[0];
+        })();
+    </script>
     <link rel="stylesheet" href="canvas.css">
 </head>
 <body class="concept canvas-page">
@@ -29,7 +42,7 @@
                     <figure class="home-photo">
                         <img src="../profile-photo.jpg" alt="{{ data.profile.name | escape }}" width="963" height="825" decoding="async" draggable="false">
                     </figure>
-                    <div class="home-rings"></div>
+                    <span class="orb-slot" aria-hidden="true"></span>
                 </div>
                 <div class="home-text">
                     <p class="home-role">{{ data.profile.role | escape }}</p>
@@ -46,8 +59,8 @@
             <section class="pane glass" id="{{ id }}" data-x="{{ bits[1] }}" data-y="{{ bits[2] }}" data-w="{{ bits[3] }}" data-h="{{ bits[4] }}" data-title="{{ item.label | escape }}" aria-labelledby="{{ id }}-title">
                 <header class="pane-head">
                     <h2 class="section-title" id="{{ id }}-title"><i aria-hidden="true"></i><span>{{ item.label | escape }}</span></h2>
-                    <span class="pane-count" aria-hidden="true">{{ forloop.index | prepend: "0" | slice: -2, 2 }} / {{ places.size | prepend: "0" | slice: -2, 2 }}</span>
                 </header>
+                <span class="orb-slot" aria-hidden="true"></span>
                 <div class="pane-body">
                     <div class="tab-contents lab-content">{% include lab/section.html id=id %}</div>
                 </div>
@@ -85,6 +98,41 @@
         <span class="step-count"></span>
         <button type="button" class="step step-next" data-step="1"><span class="step-name"></span><span aria-hidden="true">&rarr;</span></button>
     </nav>
+
+    <!-- The orb: everywhere you go, it shows where you are, and it answers questions -->
+    <div class="orb">
+        <div class="orb-rings">
+            <button type="button" class="orb-core" aria-label="Ask about Ali" aria-expanded="false" aria-controls="ask" aria-keyshortcuts="/"><i class="orb-icon fa-solid fa-hand" aria-hidden="true"></i></button>
+        </div>
+        <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask about Ali</span><kbd>/</kbd></span>
+    </div>
+
+    <section class="ask" id="ask" aria-label="Ask about Ali" hidden>
+        <form class="ask-form" role="search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" name="q" placeholder="Ask about Ali: RAG, Python, AWS&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali" aria-controls="ask-results">
+            <kbd>Esc</kbd>
+        </form>
+        <p class="ask-answer" aria-live="polite"></p>
+        <div class="ask-suggest">
+            {%- assign asks = "Agentic RAG,LangGraph,AWS,Fine-tuning,Team lead,Contact" | split: "," %}
+            {%- for ask in asks %}
+            <button type="button" class="ask-chip">{{ ask }}</button>
+            {%- endfor %}
+        </div>
+        <ol class="ask-results" id="ask-results"></ol>
+    </section>
+
+    <!-- Typefaces to try: the pick is kept in this browser -->
+    <div class="fonts">
+        <button type="button" class="fonts-button" aria-expanded="false" aria-controls="fonts-menu" aria-label="Typefaces" title="Typefaces">Aa</button>
+        <div class="fonts-menu" id="fonts-menu" role="radiogroup" aria-label="Typefaces" hidden>
+            <button type="button" role="radio" data-fonts="instrument"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Instrument Serif &middot; Inter &middot; JetBrains Mono</span></button>
+            <button type="button" role="radio" data-fonts="geist"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Geist &middot; Geist Mono</span></button>
+            <button type="button" role="radio" data-fonts="bricolage"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Bricolage Grotesque &middot; Figtree &middot; DM Mono</span></button>
+            <button type="button" role="radio" data-fonts="original"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Now: Xanh Mono &middot; General Sans &middot; Space Mono</span></button>
+        </div>
+    </div>
 
     <p class="canvas-hint" aria-hidden="true">Drag to look around &middot; <kbd>Arrows</kbd> to move &middot; <kbd>Esc</kbd> for the map</p>
 
