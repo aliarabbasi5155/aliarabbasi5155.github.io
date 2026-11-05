@@ -62,6 +62,7 @@ collections:
         fields:
           - { name: name, label: Name, widget: string, i18n: true }
           - { name: role, label: Role, widget: string, i18n: true }
+          - { name: pitch, label: Pitch, widget: text, i18n: true, required: false, hint: "One sentence under your name on your pane: what you do and what for" }
           - name: resume
             label: Resume button
             widget: object
@@ -247,47 +248,25 @@ collections:
           - { name: title, label: Browser tab title, widget: string, i18n: true }
           - { name: description, label: Search description, widget: text, i18n: true }
           - name: nav
-            label: Menu
+            label: Section names
             widget: list
             i18n: duplicate
-            summary: "{{letter}} · {{label}}"
-            hint: The first entry opens by default. The section title shows the same name.
+            summary: "{{tab}} · {{label}}"
+            hint: Each section's name, on its pane, in the list of sections and on the map. Where the panes sit is set in _layouts/cv.html.
             fields:
               - name: tab
                 label: Section
                 widget: select
                 i18n: duplicate
                 options: [blog, about, experience, education, skills, projects, publications, interests]
-              - { name: letter, label: Letter, widget: string, i18n: true }
               - { name: label, label: Name, widget: string, i18n: true }
           - { name: show_more, label: Show more button, widget: string, i18n: true }
           - { name: show_less, label: Show less button, widget: string, i18n: true }
           - { name: months, label: Month names, widget: list, i18n: true, hint: "January to December, one per line" }
           - { name: date_pattern, label: Date pattern, widget: string, i18n: true, hint: "Uses {day}, {month} and {year}" }
           - { name: digits, label: Digits, widget: string, i18n: true, required: false, hint: "Ten characters that replace 0–9 in dates, e.g. ۰۱۲۳۴۵۶۷۸۹; empty keeps 0–9" }
-          - name: temperature
-            label: Temperature control
-            widget: object
-            i18n: true
-            fields:
-              - { name: label, label: Label, widget: string }
-              - { name: hint, label: Tooltip, widget: text }
-              - name: bands
-                label: Readouts
-                widget: list
-                summary: "≤ {{max}} · {{label}}"
-                fields:
-                  - { name: max, label: Up to, widget: number, value_type: float, min: 0, max: 2, step: 0.05 }
-                  - { name: label, label: Readout, widget: string }
           - { name: theme, label: Theme switch label, widget: string, i18n: true, hint: "Read aloud for the switch between the dark and light themes, and shown when hovering it; it reads as pressed while the theme is dark" }
-          - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language, on the opening and in the dock. The languages' names are in _config.yml." }
-          - name: opening
-            label: Opening scene
-            widget: object
-            i18n: true
-            fields:
-              - { name: hint, label: Hint, widget: string, hint: "Shown under your name before the page rises in" }
-              - { name: enter, label: Arrow label, widget: string, hint: "Read aloud for the arrow at the bottom of the opening" }
+          - { name: languages, label: Language choice label, widget: string, i18n: true, hint: "Read aloud for the choice of language, at the top of the page. The languages' names are in _config.yml." }
           - name: picker
             label: Language picker
             widget: object
@@ -298,3 +277,80 @@ collections:
               - { name: prompt, label: Prompt, widget: string, hint: "Shown across the top with the other languages' prompts, e.g. Choose a language" }
               - { name: continue, label: Continue, widget: string, hint: "Shown in this language's section while it is hovered, e.g. Continue in English" }
           - { name: copyright, label: Copyright, widget: string, i18n: true }
+          - name: analytics
+            label: Privacy settings
+            widget: object
+            i18n: true
+            hint: "The optional analytics choice; it opens only from the link in the corner"
+            fields:
+              - { name: settings, label: Link, widget: string, hint: "In the bottom corner, e.g. Privacy settings" }
+              - { name: title, label: Title, widget: string }
+              - { name: description, label: Question, widget: text }
+              - { name: allow, label: Allow button, widget: string }
+              - { name: decline, label: Decline button, widget: string }
+          - name: canvas
+            label: Getting around
+            widget: object
+            i18n: true
+            fields:
+              - { name: sections, label: Sections, widget: string, hint: "Read aloud for the list of sections" }
+              - { name: map, label: The whole map, widget: string, hint: "Under the small map; it zooms out to every pane" }
+              - { name: steps, label: Back and on, widget: string, hint: "Read aloud for the pill at the foot that steps through the sections" }
+              - { name: start, label: Start, widget: string, hint: "In that pill, on your own pane" }
+              - { name: back_to_start, label: Back to the start, widget: string, hint: "In that pill, on the last section" }
+              - { name: hint, label: Hint, widget: string, hint: "Shown at the top until the visitor moves; {arrows} and {esc} become keys" }
+              - { name: arrows, label: Arrow keys, widget: string, hint: "The arrow keys' name in the hint" }
+              - { name: news, label: Latest, widget: string, hint: "The tag before the latest update, on your pane" }
+          - name: alino
+            label: Alino
+            widget: object
+            i18n: true
+            hint: "Ali's assistant in the coral orb. Its answers come from the AI behind it (cloudflare/alino); these are the words the page says itself."
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: tagline, label: Tagline, widget: string, hint: "Under its name, at the top of the chat" }
+              - { name: open, label: Orb label, widget: string, hint: "Read aloud for the orb" }
+              - { name: tip, label: Orb tip, widget: string, hint: "Beside the orb, e.g. Ask Alino" }
+              - { name: here, label: On the map, widget: string, hint: "Beside the orb on the map, e.g. You are here" }
+              - { name: take_me, label: Carried over a pane, widget: string, hint: "Beside the orb while it is carried over a pane; {place} is the pane's name" }
+              - { name: the_map, label: The map, widget: string, hint: "The {place} when it is carried over the small map" }
+              - { name: let_go, label: Carried elsewhere, widget: string, hint: "Beside the orb while it is carried anywhere else" }
+              - { name: placeholder, label: Question box, widget: string }
+              - { name: send, label: Send button, widget: string, hint: Read aloud }
+              - { name: hello, label: Hello, widget: text, hint: "Its first words, before any question" }
+              - { name: references, label: References, widget: string, hint: "Read aloud for the list of references under an answer" }
+              - { name: reference, label: A reference, widget: string, hint: "Read aloud for one; {n} is its number and {where} where it is" }
+              - { name: card, label: Your pane, widget: string, hint: "What a reference to your own pane says it is, e.g. His card" }
+              - { name: by_ai, label: Written by AI, widget: string, hint: "Under an answer the AI wrote" }
+              - { name: by_page, label: Written by the page, widget: string, hint: "Under an answer the page put together itself, when the AI can't be reached" }
+              - { name: resting, label: Taking a break, widget: string, hint: "In the question box once it has said goodbye" }
+              - { name: busy, label: Too quick, widget: text, hint: "When a visitor asks too many questions in a minute" }
+              - { name: suggestions, label: Suggested questions, widget: list, hint: "Shown as buttons before the first question" }
+              - { name: nudges, label: Bubbles, widget: list, hint: "Now and then, until the visitor asks something, it says one of these beside the orb" }
+              - name: section_nudges
+                label: Bubbles for a section
+                widget: object
+                hint: "Sometimes said instead, while that section is in view"
+                fields:
+                  - { name: experience, label: Experience, widget: string }
+                  - { name: projects, label: Projects, widget: string }
+                  - { name: skills, label: Skills, widget: string }
+                  - { name: education, label: Education, widget: string }
+                  - { name: publications, label: Publications, widget: string }
+                  - { name: blog, label: Blog, widget: string }
+                  - { name: interests, label: Interests, widget: string }
+              - { name: refusals, label: Refusals, widget: list, hint: "Exactly ten, in the same order in every language: the AI picks one by its number when a question isn't about you" }
+              - { name: closing, label: Goodbye, widget: text, hint: "After five questions off the topic, for the rest of the visit" }
+              - name: page
+                label: When the AI can't be reached
+                widget: object
+                hint: "The page then answers on its own, from the lines of the CV that match best"
+                fields:
+                  - { name: lead, label: Lead, widget: string, hint: "Before the lines it quotes (Italian and Persian)" }
+                  - { name: not_found, label: Nothing found, widget: text }
+                  - { name: teases, label: Leg-pulls, widget: list, hint: "One sometimes goes before an answer" }
+                  - { name: thanks, label: Thanks, widget: text }
+                  - { name: bye, label: Goodbye, widget: text }
+                  - { name: how, label: How are you, widget: text }
+                  - { name: who, label: Who are you, widget: text }
+                  - { name: hello, label: Hello, widget: text }

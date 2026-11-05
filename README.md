@@ -29,28 +29,43 @@ Use `./bin/dev` for the complete local preview. To use a different port, run
 The launcher keeps its compatible Bundler in `vendor/bundler` as well, so the
 old Bundler bundled with macOS does not need to be changed.
 
-## Phone and tablet tilt
+## The canvas
 
-The opening rings follow device tilt automatically on supported touch devices over
-HTTPS, with no enable/disable control. The presence of a permission API does not block
-already-allowed readings. If a browser requires explicit permission before sending
-readings, clicking the rings requests it through the browser's own prompt; permission
-cannot be bypassed. Denied access leaves the usual floating animation. The first sensor
-reading sets the neutral holding position, with recalibration after screen rotation
-or returning to the opening. Reduced motion disables sensor input, and sensors pause
-while the opening is offscreen or the tab is hidden. Sensor data stays on the device.
+The CV is one page laid out as a canvas: glass panes on a map over the dot field, around a
+pane for Ali with his photo, wired to each section like a node graph
+(`_layouts/cv.html`, `canvas.css`, `script.js`). A visitor moves between them with the list
+of sections on the side (with a small map of the whole canvas under it), the pill at the
+foot (back and on, in the CV's order), a drag, the wheel, the arrow keys, or Esc for the
+whole map. On phones the panes stand in a row, a swipe apart, with the sections along the
+bottom. Each pane's place and size on the map is the `places` line at the top of
+`_layouts/cv.html`; its name is its entry in **Section names**. Right to left (Persian),
+the map is mirrored and the list of sections sits on the right.
 
-For a physical-device check, use an HTTPS preview (a phone opening a plain HTTP LAN
-address cannot use the sensors). Check left/right and forward/back tilt, landscape,
-permission denial, scrolling into the page and back, and the phone's reduced-motion
-setting. Desktop mouse interaction remains available. Run the automated checks with
-`node --test tests/*.test.mjs`.
+Ali's photo moves a little, the way someone sitting for a portrait does: the head drifts
+and the shoulders rise and fall with each breath (`live-photo.js`). The face itself never
+changes. It draws only while on screen, and stays still with reduced motion.
+
+### Alino
+
+The coral orb follows the visitor from pane to pane, and pressing it (or `/`) opens Alino,
+Ali's assistant (`ask.js`). Every question stands on its own: one question, one answer,
+nothing kept or shown from before. Alino answers from the CV in a few warm sentences, often
+pulling the visitor's leg first, with numbered references that fly to the lines they come
+from; it chats back to a greeting, and turns anything else away with one of ten friendly
+refusals. The answers are written by an AI model through a small Cloudflare Worker that
+keeps the API key secret: see [`cloudflare/alino/README.md`](cloudflare/alino/README.md)
+to set it up or update it. It reads `cv.txt`, `it/cv.txt` and `fa/cv.txt`, the CV as plain
+text, generated from the same data as the pages. If the Worker can't be reached, the page
+answers on its own from the lines that match best.
+
+Alino's own words on the page (its hello, suggested questions, the bubbles beside the
+orb, the refusals) are under **Site text → Alino** in each language.
 
 ## Themes
 
 The site has a dark and a light theme. A visitor's first visit follows their system's
-setting, and keeps following it as it changes; the sun/moon switch on the opening and in
-the dock picks one instead, remembered in that browser. Picking the theme the system
+setting, and keeps following it as it changes; the sun/moon switch at the top of the page
+(and on the language picker) picks one instead, remembered in that browser. Picking the theme the system
 already uses forgets the choice, so the page follows the system again. Colours live once
 in `styles.css` (`:root`, each as `light-dark(light, dark)`); the dot field's two palettes
 are `sand` and `paper` in `dot-field.js`.
@@ -77,7 +92,9 @@ All text lives in data files; the page layout is `_layouts/cv.html`.
 
 - CV sections: `_data/<lang>/*.yml` for `en`, `it` and `fa` (one file per section, same structure in every language)
 - Blog posts: `_blog/<lang>/<slug>.md` (same slug in every language)
-- Menu names, buttons and other site text: `_data/<lang>/ui.yml`
+- Section names, buttons, Alino's words and other site text: `_data/<lang>/ui.yml`
+- The line under your name on your pane: `pitch` in `_data/<lang>/profile.yml`; the latest
+  update shows there too, and all of them under About (`_data/<lang>/updates.yml`)
 - The languages themselves, their names and their order in the language switches: `languages` in `_config.yml`
 
 The Italian résumé link points to the English PDF until an Italian one is added; change
@@ -122,7 +139,7 @@ load it unless their owner changes the allowlist. Existing clones still have
 their old code; their data can continue to reach the old property, not the new one.
 
 Google Analytics loads only after **Allow analytics**. The choice never pops up on
-its own: a visitor finds it under **Privacy settings** in the footer, where they can
+its own: a visitor finds it under **Privacy settings** in the bottom corner, where they can
 also withdraw; Global Privacy Control is also respected. Unknown query
 parameters, fragments and referrer paths are removed from the values sent by the
 tag. Generated campaign parameters survive switching between languages.
@@ -133,10 +150,10 @@ it is not a persistent recipient identity or proof of who opened a link.
 
 | Event | Meaning / parameters |
 | --- | --- |
-| `section_view` | Section visible in the focused browser tab; `section_name` |
+| `section_view` | Section (the pane in view, `home` for Ali's own) visible in the focused browser tab; `section_name` |
 | `section_attention` | Foreground time while content is on screen; incremental `active_seconds` |
 | `section_engaged` | One milestone per section per page load: `milestone_seconds` = 10, 30, 60, 120 |
-| `section_depth` | Highest visible content depth: `percent_scrolled` = 25, 50, 75, 100 |
+| `section_depth` | Highest depth read in the pane: `percent_scrolled` = 25, 50, 75, 100 |
 | `project_click`, `publication_click` | Link to a public item; `item_id`, `link_kind` |
 | `contact_click` | Email/GitHub/LinkedIn link click; `link_kind` (not a message being sent) |
 | `article_expand` | Blog post expanded; `item_id` |

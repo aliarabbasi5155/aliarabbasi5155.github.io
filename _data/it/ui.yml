@@ -2,28 +2,20 @@ title: Ali Abbasi - Fullstack AI Engineer
 description: "Ali Abbasi, Fullstack AI Engineer e technical lead operativo: agentic RAG, fine-tuning, valutazione e sistemi LLM in produzione su AWS."
 nav:
   - tab: blog
-    letter: A
     label: Blog
   - tab: about
-    letter: B
     label: Chi sono
   - tab: experience
-    letter: C
     label: Esperienza
   - tab: education
-    letter: D
     label: Formazione
   - tab: skills
-    letter: E
     label: Competenze
   - tab: projects
-    letter: F
     label: Progetti
   - tab: publications
-    letter: G
     label: Pubblicazioni
   - tab: interests
-    letter: H
     label: Interessi
 show_more: Mostra di più
 show_less: Mostra di meno
@@ -42,25 +34,8 @@ months:
   - dicembre
 date_pattern: "{day} {month} {year}"
 digits: ""
-temperature:
-  label: TEMPERATURA
-  hint: "La temperatura di campionamento, come in un LLM: a 0 ogni punto sta esattamente sulla sua forma; alzala e iniziano a vagare."
-  bands:
-    - max: 0.2
-      label: DETERMINISTICO
-    - max: 0.6
-      label: PRECISO
-    - max: 1
-      label: BILANCIATO
-    - max: 1.5
-      label: CREATIVO
-    - max: 2
-      label: CAOTICO
 languages: Lingua
 theme: Tema scuro
-opening:
-  hint: Scorri o tocca per entrare
-  enter: Entra nel sito
 picker:
   greeting: Ciao
   prompt: Scegli una lingua
@@ -72,3 +47,86 @@ analytics:
   description: "Posso usare Google Analytics per capire quali sezioni e progetti esplorano i visitatori? Usa cookie di analisi. Puoi cambiare la tua scelta qui in qualsiasi momento."
   allow: Consenti le statistiche
   decline: No, grazie
+# The canvas: the rail, the stepper and the hint (the section names are nav's labels)
+canvas:
+  sections: Sezioni
+  map: La mappa intera
+  steps: Sezione precedente e successiva
+  start: Inizio
+  back_to_start: Torna all’inizio
+  hint: "Trascina per guardarti intorno · {arrows} per spostarti · {esc} per la mappa"
+  arrows: Frecce
+  news: Novità
+# Alino, Ali's assistant in the coral orb
+alino:
+  name: Alino
+  tagline: L’assistente di Ali, risponde dal suo CV
+  open: Chiedi ad Alino, l’assistente di Ali
+  tip: Chiedi ad Alino
+  here: Sei qui
+  take_me: "Portami a {place}"
+  the_map: la mappa
+  let_go: Lascia andare per rimandarlo indietro
+  placeholder: Chiedi ad Alino qualsiasi cosa su Ali…
+  send: Invia
+  hello: "Ciao! Sono Alino 👋 Chiedimi qualsiasi cosa su Ali: il suo lavoro, i suoi progetti, i suoi studi, o fammi solo un saluto. Ti rispondo e ti mostro dove lo dice il suo CV."
+  references: Fonti
+  reference: "Fonte {n}: {where}"
+  card: Il suo biglietto da visita
+  by_ai: Alino · scritto dall’AI dal suo CV
+  by_page: Alino · dal suo CV
+  resting: Alino si prende una piccola pausa ☕
+  busy: Wow, che velocità! Dammi un minuto per riprendere fiato, poi chiedi di nuovo.
+  suggestions:
+    - Dove lavora Ali?
+    - Ha mai guidato un team?
+    - Cosa ha costruito con la RAG?
+    - Quale cloud usa?
+    - Ha pubblicato ricerche?
+    - Cosa fa per divertirsi?
+  nudges:
+    - Psst… so un sacco di cose su Ali. Chiedimi 👀
+    - Sono Alino! Rispondo alle domande su Ali e racconto barzellette pessime, gratis.
+    - Scommetto che non riesci a mettermi in difficoltà con una domanda su Ali 😏
+    - Ehi, tu! Sì, proprio tu. Vuoi le notizie di prima mano su Ali?
+    - Ho letto tutto il CV di Ali. Due volte. Dai, mettimi alla prova!
+    - Recruiter? Curioso? Ti sei perso? Posso aiutarti con almeno due di queste 😄
+    - Mi hanno detto di stare zitto. Non ci riesco proprio. Chiedimi qualcosa!
+    - Cliccami, sono molto più simpatico di quanto sembri 🫧
+    - "Curiosità: non mi stanco mai delle domande su Ali. Mai. Mai e poi mai."
+    - Non essere timido, su Ali ho solo cose belle da dire.
+  section_nudges:
+    experience: Troppo da leggere? Chiedimi la versione breve 😉
+    projects: Chiedimi quali di questi ha costruito con la RAG. Ti sfido.
+    skills: Cerchi una competenza in particolare? Chiedi pure, te la indico io.
+    education: Torino, ricerca, una tesi… vuoi la storia? Chiedimi!
+    publications: Parole scientifiche in arrivo! Chiedimi di spiegarle in parole semplici.
+    blog: Scrive anche di libri. Chiedimi quali!
+    interests: Chiedimi della sua squadra di calcio. Dai. Chiedi. 🙈
+  refusals:
+    - Ooh, che tentazione! Ma nel mio cervello c’è posto per un solo argomento, ed è Ali. Vuoi sapere cosa sta costruendo in questi giorni?
+    - Mi piacerebbe aiutarti, ma so fare una cosa sola, e quella cosa è Ali 🐴 Mi chiedi del suo lavoro, dei progetti o degli studi?
+    - Questa è sopra il mio stipendio. Vengo pagato in domande su Ali, quindi spendiamo quelle!
+    - "Colpo di scena: conosco solo Ali. Ti racconto dei sistemi di AI che ha messo in produzione?"
+    - Il mio manuale ha un solo capitolo, e si intitola “Ali”. Lo apriamo insieme?
+    - Potrei tirare a indovinare, ma inventerei e basta, e Ali mi ha educato meglio di così. Mi chiedi di lui, invece?
+    - "Hai trovato il mio unico punto debole: tutto ciò che non è Ali. Hai una domanda su di lui?"
+    - Questa la lascio ai motori di ricerca. Io sono qui per le domande su Ali, quindi spara!
+    - "Se rispondessi, dovrei dare spiegazioni ad Ali. Restiamo su di lui: competenze, progetti, ricerca?"
+    - Mmm, questo è fuori dal mio angolino di internet. Il mio angolino è tutto su Ali. Cosa vuoi sapere?
+  closing: Mi sa che ci siamo allontanati parecchio da Ali, quindi mi prendo una piccola pausa ☕ Torna quando vuoi con una domanda su di lui, e sarò tutt’orecchi!
+  # When the AI can't be reached, Alino answers on the page, from the lines that match best
+  page:
+    lead: "Ecco cosa dice il suo CV:"
+    not_found: "Mmm, il suo CV non ne parla. Però puoi chiederlo direttamente a lui: la sua email è sul suo biglietto da visita"
+    teases:
+      - Fammi controllare i miei appunti… oh no, ci ho rovesciato sopra il caffè! Scherzo, stanno benissimo.
+      - Mmm, è un’informazione riservata… scherzo, è proprio nel suo CV.
+      - Un attimo, mi sto ancora avviando… scherzo, ero pronto da un pezzo.
+      - Oh, questa è difficile! Fammi pensare bene… scherzo, è una delle mie preferite.
+      - Aspetta, sei un recruiter o una spia? Scherzo, ti dico tutto.
+    thanks: Di niente! C’è altro che vuoi sapere su Ali?
+    bye: A presto! È stato bello chiacchierare. Torna quando vuoi saperne di più su Ali 👋
+    how: Malissimo, nessuno mi ha chiesto di Ali per un minuto intero! …Scherzo, sto benissimo, grazie. E tu come stai? Vuoi sapere qualcosa di lui?
+    who: Sono Ali, ovviamente. …Va bene, va bene, sono Alino, il suo assistente. Conosco il suo CV a memoria, quindi chiedi pure!
+    hello: Oh! Mi hai fatto prendere un colpo, stavo sonnecchiando sul CV di Ali 😴 Ciao! Sono Alino. Come va la giornata? Chiedimi qualsiasi cosa su Ali.

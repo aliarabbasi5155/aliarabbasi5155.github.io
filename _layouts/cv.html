@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 {%- comment -%}
-  The one-page CV. Every word on it comes from _data/<lang>/*.yml and _blog/<lang>/*.md,
-  which the CMS at /admin/ edits; this file only arranges them.
+  The one-page CV as a canvas: glass panes laid out like a map over the dot field, around a
+  pane for Ali himself, his photo in it, wired to each section like a node graph. The rail
+  lists the sections by name over a small map of the whole canvas; a pill at the foot steps
+  through them in order. The coral orb goes everywhere with you, riding the corner of the
+  pane in view (its .orb-slot), and opens Alino, Ali's assistant, who answers from the CV
+  (ask.js). script.js moves the camera, places the panes and wires them.
+
+  Every word comes from _data/<lang>/*.yml and _blog/<lang>/*.md, which the CMS at /admin/
+  edits; this file only arranges them. `places` is the panes' order, clockwise from the top
+  left (mirrored on right-to-left pages): each pane's centre (x, y) and size, in world pixels.
 {%- endcomment -%}
 {%- assign lang = page.lang | default: "en" -%}
 {%- assign data = site.data[lang] -%}
 {%- assign ui = data.ui -%}
-{%- assign first_tab = ui.nav.first.tab -%}
-{%- assign posts = site.blog | where: "lang", lang | sort: "date" | reverse -%}
+{%- assign places = "about:-1120:-760:760:540,experience:0:-800:900:620,projects:1140:-810:860:640,skills:1140:0:860:480,education:1140:740:860:500,publications:0:720:900:460,blog:-1120:770:760:560,interests:-1120:0:760:380" | split: "," -%}
 <html lang="{{ lang }}" dir="{{ page.direction | default: 'ltr' }}">
 <head>
     <script defer src="{{ '/analytics.js' | relative_url }}"
@@ -60,12 +67,12 @@
     {%- endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {%- comment -%} Titles in a serif display face, reading text in a serif made for screens, labels in a mono {%- endcomment %}
     {%- if lang == "fa" %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;500;600&family=Space+Mono:wght@400;700&family=Vazirmatn:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400..700&family=Vazirmatn:wght@400..700&family=JetBrains+Mono:wght@400;700&display=swap">
     {%- else %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Xanh+Mono&display=swap">
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
-    <!-- Just the letters of the language switches' Persian name, so it joins up -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+    <!-- Just the letters of the language switch's Persian name, so it joins up -->
     {%- assign persian = site.languages | where: "code", "fa" | first %}
     {%- if page.url == "/" %}
     <!-- and of the language picker's Persian words -->
@@ -78,17 +85,18 @@
     {%- endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ '/glass-rings.css' | relative_url }}">
-    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/canvas.css' | relative_url }}?v={{ site.time | date: '%s' }}">
     <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
 </head>
-<body>
-    <!-- Dot field background and liquid-glass panes at every screen size -->
+<body class="canvas-page">
+    <!-- The dot field, which also draws every .glass element as liquid glass -->
     <canvas id="canvas" aria-hidden="true"></canvas>
 
     {%- if page.url == "/" %}
-    <!-- Language picker: the first screen of a first visit here, before the opening, shown
-         only when the head script asks for it. A glass pane for each language, greeting in
-         it over a pattern of its culture (patterns/), leads to its page; English stays. -->
+    <!-- Language picker: the first screen of a first visit here, shown only when the head
+         script asks for it. A glass pane for each language, greeting in it over a pattern of
+         its culture (patterns/), leads to its page; English stays. -->
     <div class="language-picker" role="dialog" aria-modal="true" aria-label="{{ ui.picker.prompt | escape }}" tabindex="-1">
         <div class="picker-bar">
             <p class="picker-name" aria-hidden="true">{{ data.profile.name | escape }}</p>
@@ -116,284 +124,126 @@
     </div>
     {%- endif %}
 
-    <!-- Opening scene: the first screen, the name and the glass rings; the page follows below.
-         The arrow down rides on the front ring (glass-rings.js moves it there). Only the
-         arrow is read out; the name repeats the profile's. -->
-    <div class="opening">
-        <div class="opening-rings">
-            <button class="opening-down" type="button" aria-label="{{ ui.opening.enter | escape }}">
-                <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
+    <div class="viewport">
+        <div class="world">
+            <svg class="wires" aria-hidden="true"></svg>
+
+            <section class="pane pane-home glass" id="home" data-x="0" data-y="0" data-w="1000" data-h="580" data-title="{{ data.profile.name | escape }}" aria-label="{{ data.profile.name | escape }}">
+                <div class="home-visual">
+                    <figure class="home-photo">
+                        <img src="{{ '/profile-photo.jpg' | relative_url }}" alt="{{ data.profile.photo_alt | escape }}" width="963" height="825" decoding="async" draggable="false">
+                    </figure>
+                    <span class="orb-slot" aria-hidden="true"></span>
+                </div>
+                <div class="home-text">
+                    <p class="home-role">{{ data.profile.role | escape }}</p>
+                    <h1 class="home-name">{{ data.profile.name | escape }}</h1>
+                    {%- if data.profile.pitch != blank %}
+                    <p class="home-pitch">{{ data.profile.pitch | escape }}</p>
+                    {%- endif %}
+                    {%- include actions.html profile=data.profile %}
+                    {%- assign news = data.updates.items | first %}
+                    {%- if news %}
+                    {%- capture news_text %}{% include plain.txt text=news.text %}{% endcapture %}
+                    <button type="button" class="home-news" data-news="update-0">
+                        <span class="home-news-tag"><i class="fas fa-bolt" aria-hidden="true"></i>{{ ui.canvas.news | escape }}</span>
+                        <span class="home-news-text">{{ news.label | escape }} {{ news_text | escape }}</span>
+                    </button>
+                    {%- endif %}
+                </div>
+            </section>
+
+            {%- for place in places %}
+            {%- assign bits = place | split: ":" %}
+            {%- assign id = bits[0] %}
+            {%- assign item = ui.nav | where: "tab", id | first %}
+            <section class="pane glass" id="{{ id }}" data-x="{{ bits[1] }}" data-y="{{ bits[2] }}" data-w="{{ bits[3] }}" data-h="{{ bits[4] }}" data-title="{{ item.label | escape }}" aria-labelledby="{{ id }}-title">
+                <header class="pane-head">
+                    <h2 class="section-title" id="{{ id }}-title"><i aria-hidden="true"></i><span>{{ item.label | escape }}</span></h2>
+                </header>
+                <span class="orb-slot" aria-hidden="true"></span>
+                <div class="pane-body">
+                    <div class="tab-contents">{% include section.html id=id lang=lang %}</div>
+                </div>
+                <span class="pane-label" aria-hidden="true">{{ item.label | escape }}</span>
+            </section>
+            {%- endfor %}
+        </div>
+    </div>
+
+    <!-- The way around: Ali, every section by name, and a map of the whole canvas -->
+    <nav class="rail" aria-label="{{ ui.canvas.sections | escape }}">
+        <div class="rail-list">
+            <button type="button" class="rail-item rail-home" data-go="home">
+                <img class="rail-avatar" src="{{ '/profile-photo.jpg' | relative_url }}" alt="" width="24" height="24" draggable="false">
+                <span class="rail-label">{{ data.profile.name | escape }}</span>
             </button>
+            {%- for place in places %}
+            {%- assign id = place | split: ":" | first %}
+            {%- assign item = ui.nav | where: "tab", id | first %}
+            <button type="button" class="rail-item" data-go="{{ id }}">
+                <span class="rail-dot" aria-hidden="true"></span>
+                <span class="rail-label">{{ item.label | escape }}</span>
+            </button>
+            {%- endfor %}
         </div>
-        <!-- The theme and the choice of language, in the same order on every page; another
-             page opens on its own opening -->
-        <div class="opening-controls">
-            {%- include theme-toggle.html id="opening" label=ui.theme %}
-            <nav class="opening-lang" aria-label="{{ ui.languages | escape }}">
-                {%- include languages.html lang=lang %}
-            </nav>
+        <button type="button" class="rail-map" data-go="overview" aria-label="{{ ui.canvas.map | escape }}">
+            <svg class="minimap" aria-hidden="true"></svg>
+            <span class="rail-map-caption"><span>{{ ui.canvas.map | escape }}</span><kbd>Esc</kbd></span>
+        </button>
+    </nav>
+
+    <!-- The CV in order: back, where you are, on -->
+    <nav class="stepper" aria-label="{{ ui.canvas.steps | escape }}">
+        <button type="button" class="step step-prev" data-step="-1"><span class="step-arrow" aria-hidden="true">&larr;</span><span class="step-name"></span></button>
+        <span class="step-count"></span>
+        <button type="button" class="step step-next" data-step="1"><span class="step-name"></span><span class="step-arrow" aria-hidden="true">&rarr;</span></button>
+    </nav>
+
+    <!-- The orb: everywhere you go, it shows where you are, and it opens Alino -->
+    <div class="orb">
+        <div class="orb-rings">
+            <button type="button" class="orb-core" aria-label="{{ ui.alino.open | escape }}" aria-expanded="false" aria-controls="ask" aria-keyshortcuts="/"><i class="orb-icon fa-solid fa-hand" aria-hidden="true"></i></button>
         </div>
-        <div class="opening-text" aria-hidden="true">
-            <p class="opening-name">{{ data.profile.name | escape }}</p>
-            <p class="opening-role">{{ data.profile.role | escape }}</p>
-            <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
-        </div>
+        <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">{{ ui.alino.tip | escape }}</span><kbd>/</kbd></span>
+        <span class="orb-badge" aria-hidden="true">1</span>
+        <button type="button" class="orb-say" aria-live="polite"><span class="orb-say-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="orb-say-text"></span></button>
     </div>
 
-    <div class="container">
-        <!-- Profile and latest updates -->
-        <div class="left-column">
-            <aside class="profile-panel glass">
-                <div class="profile-content">
-                    <div class="profile-header">
-                        <img src="{{ '/profile-photo.jpg' | relative_url }}" alt="{{ data.profile.photo_alt | escape }}" class="profile-photo">
-                    </div>
-
-                    <div class="profile-info">
-                        <div class="profile-text">
-                            <h1 class="profile-name">{{ data.profile.name | escape }}</h1>
-                            <h2 class="profile-role">{{ data.profile.role | escape }}</h2>
-                        </div>
-
-                        {%- if data.profile.resume.url != blank %}
-                        <a href="{{ data.profile.resume.url | relative_url }}" class="resume-download" download="{{ data.profile.resume.url | split: '/' | last }}">
-                            <i class="fas fa-download" aria-hidden="true"></i>
-                            <span>{{ data.profile.resume.label | escape }}</span>
-                        </a>
-                        {%- endif %}
-
-                        <div class="profile-contacts">
-                            {%- for contact in data.profile.contacts %}
-                            <a href="{{ contact.url }}" class="contact-item">
-                                <i class="{{ contact.icon }}"></i>
-                                <span dir="ltr">{{ contact.label | escape }}</span>
-                            </a>
-                            {%- endfor %}
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <aside class="updates-panel glass">
-                <div class="updates-header">
-                    <h3><i class="fas fa-bolt"></i> {{ data.updates.title | escape }}</h3>
-                </div>
-                <div class="updates-content">
-                    {%- for update in data.updates.items %}
-                    <div class="update-item">
-                        <div class="update-date">{{ update.date | escape }}</div>
-                        <div class="update-text">
-                            <strong>{{ update.label | escape }}</strong> {% include inline.html text=update.text %}
-                        </div>
-                    </div>
-                    {%- endfor %}
-                </div>
-            </aside>
+    {%- comment -%} data-endpoint: the Worker that keeps the AI's key on a server (cloudflare/alino) {%- endcomment %}
+    <section class="ask" id="ask" aria-label="{{ ui.alino.open | escape }}" data-endpoint="https://ask-ali.abbasialiar.workers.dev/" hidden>
+        <header class="ask-head">
+            <span class="ask-avatar" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="ask-who"><strong>{{ ui.alino.name | escape }}</strong><span>{{ ui.alino.tagline | escape }}</span></span>
+            <kbd>Esc</kbd>
+        </header>
+        <div class="ask-thread" aria-live="polite"></div>
+        <div class="ask-suggest">
+            {%- for suggestion in ui.alino.suggestions %}
+            <button type="button" class="ask-chip">{{ suggestion | escape }}</button>
+            {%- endfor %}
         </div>
+        <form class="ask-form">
+            <input type="text" name="q" maxlength="300" placeholder="{{ ui.alino.placeholder | escape }}" autocomplete="off" spellcheck="false" aria-label="{{ ui.alino.tip | escape }}">
+            <button type="submit" class="ask-send" aria-label="{{ ui.alino.send | escape }}"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
+        </form>
+    </section>
 
-        <!-- Section navigation -->
-        <aside class="navigation-panel">
-            <nav class="section-nav">
-                {%- for item in ui.nav %}
-                <button class="nav-button glass{% if forloop.first %} active{% endif %}" data-tab="{{ item.tab }}">
-                    <span class="nav-letter">{{ item.letter }}</span>
-                    <span class="nav-label">{{ item.label | escape }}</span>
-                </button>
-                {%- endfor %}
-            </nav>
-        </aside>
+    {%- capture arrows %}<kbd>{{ ui.canvas.arrows | escape }}</kbd>{% endcapture %}
+    {%- assign hint = ui.canvas.hint | escape | replace: "{arrows}", arrows | replace: "{esc}", "<kbd>Esc</kbd>" %}
+    <p class="canvas-hint" aria-hidden="true">{{ hint }}</p>
 
-        <!-- Sections -->
-        <main class="content-panel">
-            <div class="section-header-card glass">
-                <span class="section-badge" id="section-badge" aria-hidden="true">{{ ui.nav.first.letter }}</span>
-                <h2 class="section-title"><i aria-hidden="true"></i><span id="section-title">{{ ui.nav.first.label | escape }}</span></h2>
-            </div>
-
-            <div class="section-content-card glass">
-                <div class="tab-contents">
-                    <div id="about" class="tab-content{% if first_tab == 'about' %} active{% endif %}">
-                        <section class="summary">
-                            {%- for paragraph in data.about.paragraphs %}
-                            <p>{% include inline.html text=paragraph %}</p>
-                            {%- endfor %}
-                        </section>
-                    </div>
-
-                    <div id="experience" class="tab-content{% if first_tab == 'experience' %} active{% endif %}">
-                        <section class="experience">
-                            {%- for job in data.experience.jobs %}
-                            {% include job.html job=job %}
-                            {%- endfor %}
-                            {%- if data.experience.earlier_jobs.size > 0 %}
-                            <h3 class="earlier-title">{{ data.experience.earlier_title | escape }}</h3>
-                            {%- for job in data.experience.earlier_jobs %}
-                            {% include job.html job=job %}
-                            {%- endfor %}
-                            {%- endif %}
-                        </section>
-                    </div>
-
-                    <div id="education" class="tab-content{% if first_tab == 'education' %} active{% endif %}">
-                        <section class="education">
-                            {%- for degree in data.education.degrees %}
-                            <div class="degree">
-                                <div class="degree-header">
-                                    <h4>{{ degree.title | escape }}</h4>
-                                    <div class="institution-location">
-                                        <span class="institution">
-                                            {%- if degree.institution_url != blank -%}
-                                            <a href="{{ degree.institution_url }}">{{ degree.institution | escape }}</a>
-                                            {%- else -%}
-                                            {{ degree.institution | escape }}
-                                            {%- endif -%}
-                                        </span>
-                                        <span class="location">{{ degree.location | escape }}</span>
-                                    </div>
-                                    <span class="duration">{{ degree.period | escape }}</span>
-                                </div>
-                                {%- if degree.details.size > 0 %}
-                                <ul class="degree-details">
-                                    {%- for detail in degree.details %}
-                                    <li>{% include inline.html text=detail %}</li>
-                                    {%- endfor %}
-                                </ul>
-                                {%- endif %}
-                            </div>
-                            {%- endfor %}
-                        </section>
-                    </div>
-
-                    <div id="skills" class="tab-content{% if first_tab == 'skills' %} active{% endif %}">
-                        <section class="skills">
-                            <div class="skills-grid">
-                                {%- for group in data.skills.groups %}
-                                <div class="skill-category">
-                                    <h4>{{ group.title | escape }}</h4>
-                                    <div class="skill-tags">
-                                        {%- for tag in group.tags %}
-                                        <span class="skill-tag">{{ tag | escape }}</span>
-                                        {%- endfor %}
-                                    </div>
-                                </div>
-                                {%- endfor %}
-                            </div>
-                        </section>
-                    </div>
-
-                    <div id="projects" class="tab-content{% if first_tab == 'projects' %} active{% endif %}">
-                        <section class="projects">
-                            {%- for project in data.projects.items %}
-                            <div class="project" data-analytics-item="{{ project.title | slugify | escape }}">
-                                <div class="project-header">
-                                    <h4>{{ project.title | escape }}</h4>
-                                    {%- if project.links.size > 0 %}
-                                    <div class="project-links">
-                                        {%- for link in project.links %}
-                                        <a href="{{ link.url }}" class="project-link"><i class="{{ link.icon }}"></i> {{ link.label | escape }}</a>
-                                        {%- endfor %}
-                                    </div>
-                                    {%- endif %}
-                                    <div class="project-org">{{ project.org | escape }}</div>
-                                    <span class="duration">{{ project.period | escape }}</span>
-                                </div>
-                                <ul class="project-description">
-                                    {%- for bullet in project.bullets %}
-                                    <li>{% include inline.html text=bullet %}</li>
-                                    {%- endfor %}
-                                </ul>
-                                <div class="project-tech">
-                                    {%- for tech in project.tech %}
-                                    <span class="tech-tag">{{ tech | escape }}</span>
-                                    {%- endfor %}
-                                </div>
-                            </div>
-                            {%- endfor %}
-                        </section>
-                    </div>
-
-                    <div id="publications" class="tab-content{% if first_tab == 'publications' %} active{% endif %}">
-                        <section class="publications">
-                            {%- for publication in data.publications.items %}
-                            <div class="publication" data-analytics-item="{{ publication.title | slugify | escape }}">
-                                <div class="publication-header">
-                                    <h4>{{ publication.title | escape }}</h4>
-                                    <div class="publication-authors"><span dir="ltr">{% include inline.html text=publication.authors %}</span></div>
-                                    <div class="publication-venue">
-                                        <span class="journal">{{ publication.journal | escape }}</span>
-                                        <span class="details" dir="ltr">{{ publication.details | escape }}</span>
-                                    </div>
-                                    <div class="publication-links">
-                                        <a href="{{ publication.url }}" class="publication-link"><i class="fas fa-external-link-alt"></i> {{ publication.link_label | escape }}</a>
-                                    </div>
-                                </div>
-                                <div class="publication-abstract">
-                                    <p>{% include inline.html text=publication.abstract %}</p>
-                                </div>
-                            </div>
-                            {%- endfor %}
-                        </section>
-                    </div>
-
-                    <div id="blog" class="tab-content{% if first_tab == 'blog' %} active{% endif %}">
-                        <section class="blog">
-                            {%- for post in posts %}
-                            <article class="blog-post" data-analytics-item="{{ post.slug | escape }}">
-                                <div class="blog-header">
-                                    <h4>{{ post.title | escape }}</h4>
-                                    <div class="blog-meta">
-                                        <time class="blog-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{% include date.html date=post.date ui=ui %}</time>
-                                        <span class="blog-category">{{ post.topic | escape }}</span>
-                                    </div>
-                                </div>
-                                <div class="blog-content">
-                                    <p class="blog-excerpt">{% include inline.html text=post.summary %}</p>
-                                    <div class="blog-full-content" style="display: none;">
-                                        {{ post.content }}
-                                    </div>
-                                    <button class="blog-toggle-btn" onclick="toggleBlogPost(this)">{{ ui.show_more | escape }}</button>
-                                </div>
-                            </article>
-                            {%- endfor %}
-                        </section>
-                    </div>
-
-                    <div id="interests" class="tab-content{% if first_tab == 'interests' %} active{% endif %}">
-                        <section class="interests">
-                            <div class="interests-grid">
-                                {%- for interest in data.interests.items %}
-                                <div class="interest-card">
-                                    <div class="interest-icon">
-                                        <i class="{{ interest.icon }}"></i>
-                                    </div>
-                                    <h4>{{ interest.title | escape }}</h4>
-                                    <p>{% include inline.html text=interest.text %}</p>
-                                </div>
-                                {%- endfor %}
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <!-- The language and the theme, top right (top left right to left) -->
+    <div class="canvas-top">
+        <nav class="lang-switch" aria-label="{{ ui.languages | escape }}">
+            {%- include languages.html lang=lang %}
+        </nav>
+        {%- include theme-toggle.html id="canvas" label=ui.theme class="canvas-theme" %}
     </div>
 
-    <!-- Dock: copyright, language, theme and the dot field's temperature -->
-    <footer class="dock">
-        <div class="dock-info">
-            <p class="copyright">{{ ui.copyright | escape }}</p>
-            <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
-        </div>
-        <div class="dock-controls">
-            <nav class="lang-switch glass" aria-label="{{ ui.languages | escape }}">
-                {%- include languages.html lang=lang %}
-            </nav>
-            {%- include theme-toggle.html id="dock" label=ui.theme class="glass" %}
-            <label class="energy glass" title="{{ ui.temperature.hint | escape }}">
-                <span class="energy-readout"><b>{{ ui.temperature.label | escape }}</b> <span class="energy-value"></span> · <span class="energy-band"></span></span>
-                <input type="range" min="0" max="200" step="5" value="70" aria-label="{{ ui.temperature.label | escape }}">
-            </label>
-        </div>
+    <footer class="canvas-foot">
+        <p class="copyright">{{ ui.copyright | escape }}</p>
+        <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
     </footer>
 
     <section id="analytics-consent" class="analytics-consent" aria-label="{{ ui.analytics.title | escape }}" hidden>

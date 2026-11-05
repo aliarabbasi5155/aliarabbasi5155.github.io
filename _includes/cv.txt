@@ -1,0 +1,47 @@
+{%- comment -%}
+  The CV as plain text in one language (include.lang), from the same data as its page, for
+  the AI model behind Alino (cloudflare/alino) to answer visitors' questions from. Each line
+  starts with its reference in brackets, the one its element carries on the page (data-ref),
+  the same in every language, so an answer can cite the lines it used and the page can show
+  them. Markdown becomes plain words; the headings stay in English, for the model.
+{%- endcomment -%}
+{%- assign d = site.data[include.lang] -%}
+{{ d.profile.name }}, {{ d.profile.role }}. {{ d.profile.pitch }} Open to AI engineering and technical lead roles.
+[contact] Contact: {% for contact in d.profile.contacts %}{{ contact.label }}{% unless forloop.last %}; {% endunless %}{% endfor %} (all on his card, top of the site)
+[resume] His résumé downloads as a PDF from his card.
+
+ABOUT
+{% for paragraph in d.about.paragraphs %}[about-{{ forloop.index0 }}] {% include plain.txt text=paragraph %}
+{% endfor %}
+LATEST UPDATES (newest first)
+{% for update in d.updates.items %}[update-{{ forloop.index0 }}] {{ update.date }}: {{ update.label }} {% include plain.txt text=update.text %}
+{% endfor %}
+EXPERIENCE
+{% for job in d.experience.jobs %}{% assign j = forloop.index0 %}[job-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% for bullet in job.bullets %}  [job-{{ j }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
+{% endfor %}{% endfor %}{% for job in d.experience.earlier_jobs %}{% assign j = forloop.index0 %}[early-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% for bullet in job.bullets %}  [early-{{ j }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
+{% endfor %}{% endfor %}
+EDUCATION
+{% for degree in d.education.degrees %}{% assign g = forloop.index0 %}[degree-{{ g }}] {{ degree.title }}, {{ degree.institution }}, {{ degree.location }} ({{ degree.period }})
+{% for detail in degree.details %}  [degree-{{ g }}-{{ forloop.index0 }}] {% include plain.txt text=detail %}
+{% endfor %}{% endfor %}
+SKILLS
+{% for group in d.skills.groups %}[skills-{{ forloop.index0 }}] {{ group.title }}: {{ group.tags | join: ", " }}
+{% endfor %}
+PROJECTS
+{% for project in d.projects.items %}{% assign p = forloop.index0 %}[project-{{ p }}] {{ project.title }} ({{ project.org }}, {{ project.period }})
+{% for bullet in project.bullets %}  [project-{{ p }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
+{% endfor %}  [project-{{ p }}-tech] Tech: {{ project.tech | join: ", " }}
+{% endfor %}
+PUBLICATIONS
+{% for publication in d.publications.items %}[pub-{{ forloop.index0 }}] {{ publication.title }}. {{ publication.journal }}, {{ publication.details }}.
+  [pub-{{ forloop.index0 }}-abstract] {% include plain.txt text=publication.abstract %}
+{% endfor %}
+INTERESTS
+{% for interest in d.interests.items %}[interest-{{ forloop.index0 }}] {{ interest.title }}: {% include plain.txt text=interest.text %}
+{% endfor %}
+BLOG POSTS
+{% assign posts = site.blog | where: "lang", include.lang | sort: "date" | reverse %}{% for post in posts %}[post-{{ forloop.index0 }}] "{{ post.title }}" ({{ post.date | date: "%B %Y" }})
+  [post-{{ forloop.index0 }}-summary] {% include plain.txt text=post.summary %}
+{% endfor %}

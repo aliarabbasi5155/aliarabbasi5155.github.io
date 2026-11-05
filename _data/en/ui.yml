@@ -2,28 +2,20 @@ title: Ali Abbasi - Fullstack AI Engineer
 description: "Ali Abbasi, Fullstack AI Engineer and hands-on technical lead: agentic RAG, fine-tuning, evaluation and production LLM systems on AWS."
 nav:
   - tab: blog
-    letter: A
     label: Blog
   - tab: about
-    letter: B
     label: About
   - tab: experience
-    letter: C
     label: Experience
   - tab: education
-    letter: D
     label: Education
   - tab: skills
-    letter: E
     label: Skills
   - tab: projects
-    letter: F
     label: Projects
   - tab: publications
-    letter: G
     label: Publications
   - tab: interests
-    letter: H
     label: Interests
 show_more: Show More
 show_less: Show Less
@@ -42,25 +34,8 @@ months:
   - December
 date_pattern: "{month} {day}, {year}"
 digits: ""
-temperature:
-  label: TEMPERATURE
-  hint: "Sampling temperature, like an LLM's: at 0 every dot sits exactly on its shape; turn it up and they start to wander."
-  bands:
-    - max: 0.2
-      label: DETERMINISTIC
-    - max: 0.6
-      label: PRECISE
-    - max: 1
-      label: BALANCED
-    - max: 1.5
-      label: CREATIVE
-    - max: 2
-      label: CHAOTIC
 languages: Language
 theme: Dark theme
-opening:
-  hint: Scroll or tap to enter
-  enter: Enter the site
 picker:
   greeting: Hello
   prompt: Choose a language
@@ -72,3 +47,86 @@ analytics:
   description: "May I use Google Analytics to understand which sections and projects visitors explore? It uses analytics cookies. You can change your choice here at any time."
   allow: Allow analytics
   decline: No thanks
+# The canvas: the rail, the stepper and the hint (the section names are nav's labels)
+canvas:
+  sections: Sections
+  map: The whole map
+  steps: Previous and next section
+  start: Start
+  back_to_start: Back to the start
+  hint: "Drag to look around · {arrows} to move · {esc} for the map"
+  arrows: Arrows
+  news: Latest
+# Alino, Ali's assistant in the coral orb
+alino:
+  name: Alino
+  tagline: Ali’s assistant, answers from his CV
+  open: Ask Alino, Ali’s assistant
+  tip: Ask Alino
+  here: You are here
+  take_me: "Take me to {place}"
+  the_map: the map
+  let_go: Let go to send it back
+  placeholder: Ask Alino anything about Ali…
+  send: Send
+  hello: "Hi! I’m Alino 👋 Ask me anything about Ali: his work, his projects, his studies, or just say hi. I’ll answer and show you where his CV says so."
+  references: References
+  reference: "Reference {n}: {where}"
+  card: His card
+  by_ai: Alino · written by AI from his CV
+  by_page: Alino · from his CV
+  resting: Alino is taking a little break ☕
+  busy: Whoa, you’re quick! Give me a minute to catch my breath, then ask again.
+  suggestions:
+    - Where does Ali work?
+    - Has he led a team?
+    - What has he built with RAG?
+    - Which cloud does he use?
+    - Has he published research?
+    - What does he do for fun?
+  nudges:
+    - Psst… I know things about Ali. Ask me 👀
+    - I’m Alino! I answer questions about Ali, and I tell terrible jokes for free.
+    - Bet you can’t stump me with a question about Ali 😏
+    - Hey, you! Yes, you. Want the inside scoop on Ali?
+    - I’ve read Ali’s whole CV. Twice. Go on, test me!
+    - Recruiter? Curious? Lost? I can help with at least two of those 😄
+    - I was told to stay quiet. I’m terrible at that. Ask me something!
+    - Click me, I’m much friendlier than I look 🫧
+    - "Fun fact: I never get tired of questions about Ali. Never. Ever."
+    - Don’t be shy, I only have nice things to say about Ali.
+  section_nudges:
+    experience: Too much to read? Ask me for the short version 😉
+    projects: Ask me which of these he built with RAG. I dare you.
+    skills: Looking for one skill in particular? Just ask, I’ll point at it.
+    education: Turin, research, a thesis… want the story? Ask me!
+    publications: Science words ahead! Ask me to put it in plain English.
+    blog: He writes about books too. Ask me which ones!
+    interests: Ask me about his football team. Go on. Ask. 🙈
+  refusals:
+    - Ooh, tempting! But my brain has room for exactly one topic, and it’s Ali. Want to know what he’s building these days?
+    - I’d love to help, but I’m a one-trick pony, and the trick is Ali 🐴 Ask me about his work, his projects or his studies?
+    - That one’s above my pay grade. I’m paid in questions about Ali, so let’s spend some of those!
+    - "Plot twist: I only know about Ali. Shall I tell you about the AI systems he’s shipped?"
+    - My manual has a single chapter, and it’s called “Ali”. Want to open it together?
+    - I could guess, but I’d only make something up, and Ali raised me better than that. Ask me about him instead?
+    - "You’ve found my one weakness: everything that isn’t Ali. Got a question about him?"
+    - I’ll leave that one to the search engines. I’m here for the Ali questions, so fire away!
+    - "If I answered that, I’d have to explain myself to Ali. Let’s stick to him: skills, projects, research?"
+    - Hmm, that’s outside my little corner of the internet. My corner is all about Ali. What would you like to know?
+  closing: I think we’ve wandered quite far from Ali, so I’ll take a little break here ☕ Come back anytime with a question about him, and I’ll be all ears!
+  # When the AI can't be reached, Alino answers on the page, from the lines that match best
+  page:
+    lead: "Here’s what his CV says:"
+    not_found: "Hmm, his CV doesn’t mention that one. You could ask him directly, though: his email is on his card"
+    teases:
+      - Let me check my notes… oh no, I spilled coffee all over them! Just kidding, they’re fine.
+      - Hmm, that’s classified information… I’m kidding, it’s right there in his CV.
+      - Give me a second, I’m still booting up… just kidding, I was ready the whole time.
+      - Oh, a tough one! Let me think really hard… I’m kidding, it’s one of my favourites.
+      - Wait, are you a recruiter or a spy? Just kidding, I’ll tell you everything.
+    thanks: You’re very welcome! Anything else you’d like to know about Ali?
+    bye: Bye for now! It was lovely chatting. Come back anytime you’re curious about Ali 👋
+    how: Terrible, nobody asked me about Ali for a whole minute! …Kidding, I’m great, thanks for asking. How about you? Anything you’d like to know about him?
+    who: I’m Ali, obviously. …Okay, okay, I’m Alino, his assistant. I know his CV inside out, so ask away!
+    hello: Oh! You startled me, I was napping on Ali’s CV 😴 Hi there! I’m Alino. How’s your day going? Ask me anything about Ali.

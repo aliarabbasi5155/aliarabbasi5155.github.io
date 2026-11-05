@@ -1,9 +1,13 @@
-# Alino, the AI behind "Ask"
+# Alino, the AI behind the orb
 
 Alino writes its answers with an AI model (DeepSeek or OpenAI) through a small program on
-Cloudflare, a *Worker*. The Worker holds your API key in Cloudflare's encrypted secrets, adds
-your CV to each question and sends it to the model. The key never goes in this repository, in
-the page, or in a chat: nobody visiting the site can see it.
+Cloudflare, a *Worker* ([`worker.js`](worker.js)). The Worker holds your API key in Cloudflare's
+encrypted secrets, adds your CV in the page's language (`cv.txt`, `it/cv.txt`, `fa/cv.txt`) to
+each question and sends it to the model. The key never goes in this repository, in the page,
+or in a chat: nobody visiting the site can see it.
+
+Every question stands on its own: the page sends only the question, its language and whether
+it is the visitor's first, never a conversation, and the Worker keeps nothing.
 
 **Why not GitHub?** GitHub Pages only serves files; it can't run code when someone asks a
 question, and anything in those files is public. GitHub's own *secrets* exist only while a
@@ -42,26 +46,32 @@ Open <https://aliarabbasi5155.github.io>, open the browser's console (F12 or Cmd
 Console), paste this with your Worker's address, and press Enter:
 
 ```js
-fetch('https://ask-ali.your-name.workers.dev', { method: 'POST', body: JSON.stringify({ question: 'Has he led a team?' }) }).then(r => r.text()).then(console.log)
+fetch('https://ask-ali.your-name.workers.dev', { method: 'POST', body: JSON.stringify({ question: 'Where does Ali work?', lang: 'en', first: true }) }).then(r => r.text()).then(console.log)
 ```
 
-You should see a short answer with references like `[job-0-0]`. Until the new design (with
-`cv.txt`) is on the live site, it will say the CV doesn't mention it: that still shows the
-key and the Worker work.
+You should see a first line like `§{"kind":"about"}`, then a short answer that pulls your leg
+first and then gives the real one, with references like `[job-0-0]`. Try `lang: 'fa'` or
+`lang: 'it'` too, and `question: 'hey, how is it going?'` for a bit of chat.
 
 ## What keeps it safe
 
 - The key is a Cloudflare secret: even you can't read it back, only replace it.
 - It answers only questions from the site's address, at most 300 characters, a few a minute
-  per visitor, in a few sentences, and only about Ali; anything else gets a fixed refusal.
+  per visitor, in a few sentences, and only about Ali (plus a little friendly chat); anything
+  else gets one of ten fixed refusals, and after five of those, a goodbye for the visit.
 - To stop it at once: delete the key in **Settings**, or the key itself at DeepSeek.
 
 Settings it understands (all optional, as **Text** variables): `MODEL` (default
-`deepseek-chat`, or `gpt-4.1-mini` for OpenAI), `ORIGINS` (sites allowed to ask), `CV_URL`
-(where `cv.txt` is published), `RATE` (questions a minute per visitor, default 6).
+`deepseek-chat`, or `gpt-4.1-mini` for OpenAI), `ORIGINS` (sites allowed to ask), `SITE`
+(where the site and its `cv.txt` files are published, default
+`https://aliarabbasi5155.github.io`), `RATE` (questions a minute per visitor, default 6).
 
 ## When `worker.js` changes
 
-Cloudflare runs the copy you pasted. When this file changes (Alino's personality, its rules),
-open the Worker → **Edit code**, replace everything with the new [`worker.js`](worker.js) and
-**Deploy**. The key and settings stay as they are.
+Cloudflare runs the copy you pasted, not this file. When this file changes (Alino's
+personality, its rules), open the Worker → **Edit code**, replace everything with the new
+[`worker.js`](worker.js) and **Deploy**. The key and settings stay as they are.
+
+The words Alino says on the page itself (its hello, the suggestions, the bubbles beside the
+orb, the ten refusals and the goodbye) are in `_data/<lang>/ui.yml` under `alino`, editable in
+the CMS as **Site text → Alino**.

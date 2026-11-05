@@ -2,7 +2,7 @@
 // floating as one piece. Where the liquid thins out the glass turns milky, then clear.
 // The rims catch a light that turns toward the pointer; on request, in Chromium, every
 // disc also bends what lies behind it at its edge. The discs never slide over each other
-// and cast no shadows. Used by the page's opening scene (script.js).
+// and cast no shadows. The page's orb is one (script.js).
 //
 // The stack answers the mouse: it leans toward the pointer, its front discs more than its
 // back ones, as if it turned to face it, and opens out while the pointer is over it. A

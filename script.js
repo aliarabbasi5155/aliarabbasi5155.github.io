@@ -1,13 +1,36 @@
-// Dot field background: every tab morphs the dots into its own shape, and the
-// same field renders the liquid-glass panes at every screen size.
+// The CV as a canvas (_layouts/cv.html). The camera is the world's transform, moved here
+// frame by frame: focusing a pane flies it to the middle of the free screen at a size that
+// fits, pulling back on the way when the trip is long, so you see where you go; the overview
+// fits the whole map. Wires run from Ali's pane to every section, edge to edge, like a node
+// graph, and the one to the pane in view lights up. The rail lists the panes by name over a
+// small map that shows what is on screen. The dot field behind takes the shape of the pane in
+// view (a globe for the map) and draws every pane as liquid glass.
+//
+// The orb, the coral glass rings, goes with you everywhere: it rides the corner of the pane in
+// view (each pane's .orb-slot) on a spring, so it trails a flight, stretching with its speed,
+// and rings as it lands; on the map it marks where you are, and off screen it waits at the
+// edge. Its middle shows the section in view, flipping over to the next. Pressed, it opens
+// Alino, Ali's assistant (ask.js). Picked up, it follows the pointer on a looser spring; let
+// go over a pane or a name in the rail, it takes you there; anywhere else, it springs back.
+//
+// Also here: the language picker on a first visit to the English page, the languages
+// remembered, the theme, and the section in view told to analytics.js (portfolio:section).
+// Right to left (Persian), the map is mirrored and the rail sits on the right.
 import { DotField, PALETTES } from './dot-field.js';
 import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
-import { DeviceTilt } from './device-tilt.js?v=2';
+import { initAsk } from './ask.js';
+import { livePhoto } from './live-photo.js';
 
-// [x, y, scale]: x and y in half-view units (1 reaches the screen edge).
-// `tall` is used on portrait screens, where everything stacks in one column.
-const TAB_SCENES = {
+const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
+const ALINO = UI.alino ?? {};
+const LANG = document.documentElement.lang || 'en';
+const RTL = document.documentElement.dir === 'rtl';
+const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const root = document.documentElement;
+
+// Each section's shape in the dot field: [x, y, scale] in half-view units
+const SCENES = {
     blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
     about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
     experience: { shape: 'beam', wide: [0, 0, 1] },
@@ -17,115 +40,95 @@ const TAB_SCENES = {
     publications: { shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
     interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
 };
-const TAB_ORDER = Object.keys(TAB_SCENES);
-// The language picker's globe (initPicker), after the tabs' scenes
-const PICKER_SCENE = TAB_ORDER.length;
-
-// The page's strings come from _data/<lang>/ui.yml, embedded by the layout
-const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
-const LANG = document.documentElement.lang || 'en';
-// What a title cycles through while it scrambles in
-const LATIN_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
-const GLYPHS = {
-    en: LATIN_GLYPHS,
-    it: LATIN_GLYPHS,
-    fa: 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹',
-}[LANG] ?? LATIN_GLYPHS;
-
-// How far each kind of pane tilts toward the pointer, in degrees
-const TILT = [
-    ['.profile-panel, .updates-panel', 2.5],
-    ['.section-header-card', 3],
-    ['.section-content-card', 1.2],
-    ['.nav-button', 4],
-    ['.lang-switch, .theme-toggle.glass, .energy', 5],
-    ['.pick', 1.5],
-];
-const TILT_PERSPECTIVE = 1200;
-
-const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const CORAL = getComputedStyle(document.documentElement).getPropertyValue('--coral').trim() || '#f6654a';
+const IDS = Object.keys(SCENES);
+// Then Ali's pane, and the globe for the map (and the language picker)
+const ORDER = [...IDS.map(id => SCENES[id]), { shape: 'ripples', wide: [0.3, 0, 1], tall: [0, 0.1, 0.9] }, { shape: 'globe', wide: [0, 0, 1.15], tall: [0, 0, 1] }];
+const HOME = IDS.length;
+const MAP = HOME + 1;
+const SVG = 'http://www.w3.org/2000/svg';
+const CORAL = getComputedStyle(root).getPropertyValue('--coral').trim() || '#f6654a';
 // The page's ground in each theme (styles.css --bg), for the browser's own chrome
 const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
+// What a title cycles through while it scrambles in: Persian through its own letters
+const LATIN_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
+const GLYPHS = LANG === 'fa' ? 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی۰۱۲۳۴۵۶۷۸۹' : LATIN_GLYPHS;
 
-let field = null;
-// While the language picker shows or leaves: how much of its globe may show, 0 to 1
-let picker = null;
+const viewport = document.querySelector('.viewport');
+const world = document.querySelector('.world');
+const wires = document.querySelector('.wires');
+const rail = document.querySelector('.rail');
+const minimap = document.querySelector('.minimap');
+const stepper = document.querySelector('.stepper');
+const panes = new Map([...document.querySelectorAll('.pane')].map(pane => [pane.id, pane]));
+// Ali, then the sections in the CV's order (the page's order), for next and previous
+const SEQUENCE = [...panes.keys()];
+const railButtons = [...document.querySelectorAll('.rail [data-go]')];
+const phone = window.matchMedia('(max-width: 760px)');
+const geometry = new Map();
+const cam = { tx: 0, ty: 0, s: 1 };
+// The panes' corners, in world pixels (canvas.css), and the glass's rim: the field draws the
+// glass on screen, so both are scaled here with the view, and a pane keeps its shape
+let radius = 44;
+const RIM = { bevel: 28, refraction: 34 };
+let flight = null;
+let mode = 'focus';
+let current = 'home';
+let intro = 0;
 
-// The field's palette for a theme. On phones the copy sits right on top of the shapes, so
-// keep them quieter. Coral, the site's second colour, warms the grains as the temperature rises.
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const digits = text => (UI.digits?.length === 10 ? String(text).replace(/\d/g, d => UI.digits[d]) : String(text));
+
+// ---------- The field ----------
+
+// On phones the copy sits right on top of the shapes, so they are a touch quieter
 function fieldPalette(theme) {
-    const small = window.matchMedia('(max-width: 768px)').matches;
-    return { ...PALETTES[theme === 'light' ? 'paper' : 'sand'], accent: CORAL, ...(small && { gain: 1.05 }) };
+    return { ...PALETTES[theme === 'light' ? 'paper' : 'sand'], accent: CORAL, ...(phone.matches && { gain: 1.05 }) };
 }
 
-function initBackground() {
+function createField(initial) {
     const canvas = document.getElementById('canvas');
-    if (!canvas) return;
-
-    const activeTab = document.querySelector('.nav-button.active')?.dataset.tab;
+    if (!canvas) return null;
     const small = window.matchMedia('(max-width: 768px)').matches;
-    const picking = document.documentElement.classList.contains('picking');
+    let created;
     try {
-        field = new DotField(canvas, {
-            scenes: [...TAB_ORDER.map(tab => TAB_SCENES[tab]), { shape: 'globe', wide: [0, 0, 1.25], tall: [0, 0, 1.1] }],
-            initial: picking ? PICKER_SCENE : Math.max(0, TAB_ORDER.indexOf(activeTab)),
-            palette: fieldPalette(document.documentElement.dataset.theme),
+        created = new DotField(canvas, {
+            scenes: ORDER,
+            initial,
+            palette: fieldPalette(root.dataset.theme),
             // Right-to-left pages mirror the shapes along with the layout
-            mirror: document.documentElement.dir === 'rtl',
+            mirror: RTL,
             count: small ? 24000 : 42000,
             pointSize: 2.6,
             maxPixelRatio: small ? 1.25 : 1.5,
             reduceMotion: REDUCE_MOTION,
         });
-        field.start();
     } catch (error) {
         console.warn('Dot field disabled:', error);
-        return;
+        return null;
     }
-
-    samplePortrait(new URL('profile-photo.jpg', import.meta.url).href, field.count)
-        .then(points => field.setPortrait(points))
-        .catch(error => console.warn('Portrait sampling failed:', error));
-
-    // Pane bounds are measured each frame, including scrolling and touch tilt.
-    // CSS glass remains the fallback if the WebGL renderer cannot initialize.
-    field.setGlass(document.querySelectorAll('.glass'));
-    document.documentElement.classList.add('gl-glass');
-
-    let gesturePointerId = null;
-    const clearPointer = () => {
-        gesturePointerId = null;
-        field.clearPointer();
-    };
-    window.addEventListener('pointermove', e => {
-        if (!e.isPrimary || (e.pointerType !== 'mouse' && e.pointerId !== gesturePointerId)) return;
-        field.setPointer(e.clientX, e.clientY);
-    }, { passive: true });
-    document.addEventListener('pointerleave', clearPointer);
-    window.addEventListener('blur', clearPointer);
-    const releasePointer = e => {
-        if (e.pointerId === gesturePointerId) clearPointer();
-    };
-    document.addEventListener('pointerup', releasePointer, { passive: true });
-    document.addEventListener('pointercancel', releasePointer, { passive: true });
-    document.addEventListener('lostpointercapture', releasePointer, { passive: true });
-    document.addEventListener('scroll', clearPointer, { capture: true, passive: true });
-    // Clicks that aren't on a control send a ripple through the dots
+    created.start();
+    samplePortrait(new URL('profile-photo.jpg', import.meta.url).href, created.count)
+        .then(points => created.setPortrait(points))
+        .catch(() => {});
+    created.setGlass(document.querySelectorAll(root.classList.contains('picking') ? '.pick' : '.pane'));
+    root.classList.add('gl-glass');
+    addEventListener('pointermove', e => e.pointerType === 'mouse' && created.setPointer(e.clientX, e.clientY), { passive: true });
+    document.addEventListener('pointerleave', () => created.clearPointer());
+    // A press that isn't on a control sends a ripple through the dots
     document.addEventListener('pointerdown', e => {
-        if (!e.isPrimary) return;
-        if (e.pointerType !== 'mouse') gesturePointerId = e.pointerId;
-        field.setPointer(e.clientX, e.clientY);
-        if (e.target.closest('a, button, input, label, textarea, select')) return;
-        field.ripple(e.clientX, e.clientY);
+        if (!e.isPrimary || e.target.closest('a, button, input, label, summary')) return;
+        created.ripple(e.clientX, e.clientY);
     }, { passive: true });
+    return created;
 }
 
-// Dark or light: the system's theme (set before the first paint, in the layout's head)
-// until the visitor picks one with either switch. A pick that matches the system is
-// forgotten, so the page goes back to following the system.
+// ---------- Theme, languages, links, titles ----------
+
+// Dark or light: the system's theme (set before the first paint, in the layout's head) until
+// the visitor picks one. A pick that matches the system is forgotten, so the page goes back
+// to following the system.
 function initTheme() {
-    const root = document.documentElement;
     const toggles = document.querySelectorAll('.theme-toggle');
     const system = window.matchMedia('(prefers-color-scheme: light)');
     const meta = document.querySelector('meta[name="theme-color"]');
@@ -136,9 +139,7 @@ function initTheme() {
             return null;
         }
     };
-    const show = theme => {
-        for (const toggle of toggles) toggle.setAttribute('aria-pressed', theme === 'dark');
-    };
+    const show = theme => toggles.forEach(toggle => toggle.setAttribute('aria-pressed', theme === 'dark'));
     const apply = theme => {
         root.dataset.theme = theme;
         if (meta) meta.content = THEME_COLORS[theme];
@@ -150,7 +151,6 @@ function initTheme() {
         if (REDUCE_MOTION || !document.startViewTransition) apply(theme);
         else document.startViewTransition(() => apply(theme));
     };
-
     show(root.dataset.theme);
     for (const toggle of toggles) {
         toggle.addEventListener('click', () => {
@@ -167,108 +167,16 @@ function initTheme() {
     });
 }
 
-// The dock's slider is the field's sampling temperature, like an LLM's:
-// at 0 every grain sits on its shape, toward 2 they wander off it
-function initTemperature() {
-    const input = document.querySelector('.energy input');
-    if (!input) return;
-    const value = document.querySelector('.energy-value');
-    const band = document.querySelector('.energy-band');
-    const bands = UI.temperature?.bands ?? [];
-    const format = new Intl.NumberFormat(LANG, { minimumFractionDigits: 1, maximumFractionDigits: 2 });
-    const apply = () => {
-        const temperature = input.value / 100;
-        value.textContent = format.format(temperature);
-        band.textContent = (bands.find(b => temperature <= b.max) ?? bands.at(-1))?.label ?? '';
-        field?.setTemperature(temperature);
-        // The field stays as it is up to the default 0.7, then warms toward chaotic
-        field?.setAccent(Math.max(0, temperature - 0.7) * 0.6);
-    };
-    input.addEventListener('input', apply);
-    apply();
-}
-
-// A gentle 3D tilt: the edge under the pointer lifts toward the viewer.
-// Each pane publishes its tilt as element.dotTilt so the glass tilts with it.
-function initTilt() {
-    if (REDUCE_MOTION) return;
-    const panes = [];
-    const reset = pane => {
-        pane.targetX = 0;
-        pane.targetY = 0;
-        pane.pointerId = null;
-    };
-    for (const [selector, degrees] of TILT) {
-        for (const element of document.querySelectorAll(selector)) {
-            const pane = { element, max: (degrees * Math.PI) / 180, x: 0, y: 0, targetX: 0, targetY: 0, pointerId: null };
-            const move = e => {
-                if (!e.isPrimary) return;
-                const rect = element.getBoundingClientRect();
-                const u = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width) * 2 - 1));
-                const v = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height) * 2 - 1));
-                pane.targetX = v * pane.max;
-                pane.targetY = -u * pane.max;
-            };
-            // Touch has no hover: press and drag to tilt, leaving native scrolling intact.
-            element.addEventListener('pointerdown', e => {
-                if (!e.isPrimary || e.pointerType === 'mouse' || e.target.closest('input, textarea, select')) return;
-                pane.pointerId = e.pointerId;
-                move(e);
-            }, { passive: true });
-            element.addEventListener('pointermove', e => {
-                if (e.pointerType !== 'mouse' && e.pointerId !== pane.pointerId) return;
-                move(e);
-            }, { passive: true });
-            element.addEventListener('pointerleave', e => {
-                if (e.isPrimary) reset(pane);
-            }, { passive: true });
-            panes.push(pane);
-        }
-    }
-
-    const release = e => {
-        for (const pane of panes) {
-            if (pane.pointerId === e.pointerId) reset(pane);
-        }
-    };
-    document.addEventListener('pointerup', release, { passive: true });
-    document.addEventListener('pointercancel', release, { passive: true });
-    document.addEventListener('lostpointercapture', release, { passive: true });
-    document.addEventListener('scroll', () => panes.forEach(reset), { capture: true, passive: true });
-    window.addEventListener('blur', () => panes.forEach(reset));
-
-    const step = delta => {
-        const follow = 1 - Math.exp(-delta * 9);
-        for (const pane of panes) {
-            pane.x += (pane.targetX - pane.x) * follow;
-            pane.y += (pane.targetY - pane.y) * follow;
-            const settled = !pane.targetX && !pane.targetY && Math.abs(pane.x) < 1e-4 && Math.abs(pane.y) < 1e-4;
-            if (settled) {
-                // Back to flat: drop the transform so text renders crisp again
-                if (pane.element.dotTilt) {
-                    pane.x = pane.y = 0;
-                    pane.element.style.transform = '';
-                    pane.element.dotTilt = null;
-                }
-                continue;
-            }
-            pane.element.style.transform = `perspective(${TILT_PERSPECTIVE}px) rotateX(${pane.x}rad) rotateY(${pane.y}rad)`;
-            pane.element.dotTilt = { x: pane.x, y: pane.y, perspective: TILT_PERSPECTIVE };
-        }
-    };
-
-    // In step with the field, so the glass and the content tilt on the same frame
-    if (field) {
-        field.onFrame(step);
-        return;
-    }
-    let last = 0;
-    const loop = now => {
-        step(last ? Math.min(0.05, (now - last) / 1000) : 1 / 60);
-        last = now;
-        requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+// Every language link remembers its language, so the next visit to the English page goes
+// straight there (the layout's head reads it); not while previewing the picker (?picker)
+function initLanguageMemory() {
+    document.addEventListener('click', event => {
+        const link = event.target.closest('.lang-link');
+        if (!link || root.classList.contains('picker-preview')) return;
+        try {
+            localStorage.setItem('language', link.hreflang);
+        } catch {}
+    });
 }
 
 // Links to other sites open in a new tab
@@ -280,8 +188,21 @@ function initExternalLinks() {
     }
 }
 
-// Letters cycle through random glyphs, then settle left to right
-function scramble(element, text, duration = 600, glyphs = GLYPHS) {
+// A blog post's "show more" opens the rest of it in place (analytics.js reads its display)
+function initBlogToggles() {
+    for (const button of document.querySelectorAll('.blog-toggle-btn')) {
+        button.addEventListener('click', () => {
+            const full = button.closest('.blog-post').querySelector('.blog-full-content');
+            const opening = full.style.display === 'none';
+            full.style.display = opening ? '' : 'none';
+            button.textContent = opening ? UI.show_less : UI.show_more;
+            button.setAttribute('aria-expanded', opening);
+        });
+    }
+}
+
+// Letters cycle through random glyphs, then settle in reading order
+function scramble(element, text = element.textContent.trim(), duration = 600, glyphs = GLYPHS) {
     cancelAnimationFrame(element.scrambleFrame);
     if (REDUCE_MOTION) {
         element.textContent = text;
@@ -294,7 +215,7 @@ function scramble(element, text, duration = 600, glyphs = GLYPHS) {
         let out = '';
         for (let i = 0; i < text.length; i++) {
             // Spaces and zero-width non-joiners keep the word shapes in place
-            const keep = i < settled || text[i] === ' ' || text[i] === '\u200c';
+            const keep = i < settled || text[i] === ' ' || text[i] === '‌';
             out += keep ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
         }
         element.textContent = out;
@@ -303,31 +224,810 @@ function scramble(element, text, duration = 600, glyphs = GLYPHS) {
     element.scrambleFrame = requestAnimationFrame(step);
 }
 
-// Every language link remembers its language, so the next visit to the English page goes
-// straight there (the layout's head reads it); not while previewing the picker (?picker)
-function initLanguageMemory() {
-    document.addEventListener('click', event => {
-        const link = event.target.closest('.lang-link');
-        if (!link || document.documentElement.classList.contains('picker-preview')) return;
-        try {
-            localStorage.setItem('language', link.hreflang);
-        } catch {}
+// ---------- The layout ----------
+
+// The part of the screen the panes have: beside the rail, clear of the top and bottom bars
+function stage() {
+    const vw = innerWidth;
+    const vh = innerHeight;
+    if (phone.matches) return { left: 0, top: 0, width: vw, height: vh };
+    const box = rail.getBoundingClientRect();
+    const top = 72;
+    const bottom = 84;
+    if (RTL) return { left: 28, top, width: box.left - 24 - 28, height: vh - top - bottom };
+    const left = box.right + 24;
+    return { left, top, width: vw - left - 28, height: vh - top - bottom };
+}
+
+function layout() {
+    const vw = innerWidth;
+    const vh = innerHeight;
+    const flip = RTL ? -1 : 1;
+    radius = parseFloat(getComputedStyle(panes.get('home')).borderTopLeftRadius) || radius;
+    for (const [id, pane] of panes) {
+        // On phones the panes stand in a row, in reading order
+        const g = phone.matches
+            ? { x: flip * SEQUENCE.indexOf(id) * (vw + 40), y: 0, w: vw - 24, h: vh - 136 }
+            : { x: flip * pane.dataset.x, y: +pane.dataset.y, w: +pane.dataset.w, h: +pane.dataset.h };
+        geometry.set(id, g);
+        Object.assign(pane.style, { left: `${g.x - g.w / 2}px`, top: `${g.y - g.h / 2}px`, width: `${g.w}px`, height: `${g.h}px` });
+    }
+    drawWires();
+    drawMinimap();
+    const box = stage();
+    root.style.setProperty('--stage-center', `${box.left + box.width / 2}px`);
+}
+
+// ---------- Wires ----------
+
+// From pane a to pane b, edge to edge. Side by side or one above the other, the wire leaves
+// and enters straight; across a corner it leaves a's side near that corner and turns into
+// b's nearer end, a quarter turn.
+function route(a, b) {
+    const sx = Math.sign(b.x - a.x) || 1;
+    const sy = Math.sign(b.y - a.y) || 1;
+    const gapX = Math.abs(b.x - a.x) - (a.w + b.w) / 2;
+    const gapY = Math.abs(b.y - a.y) - (a.h + b.h) / 2;
+    let p1, p2, c1, c2;
+    if (gapX > 0 && gapY > 0) {
+        p1 = { x: a.x + sx * a.w / 2, y: a.y + sy * (a.h / 2 - 80) };
+        p2 = { x: b.x - sx * (b.w / 2 - 110), y: b.y - sy * b.h / 2 };
+        c1 = { x: p1.x + sx * Math.abs(p2.x - p1.x) * 0.6, y: p1.y };
+        c2 = { x: p2.x, y: p2.y - sy * Math.abs(p2.y - p1.y) * 0.6 };
+    } else if (gapX > 0) {
+        const y = (Math.max(a.y - a.h / 2, b.y - b.h / 2) + Math.min(a.y + a.h / 2, b.y + b.h / 2)) / 2;
+        p1 = { x: a.x + sx * a.w / 2, y };
+        p2 = { x: b.x - sx * b.w / 2, y };
+        c1 = { x: lerp(p1.x, p2.x, 0.5), y: p1.y };
+        c2 = { x: lerp(p1.x, p2.x, 0.5), y: p2.y };
+    } else {
+        const x = (Math.max(a.x - a.w / 2, b.x - b.w / 2) + Math.min(a.x + a.w / 2, b.x + b.w / 2)) / 2;
+        p1 = { x, y: a.y + sy * a.h / 2 };
+        p2 = { x, y: b.y - sy * b.h / 2 };
+        c1 = { x: p1.x, y: lerp(p1.y, p2.y, 0.5) };
+        c2 = { x: p2.x, y: lerp(p1.y, p2.y, 0.5) };
+    }
+    const d = `M${p1.x} ${p1.y}C${c1.x} ${c1.y} ${c2.x} ${c2.y} ${p2.x} ${p2.y}`;
+    return { d, p1, p2 };
+}
+
+function svg(name, attributes) {
+    const element = document.createElementNS(SVG, name);
+    for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+    return element;
+}
+
+function drawWires() {
+    const home = geometry.get('home');
+    const groups = [];
+    if (!phone.matches) {
+        SEQUENCE.slice(1).forEach((id, i) => {
+            const { d, p1, p2 } = route(home, geometry.get(id));
+            const group = svg('g', { class: 'wire', 'data-to': id, style: `--i: ${i}` });
+            group.append(
+                svg('path', { class: 'wire-line', d }),
+                // A short bright dash that runs along it, Ali to the section
+                svg('path', { class: 'wire-flow', d, pathLength: 100 }),
+                svg('circle', { class: 'wire-port', cx: p1.x, cy: p1.y, r: 5 }),
+                svg('circle', { class: 'wire-port wire-port-end', cx: p2.x, cy: p2.y, r: 5 }),
+            );
+            groups.push(group);
+        });
+    }
+    wires.replaceChildren(...groups);
+}
+
+// ---------- The small map ----------
+
+let viewFrame = null;
+
+function bounds() {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const g of geometry.values()) {
+        minX = Math.min(minX, g.x - g.w / 2); maxX = Math.max(maxX, g.x + g.w / 2);
+        minY = Math.min(minY, g.y - g.h / 2); maxY = Math.max(maxY, g.y + g.h / 2);
+    }
+    return { minX, minY, maxX, maxY };
+}
+
+function drawMinimap() {
+    if (phone.matches) return minimap.replaceChildren();
+    const { minX, minY, maxX, maxY } = bounds();
+    const margin = 90;
+    minimap.setAttribute('viewBox', `${minX - margin} ${minY - margin} ${maxX - minX + 2 * margin} ${maxY - minY + 2 * margin}`);
+    const home = geometry.get('home');
+    const items = [];
+    for (const [id, g] of geometry) {
+        if (id !== 'home') items.push(svg('path', { class: 'mm-wire', d: route(home, g).d }));
+    }
+    for (const [id, g] of geometry) {
+        items.push(svg('rect', { class: 'mm-pane', 'data-pane': id, x: g.x - g.w / 2, y: g.y - g.h / 2, width: g.w, height: g.h, rx: 110 }));
+    }
+    viewFrame = svg('rect', { class: 'mm-view', rx: 80 });
+    items.push(viewFrame);
+    minimap.replaceChildren(...items);
+    markMinimap();
+}
+
+function markMinimap() {
+    for (const rect of minimap.querySelectorAll('.mm-pane')) rect.classList.toggle('current', mode === 'focus' && rect.dataset.pane === current);
+}
+
+// ---------- The camera ----------
+
+function apply() {
+    world.style.transform = `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})`;
+    wires.style.setProperty('--inv', (1 / cam.s).toFixed(4));
+    if (viewFrame) {
+        viewFrame.setAttribute('x', -cam.tx / cam.s);
+        viewFrame.setAttribute('y', -cam.ty / cam.s);
+        viewFrame.setAttribute('width', innerWidth / cam.s);
+        viewFrame.setAttribute('height', innerHeight / cam.s);
+    }
+}
+
+// Each frame, before the field measures its glass, so the glass never trails the panes
+let lastTick = 0;
+const landings = [];
+function tick(now) {
+    const dt = lastTick ? Math.min(1 / 30, (now - lastTick) / 1000) : 1 / 60;
+    lastTick = now;
+    if (flight) {
+        const t = Math.min(1, (now - flight.start) / flight.duration);
+        const e = ease(t);
+        const s = Math.exp(lerp(flight.l0, flight.l1, e)) / (1 + flight.pull * Math.sin(Math.PI * t));
+        cam.s = s;
+        cam.tx = innerWidth / 2 - lerp(flight.c0.x, flight.c1.x, e) * s;
+        cam.ty = innerHeight / 2 - lerp(flight.c0.y, flight.c1.y, e) * s;
+        if (t >= 1) {
+            Object.assign(cam, flight.to);
+            flight = null;
+            world.classList.remove('moving');
+            for (const landed of landings.splice(0)) setTimeout(landed);
+        }
+        apply();
+    }
+    if (field && !picker) {
+        for (const pane of field.panes) pane.radius = radius * cam.s;
+        field.glass.bevel = Math.max(7, RIM.bevel * cam.s);
+        field.glass.refraction = Math.max(9, RIM.refraction * cam.s);
+    }
+    moveOrb(dt);
+}
+
+// Run something once the camera is still
+function afterLanding(callback) {
+    if (flight) landings.push(callback);
+    else setTimeout(callback);
+}
+
+// Fly to a camera { tx, ty, s }. The point at the middle of the screen travels in a straight
+// line while the scale eases between the two; on a long trip the scale dips on the way,
+// enough to keep both ends in sight at the halfway mark.
+function flyTo(to, instant = false) {
+    if (instant || REDUCE_MOTION) {
+        flight = null;
+        Object.assign(cam, to);
+        world.classList.remove('moving');
+        apply();
+        return;
+    }
+    const vw = innerWidth;
+    const vh = innerHeight;
+    const c0 = { x: (vw / 2 - cam.tx) / cam.s, y: (vh / 2 - cam.ty) / cam.s };
+    const c1 = { x: (vw / 2 - to.tx) / to.s, y: (vh / 2 - to.ty) / to.s };
+    const travel = Math.hypot(c1.x - c0.x, c1.y - c0.y);
+    const middle = Math.sqrt(cam.s * to.s);
+    const fit = (Math.min(vw, vh) * 0.7) / (travel || 1);
+    const pull = phone.matches ? 0 : Math.min(2, Math.max(0, middle / fit - 1));
+    flight = { start: performance.now(), duration: 720 + 380 * Math.min(1, pull), c0, c1, l0: Math.log(cam.s), l1: Math.log(to.s), pull, to };
+    world.classList.add('moving');
+}
+
+// ---------- Start: the field, the orb, the photo ----------
+
+// The language picker first, on a first visit to the English page (the head decides)
+let picker = root.classList.contains('picking') ? { level: 1, leaving: false } : null;
+const deferField = !location.hash && !REDUCE_MOTION;
+const field = createField(picker || deferField ? MAP : HOME);
+initTheme();
+initLanguageMemory();
+initBlogToggles();
+initExternalLinks();
+
+const orb = document.querySelector('.orb');
+const orbRings = orb.querySelector('.orb-rings');
+const orbCore = orb.querySelector('.orb-core');
+const orbIcon = orb.querySelector('.orb-icon');
+const orbTip = orb.querySelector('.orb-tip-text');
+// The orb takes its own presses (to carry it), so the rings don't grab them
+const rings = new GlassRings(orbRings, { reduceMotion: REDUCE_MOTION, grab: false });
+rings.start();
+// Ali's photo, alive: he breathes and his head drifts a little, nothing more
+livePhoto(document.querySelector('.home-photo img'), { reduceMotion: REDUCE_MOTION });
+
+if (field) field.onFrame(() => tick(performance.now()));
+else requestAnimationFrame(function loop(now) {
+    tick(now);
+    requestAnimationFrame(loop);
+});
+
+// ---------- The orb ----------
+
+// The rings are drawn at one size and scaled to the slot: a new size would repaint them
+const ORB = 150;
+const orbAt = { x: 0, y: 0, vx: 0, vy: 0, size: 132, vs: 0, away: false, placed: false };
+const written = { transform: '', rings: '', size: '' };
+
+function orbTarget() {
+    // Carried: under the pointer where it was picked up, lifted a little
+    if (carry?.moved) return { x: carry.px - carry.dx, y: carry.py - carry.dy, size: Math.min(ORB, carry.size * 1.12) };
+    const slot = panes.get(current).querySelector('.orb-slot');
+    const box = slot.getBoundingClientRect();
+    const size = Math.min(ORB, Math.max(phone.matches ? 72 : 64, box.width));
+    // Off screen it waits at the nearest edge, pointing the way back
+    const margin = 8 + size / 2;
+    return {
+        x: Math.min(innerWidth - margin, Math.max(margin, box.left + box.width / 2)),
+        y: Math.min(innerHeight - margin, Math.max(margin, box.top + box.height / 2)),
+        size,
+    };
+}
+
+// On springs a little short of critical damping, so it overshoots a touch and settles
+function moveOrb(dt) {
+    const target = orbTarget();
+    const o = orbAt;
+    if (!o.placed || REDUCE_MOTION) {
+        Object.assign(o, { x: target.x, y: target.y, size: target.size, vx: 0, vy: 0, vs: 0, placed: true });
+    } else {
+        // Carried, it keeps closer to the pointer, and swings more
+        const k = carry?.moved ? 360 : 130;
+        const c = 2 * (carry?.moved ? 0.62 : 0.74) * Math.sqrt(k);
+        o.vx += (k * (target.x - o.x) - c * o.vx) * dt;
+        o.vy += (k * (target.y - o.y) - c * o.vy) * dt;
+        o.vs += (220 * (target.size - o.size) - 2 * 0.9 * Math.sqrt(220) * o.vs) * dt;
+        o.x += o.vx * dt;
+        o.y += o.vy * dt;
+        o.size += o.vs * dt;
+    }
+    const distance = Math.hypot(target.x - o.x, target.y - o.y);
+    if (distance > 60) o.away = true;
+    // Home again: the rings ring
+    if (o.away && distance < 2 && Math.hypot(o.vx, o.vy) < 40) {
+        o.away = false;
+        rings.poke();
+    }
+    // Stretched along its way, the faster the more, like a drop
+    const speed = Math.hypot(o.vx, o.vy);
+    const stretch = Math.min(carry?.moved ? 0.24 : 0.16, speed / 7000);
+    const angle = Math.atan2(o.vy, o.vx);
+    const scale = o.size / ORB;
+    write('transform', orb, 'transform', `translate(${(o.x - ORB / 2).toFixed(1)}px, ${(o.y - ORB / 2).toFixed(1)}px)`);
+    write('rings', orbRings, 'transform', stretch > 0.004
+        ? `rotate(${angle.toFixed(3)}rad) scale(${(scale * (1 + stretch)).toFixed(4)}, ${(scale * (1 - stretch * 0.55)).toFixed(4)}) rotate(${(-angle).toFixed(3)}rad)`
+        : `scale(${scale.toFixed(4)})`);
+    write('size', orb, '--orb-size', `${o.size.toFixed(1)}px`);
+    // Near the left edge its label goes on its right
+    const right = o.x < 320;
+    if (right !== written.right) {
+        written.right = right;
+        orb.classList.toggle('tip-right', right);
+    }
+}
+
+function write(key, element, property, value) {
+    if (written[key] === value) return;
+    written[key] = value;
+    element.style.setProperty(property, value);
+}
+
+// What the orb's middle shows
+const ICONS = {
+    home: 'fa-hand', about: 'fa-user', experience: 'fa-briefcase', projects: 'fa-flask', skills: 'fa-code',
+    education: 'fa-graduation-cap', publications: 'fa-book-open', blog: 'fa-pen-nib', interests: 'fa-futbol',
+    map: 'fa-location-dot', ask: 'fa-wand-magic-sparkles',
+};
+
+// The middle flips over like a coin to its new face
+function showIcon(key) {
+    if (orb.dataset.icon === key) return;
+    const first = !orb.dataset.icon;
+    orb.dataset.icon = key;
+    const swap = () => {
+        orbIcon.classList.remove(...Object.values(ICONS));
+        orbIcon.classList.add(ICONS[key]);
+    };
+    if (first || REDUCE_MOTION) return swap();
+    orbIcon.getAnimations().forEach(animation => animation.cancel());
+    orbIcon.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(90deg) scale(0.85)' }], { duration: 150, easing: 'ease-in' }).finished.then(() => {
+        swap();
+        orbIcon.animate([
+            { transform: 'rotateY(-90deg) scale(0.85)' },
+            { transform: 'rotateY(16deg) scale(1.12)', offset: 0.65 },
+            { transform: 'rotateY(0deg) scale(1)' },
+        ], { duration: 460, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' });
+    }, () => {});
+}
+
+function orbState() {
+    if (ask?.isOpen()) return;
+    showIcon(mode === 'map' ? 'map' : current);
+    orbTip.textContent = mode === 'map' ? ALINO.here : ALINO.tip;
+    orb.classList.toggle('here', mode === 'map');
+}
+
+// ---------- Where you are ----------
+
+function mark(id) {
+    for (const button of railButtons) {
+        if (button.dataset.go === id) button.setAttribute('aria-current', 'true');
+        else button.removeAttribute('aria-current');
+    }
+    for (const wire of wires.children) wire.classList.toggle('active', mode === 'focus' && (id === 'home' || wire.dataset.to === id));
+    wires.classList.toggle('all', id === 'home' || mode === 'map');
+    markMinimap();
+    // On phones the row of names follows along
+    const button = railButtons.find(b => b.dataset.go === id);
+    if (phone.matches && button) button.scrollIntoView({ inline: 'center', block: 'nearest', behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+}
+
+function updateStepper() {
+    const index = SEQUENCE.indexOf(current);
+    const prev = SEQUENCE[index - 1];
+    const next = SEQUENCE[index + 1] ?? SEQUENCE[0];
+    const [prevButton, nextButton] = stepper.querySelectorAll('.step');
+    prevButton.hidden = !prev;
+    if (prev) prevButton.querySelector('.step-name').textContent = panes.get(prev).dataset.title;
+    nextButton.querySelector('.step-name').textContent = next === 'home' ? UI.canvas.back_to_start : panes.get(next).dataset.title;
+    stepper.querySelector('.step-count').textContent = index
+        ? digits(`${String(index).padStart(2, '0')} / ${String(SEQUENCE.length - 1).padStart(2, '0')}`)
+        : UI.canvas.start;
+}
+
+function focus(id, { instant = false, push = true } = {}) {
+    const g = geometry.get(id);
+    if (!g) return;
+    const box = stage();
+    const s = phone.matches ? 1 : Math.min(1, box.width / g.w, box.height / g.h);
+    const cx = box.left + box.width / 2;
+    const cy = phone.matches ? 62 + g.h / 2 : box.top + box.height / 2;
+    flyTo({ s, tx: cx - g.x * s, ty: cy - g.y * s }, instant);
+    const fresh = current !== id || mode !== 'focus';
+    mode = 'focus';
+    current = id;
+    document.body.classList.add('focus-mode');
+    document.body.classList.remove('map-mode');
+    for (const [key, pane] of panes) pane.classList.toggle('focused', key === id);
+    mark(id);
+    updateStepper();
+    field?.morphTo(id === 'home' ? HOME : IDS.indexOf(id));
+    orbState();
+    const title = panes.get(id).querySelector('.section-title span');
+    if (title && fresh) setTimeout(() => scramble(title), instant ? 0 : 450);
+    if (push) history.replaceState(null, '', id === 'home' ? location.pathname + location.search : `#${id}`);
+    // Analytics counts attention by the section in view
+    if (fresh) {
+        document.body.dataset.section = id;
+        document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: id } }));
+    }
+}
+
+function overviewCamera() {
+    const { minX, minY, maxX, maxY } = bounds();
+    const box = stage();
+    const s = Math.min((box.width - 40) / (maxX - minX), (box.height - 20) / (maxY - minY));
+    return { s, tx: box.left + box.width / 2 - ((minX + maxX) / 2) * s, ty: box.top + box.height / 2 - ((minY + maxY) / 2) * s };
+}
+
+function overview(instant = false) {
+    if (phone.matches) return;
+    flyTo(overviewCamera(), instant);
+    mode = 'map';
+    document.body.classList.add('map-mode');
+    document.body.classList.remove('focus-mode');
+    for (const pane of panes.values()) pane.classList.remove('focused');
+    mark('overview');
+    field?.morphTo(MAP);
+    orbState();
+}
+
+function step(direction) {
+    const index = SEQUENCE.indexOf(current);
+    focus(SEQUENCE[(index + direction + SEQUENCE.length) % SEQUENCE.length]);
+}
+
+// The pane that lies most nearly in a direction from the one in view
+function neighbour(dx, dy) {
+    const from = geometry.get(current);
+    let best = null;
+    let score = Infinity;
+    for (const [id, g] of geometry) {
+        const vx = g.x - from.x;
+        const vy = g.y - from.y;
+        const distance = Math.hypot(vx, vy);
+        const along = (vx * dx + vy * dy) / (distance || 1);
+        if (id === current || along <= 0.3) continue;
+        const value = distance * (1 + 2 * (1 - along));
+        if (value < score) { score = value; best = id; }
+    }
+    if (best) focus(best);
+}
+
+// Fly to a pane, bring a line of it into view, then do something there
+function goTo(id, element, then) {
+    focus(id);
+    afterLanding(() => {
+        const body = element?.closest('.pane-body');
+        if (body) {
+            const offset = (element.getBoundingClientRect().top - body.getBoundingClientRect().top) / cam.s;
+            body.scrollTo({ top: Math.max(0, body.scrollTop + offset - body.clientHeight * 0.3), behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+        }
+        then?.();
     });
 }
 
-// The language picker (styles.css), on a first visit to the English page: a glass pane for
-// each language over the field's globe. Each greeting scrambles in, and again as its pane
-// is hovered. Choosing a pane widens it over the others; English then lets the panes fall
-// away onto the opening as the globe dissolves, and the others go to their page. Escape
-// stays on English without remembering a choice, and the arrow keys move between panes.
-function initPicker() {
-    const root = document.documentElement;
+// A long pane fades at its foot while there is more of it below
+for (const body of document.querySelectorAll('.pane-body')) {
+    const more = () => {
+        body.classList.toggle('more', body.scrollTop + body.clientHeight < body.scrollHeight - 4);
+        body.classList.toggle('scrolled', body.scrollTop > 4);
+    };
+    body.addEventListener('scroll', more, { passive: true });
+    new ResizeObserver(more).observe(body);
+}
+
+// ---------- Alino ----------
+
+const ask = initAsk({
+    panel: document.querySelector('.ask'),
+    panes,
+    anchor: () => ({ x: orbAt.x, y: orbAt.y, size: orbAt.size }),
+    // Fly to a pane, bring the line into its view and light it
+    go: goTo,
+    onToggle(open) {
+        orbCore.setAttribute('aria-expanded', open);
+        orb.classList.toggle('asking', open);
+        if (open) {
+            showIcon('ask');
+            met();
+        } else {
+            orbState();
+        }
+    },
+});
+
+// The latest news on Ali's pane opens the updates under About
+const news = document.querySelector('.home-news');
+news?.addEventListener('click', () => {
+    interacted();
+    goTo('about', ask.lineOf(news.dataset.news), () => ask.light(news.dataset.news));
+});
+
+// ---------- Alino calls out ----------
+
+// Until the visitor has opened Alino once, the orb wears a badge; and until they have asked
+// something this visit, Alino pipes up now and then in a bubble beside the orb: a moment of
+// "typing", then a line (some about the section in view), and the rings ripple as it speaks
+const badge = orb.querySelector('.orb-badge');
+const say = orb.querySelector('.orb-say');
+const sayText = say.querySelector('.orb-say-text');
+const NUDGES = ALINO.nudges ?? [];
+const SECTION_NUDGES = ALINO.section_nudges ?? {};
+let said = 0;
+let sayTimer = 0;
+let lastLine = -1;
+
+function met() {
+    badge.hidden = true;
+    hideSay();
+    try { localStorage.setItem('alino:met', '1'); } catch {}
+}
+try { badge.hidden = localStorage.getItem('alino:met') === '1'; } catch {}
+
+function hideSay() {
+    say.classList.remove('on', 'typing');
+}
+
+function callOut() {
+    clearTimeout(sayTimer);
+    if (said >= 5 || ask.asked() || !NUDGES.length) return;
+    // Not while the visitor is choosing a language, busy with Alino, carrying it, or on the map
+    if (picker || ask.isOpen() || carry?.moved || mode !== 'focus' || document.hidden) {
+        sayTimer = setTimeout(callOut, 8000);
+        return;
+    }
+    said++;
+    let line = SECTION_NUDGES[current] && Math.random() < 0.6 ? SECTION_NUDGES[current] : null;
+    if (!line) {
+        let index = Math.floor(Math.random() * NUDGES.length);
+        if (index === lastLine) index = (index + 1) % NUDGES.length;
+        lastLine = index;
+        line = NUDGES[index];
+    }
+    sayText.textContent = '';
+    say.classList.add('on', 'typing');
+    if (!REDUCE_MOTION) rings.poke();
+    setTimeout(() => {
+        sayText.textContent = line;
+        say.classList.remove('typing');
+    }, 900);
+    setTimeout(hideSay, 7500);
+    sayTimer = setTimeout(callOut, 38000 + Math.random() * 30000);
+}
+say.addEventListener('click', () => {
+    hideSay();
+    ask.open(orbCore);
+});
+
+// ---------- Carrying the orb ----------
+
+// A press that doesn't move is a tap, and opens Alino; one that moves picks the orb up
+let carry = null;
+
+// What lies under the pointer that the orb can be dropped on: another pane, or a name in the
+// rail or the small map
+function dropTarget(x, y) {
+    for (const el of document.elementsFromPoint(x, y)) {
+        if (el.closest('.orb')) continue;
+        const target = el.closest('.rail-item[data-go], .mm-pane[data-pane]');
+        if (target) return { id: target.dataset.go ?? target.dataset.pane, el: target };
+        const pane = el.closest('.pane');
+        if (pane && (pane.id !== current || mode === 'map')) return { id: pane.id, el: pane };
+        if (el.closest('.rail, .stepper, .ask, .canvas-top')) return null;
+    }
+    return null;
+}
+
+function markDrop(target, on) {
+    if (!target) return;
+    target.el.classList.toggle('drop-target', on);
+    // A pane's glass takes the tint the field gives the active pane
+    if (target.el.classList.contains('pane')) target.el.classList.toggle('active', on);
+}
+
+orb.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button > 0) return;
+    event.preventDefault();
+    interacted();
+    carry = { id: event.pointerId, x: event.clientX, y: event.clientY, px: event.clientX, py: event.clientY, dx: event.clientX - orbAt.x, dy: event.clientY - orbAt.y, size: orbAt.size, moved: false, drop: null };
+});
+addEventListener('pointermove', event => {
+    if (!carry || event.pointerId !== carry.id) return;
+    carry.px = event.clientX;
+    carry.py = event.clientY;
+    if (!carry.moved) {
+        if (Math.hypot(event.clientX - carry.x, event.clientY - carry.y) < 6) return;
+        carry.moved = true;
+        ask.close(false);
+        hideSay();
+        orb.classList.add('carried');
+        root.classList.add('orb-carried');
+        rings.poke();
+    }
+    const target = dropTarget(event.clientX, event.clientY);
+    if (target?.el !== carry.drop?.el) {
+        markDrop(carry.drop, false);
+        markDrop(target, true);
+        carry.drop = target;
+        orbTip.textContent = target ? ALINO.take_me.replace('{place}', panes.get(target.id)?.dataset.title ?? ALINO.the_map) : ALINO.let_go;
+    }
+});
+function letGo(event) {
+    if (!carry || event.pointerId !== carry.id) return;
+    const { moved, drop } = carry;
+    carry = null;
+    if (!moved) {
+        if (event.type === 'pointerup') ask.toggle(orbCore);
+        return;
+    }
+    orb.classList.remove('carried');
+    root.classList.remove('orb-carried');
+    markDrop(drop, false);
+    // The click that ends a carry is the orb's, not the button's under it
+    const swallow = click => { click.stopPropagation(); click.preventDefault(); };
+    addEventListener('click', swallow, { capture: true, once: true });
+    setTimeout(() => removeEventListener('click', swallow, { capture: true }));
+    orbAt.away = true;
+    if (drop && event.type === 'pointerup' && panes.has(drop.id)) focus(drop.id);
+    else orbState();
+}
+addEventListener('pointerup', letGo);
+addEventListener('pointercancel', letGo);
+// From the keyboard the middle opens Alino (a pointer's tap is handled above)
+orbCore.addEventListener('click', event => {
+    if (event.detail === 0) ask.toggle(orbCore);
+});
+
+// ---------- Input ----------
+
+// The browser scrolls a box to show a #link's target or a focused link, even one that hides
+// its overflow; here only the camera moves
+viewport.addEventListener('scroll', () => {
+    viewport.scrollLeft = 0;
+    viewport.scrollTop = 0;
+});
+// Tabbing into a pane brings it into view
+viewport.addEventListener('focusin', event => {
+    const pane = event.target.closest('.pane');
+    if (pane && (pane.id !== current || mode !== 'focus')) focus(pane.id);
+});
+
+// The first move of any kind puts the hint away
+let hinted = false;
+function interacted() {
+    if (hinted) return;
+    hinted = true;
+    clearTimeout(intro);
+    document.body.classList.add('hint-done');
+}
+
+for (const button of railButtons) {
+    button.addEventListener('click', event => {
+        interacted();
+        const target = event.target.closest('[data-pane]');
+        if (target) focus(target.dataset.pane);
+        else if (button.dataset.go === 'overview') overview();
+        else focus(button.dataset.go);
+    });
+}
+for (const button of stepper.querySelectorAll('.step')) {
+    button.addEventListener('click', () => { interacted(); step(+button.dataset.step); });
+}
+
+// Drag to pan; a press that doesn't move picks the pane under it. On phones the row follows
+// the finger and lets go onto the next or previous pane, or back.
+let drag = null;
+viewport.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.target.closest('a, button, input')) return;
+    drag = { x: event.clientX, y: event.clientY, tx: cam.tx, ty: cam.ty, moved: false, target: event.target, mouse: event.pointerType === 'mouse' };
+});
+addEventListener('pointermove', event => {
+    if (!drag) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+    // A mouse in the pane being read selects its text instead
+    if (!drag.moved && drag.mouse && drag.target.closest('.focused .pane-body')) {
+        drag = null;
+        return;
+    }
+    if (!drag.moved) {
+        drag.moved = true;
+        flight = null;
+        interacted();
+        viewport.classList.add('dragging');
+        world.classList.add('moving');
+    }
+    cam.tx = drag.tx + dx;
+    if (!phone.matches) cam.ty = drag.ty + dy;
+    apply();
+});
+function release(event, cancelled) {
+    if (!drag) return;
+    const { moved, target, x, y } = drag;
+    drag = null;
+    viewport.classList.remove('dragging');
+    world.classList.remove('moving');
+    if (phone.matches) {
+        if (!moved) return;
+        const dx = event.clientX - x;
+        // A swipe toward the start of the line brings the next pane (the row runs the
+        // other way right to left)
+        if (!cancelled && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(event.clientY - y)) step((dx < 0) !== RTL ? 1 : -1);
+        else focus(current, { push: false });
+        return;
+    }
+    if (moved || cancelled) return;
+    const pane = target.closest('.pane');
+    if (pane && (mode === 'map' || !pane.classList.contains('focused'))) {
+        interacted();
+        focus(pane.id);
+    }
+}
+addEventListener('pointerup', event => release(event, false));
+addEventListener('pointercancel', event => release(event, true));
+
+// The wheel reads the pane in view; a fresh turn of it at the pane's end, or anywhere off the
+// pane, steps to the next or previous one. In the overview it zooms; with Ctrl (or a pinch)
+// it zooms anywhere.
+const gesture = { last: 0, sum: 0, used: false, scrolled: false };
+viewport.addEventListener('wheel', event => {
+    const now = performance.now();
+    if (now - gesture.last > 260) Object.assign(gesture, { sum: 0, used: false, scrolled: false });
+    gesture.last = now;
+    interacted();
+    if (event.ctrlKey || mode === 'map') {
+        event.preventDefault();
+        const floor = Math.min(overviewCamera().s, 0.2) * 0.85;
+        const s = Math.min(1.25, Math.max(floor, cam.s * Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.002))));
+        flight = null;
+        cam.tx = event.clientX - (event.clientX - cam.tx) * (s / cam.s);
+        cam.ty = event.clientY - (event.clientY - cam.ty) * (s / cam.s);
+        cam.s = s;
+        apply();
+        return;
+    }
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX * (RTL ? -1 : 1) : event.deltaY;
+    const body = event.target.closest('.focused .pane-body');
+    if (body && body.scrollHeight > body.clientHeight + 2) {
+        const atEnd = delta > 0 ? body.scrollTop + body.clientHeight >= body.scrollHeight - 2 : body.scrollTop <= 2;
+        if (!atEnd) {
+            gesture.scrolled = true;
+            return;
+        }
+        // A scroll that ran into the end stops there; the next turn moves on
+        if (gesture.scrolled) {
+            event.preventDefault();
+            return;
+        }
+    }
+    event.preventDefault();
+    if (gesture.used) return;
+    gesture.sum += delta;
+    if (Math.abs(gesture.sum) < 40) return;
+    gesture.used = true;
+    step(gesture.sum > 0 ? 1 : -1);
+}, { passive: false });
+
+document.addEventListener('keydown', event => {
+    if (picker || event.target.closest('input, textarea') || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === '/') {
+        event.preventDefault();
+        interacted();
+        ask.open(orbCore);
+        return;
+    }
+    const moves = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+    const inPane = event.target.closest('.pane-body');
+    if (moves[event.key] && !inPane) {
+        event.preventDefault();
+        interacted();
+        // On phones the arrow toward the end of the line, or down, is the next pane
+        const onward = event.key === 'ArrowDown' || event.key === (RTL ? 'ArrowLeft' : 'ArrowRight');
+        if (mode === 'map') focus(current);
+        else if (phone.matches) step(onward ? 1 : -1);
+        else neighbour(...moves[event.key]);
+    } else if (event.key === 'PageDown' || event.key === 'PageUp') {
+        event.preventDefault();
+        interacted();
+        step(event.key === 'PageDown' ? 1 : -1);
+    } else if (event.key === 'Escape') {
+        interacted();
+        if (mode === 'map') focus(current);
+        else overview();
+    } else if (event.key === 'Home' && !inPane) {
+        interacted();
+        focus('home');
+    }
+});
+
+addEventListener('resize', () => {
+    layout();
+    if (mode === 'map') overview(true);
+    else focus(current, { instant: true, push: false });
+});
+addEventListener('hashchange', () => {
+    const id = location.hash.slice(1);
+    if (panes.has(id)) focus(id);
+});
+
+// ---------- The language picker ----------
+
+// On a first visit to the English page (styles.css): a glass pane for each language over the
+// field's globe. Each greeting scrambles in, and again as its pane is hovered. Choosing a pane
+// widens it over the others; English then lets the panes fall away onto the canvas as the
+// globe dissolves, and the others go to their page. Escape stays on English without
+// remembering a choice, and the arrow keys move between panes.
+function initPicker(then) {
     const dialog = document.querySelector('.language-picker');
-    if (!dialog || !root.classList.contains('picking')) return;
+    if (!dialog || !picker) {
+        picker = null;
+        return then();
+    }
     const picks = [...dialog.querySelectorAll('.pick')];
-    const behind = document.querySelectorAll('.opening, .container, .dock');
+    const behind = document.querySelectorAll('.viewport, .rail, .stepper, .orb, .ask, .canvas-top, .canvas-foot');
     for (const element of behind) element.inert = true;
-    picker = { level: 1, leaving: false };
     dialog.focus({ preventScroll: true });
     const wait = ms => (REDUCE_MOTION ? 0 : ms);
 
@@ -335,7 +1035,7 @@ function initPicker() {
     picks.forEach((pick, i) => {
         const word = pick.querySelector('.pick-word');
         const text = word.textContent;
-        const glyphs = pick.hreflang === 'fa' ? [...new Set(pick.textContent.replace(/[^\u0600-\u06ff]/g, ''))].join('') : LATIN_GLYPHS;
+        const glyphs = pick.hreflang === 'fa' ? [...new Set(pick.textContent.replace(/[^؀-ۿ]/g, ''))].join('') : LATIN_GLYPHS;
         scramble(word, text, 1100 + i * 150, glyphs);
         pick.addEventListener('pointerenter', () => scramble(word, text, 600, glyphs));
     });
@@ -349,15 +1049,13 @@ function initPicker() {
     const reveal = () => {
         picker.leaving = true;
         dialog.classList.add('leaving');
-        // Back to the tab's own scene, unseen under the opening
-        field?.morphTo(Math.max(0, TAB_ORDER.indexOf(document.querySelector('.nav-button.active')?.dataset.tab)));
         setTimeout(() => {
             picker = null;
             dialog.remove();
             root.classList.remove('picking');
             for (const element of behind) element.inert = false;
-            const name = document.querySelector('.opening-name');
-            if (name) scramble(name, name.textContent.trim(), 900);
+            field?.setGlass(panes.values());
+            then();
         }, wait(900));
     };
     const choose = pick => {
@@ -378,411 +1076,32 @@ function initPicker() {
             if (!dialog.classList.contains('chosen')) reveal();
         } else if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
             const from = picks.indexOf(document.activeElement);
-            const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
-            const next = from < 0 ? (step > 0 ? 0 : picks.length - 1) : (from + step + picks.length) % picks.length;
+            const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
+            const next = from < 0 ? (direction > 0 ? 0 : picks.length - 1) : (from + direction + picks.length) % picks.length;
             picks[next].focus();
             event.preventDefault();
         }
     });
 }
 
-// The opening scene, the page's first screen (styles.css): the rings float while it is in
-// view and the name scrambles in like a section title. The field's dots gather only as
-// the page comes up from below, and leave again on the way back. A click on the scene or
-// on the arrow on the front ring goes down to the page (a mouse press on the other rings
-// is theirs to play with); on wide screens, where the page fills one screen, a scroll or
-// key turns between the two in one move instead of stopping halfway.
-function initOpening() {
-    const scene = document.querySelector('.opening');
-    if (!scene) return;
+// ---------- Start ----------
 
-    const rings = new GlassRings(scene.querySelector('.opening-rings'), { reduceMotion: REDUCE_MOTION });
-    const tilt = new DeviceTilt((x, y) => rings.setTilt(x, y), scene.querySelector('.opening-rings'));
-    // Only while some of the scene shows. At the page its bottom edge still touches the top
-    // of the screen, which an observer counts as intersecting, so it asks for a sliver.
-    new IntersectionObserver(([entry]) => {
-        if (entry.intersectionRatio > 0.01) {
-            rings.start();
-            tilt.start();
-        } else {
-            rings.stop();
-            tilt.stop();
-        }
-    }, { threshold: [0, 0.02] }).observe(scene);
-    const name = scene.querySelector('.opening-name');
-    scramble(name, name.textContent.trim(), 900);
+layout();
+const start = location.hash.slice(1);
+// Until the picker has gone, the camera rests on the whole map
+if (picker) overview(true);
 
-    // How far the scene has scrolled away; the dots come in over the last three quarters,
-    // at no more than their own entrance's pace. While the scene fills the screen the
-    // field has nothing to show, so after drawing that frame it rests until the page moves.
-    const covering = () => {
-        const { top, bottom } = scene.getBoundingClientRect();
-        return top > -1 && bottom >= innerHeight - 1;
-    };
-    field?.onFrame(() => {
-        // The language picker has the field to itself until it has gone
-        if (picker) return;
-        const { bottom, height } = scene.getBoundingClientRect();
-        const away = 1 - Math.min(1, Math.max(0, bottom / height));
-        field.intro = Math.min(field.intro, Math.max(0, (away - 0.25) / 0.75));
-        if (covering()) field.stop();
-    });
-    const wake = () => {
-        if (!covering()) field?.start();
-    };
-    window.addEventListener('scroll', wake, { passive: true });
-    window.addEventListener('resize', wake);
-
-    const page = document.querySelector('.container');
-    const pageTop = () => page.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(page).scrollMarginTop || 0);
-    let turned = -Infinity;
-    const turn = top => {
-        turned = performance.now();
-        window.scrollTo({ top, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
-    };
-    scene.addEventListener('click', event => {
-        // The theme and language controls do their own thing instead
-        if (!event.target.closest('.opening-controls')) turn(pageTop());
-    });
-
-    // Whether the pointer or focus is over something that can still scroll up itself
-    const scrollsUp = element => {
-        for (let el = element; el && el !== document.body; el = el.parentElement) {
-            if (el.scrollTop > 0) return true;
-        }
-        return false;
-    };
-    const wide = window.matchMedia('(min-width: 1101px)');
-    window.addEventListener('wheel', event => {
-        if (picker || !wide.matches || event.ctrlKey) return;
-        const top = pageTop();
-        // A turn under way, and the swipe's momentum after it, move nothing else
-        if (performance.now() - turned < 900) {
-            event.preventDefault();
-        } else if (scrollY < top - 2) {
-            event.preventDefault();
-            if (event.deltaY > 0) turn(top);
-        } else if (event.deltaY < 0 && !scrollsUp(event.target)) {
-            event.preventDefault();
-            turn(0);
-        }
-    }, { passive: false });
-    window.addEventListener('keydown', event => {
-        if (picker || !wide.matches || (event.target !== document.body && event.target !== document.documentElement)) return;
-        const top = pageTop();
-        if (scrollY < top - 2 && ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) {
-            event.preventDefault();
-            turn(top);
-        } else if (scrollY >= top - 2 && ['ArrowUp', 'PageUp', 'Home'].includes(event.key)) {
-            event.preventDefault();
-            turn(0);
-        }
-    });
-}
-
-// Tab functionality with smooth fade transitions
-function openTab(tabName) {
-    field?.morphTo(TAB_ORDER.indexOf(tabName));
-    // The header shows the same letter and name as the menu entry
-    const tabButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
-    if (tabButton) {
-        document.getElementById('section-badge').textContent = tabButton.querySelector('.nav-letter').textContent;
-    }
-
-    // Get all tab contents and find the currently active one
-    const tabContents = document.getElementsByClassName("tab-content");
-    const activeContent = document.querySelector('.tab-content.active');
-    const sectionTitle = document.getElementById('section-title');
-    
-    // Remove active class from all navigation buttons IMMEDIATELY for smooth animation
-    const navButtons = document.querySelectorAll('.nav-button');
-    navButtons.forEach(button => {
-        button.classList.remove("active");
-    });
-    
-    // Mark the corresponding navigation button as active IMMEDIATELY
-    const activeButton = document.querySelector(`.nav-button[data-tab="${tabName}"]`);
-    if (activeButton) {
-        activeButton.classList.add("active");
-    }
-    
-    // Add fade-out class to current active content and title
-    if (activeContent) {
-        activeContent.classList.add('fade-out');
-    }
-    if (sectionTitle) {
-        sectionTitle.classList.add('fade-out');
-    }
-    
-    // Wait for fade-out animation to complete
-    setTimeout(() => {
-        // Remove active class and fade-out class from all tabs
-        for (let i = 0; i < tabContents.length; i++) {
-            tabContents[i].classList.remove("active", "fade-out");
-        }
-        
-        // Show the selected tab content
-        const newContent = document.getElementById(tabName);
-        if (newContent) {
-            newContent.classList.add("active");
-            document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: tabName } }));
-        }
-        
-        if (sectionTitle && tabButton) {
-            // Remove fade-out and scramble in the new title
-            sectionTitle.classList.remove('fade-out');
-            scramble(sectionTitle, tabButton.querySelector('.nav-label').textContent.trim());
-        }
-    }, 300); // Match this with fade-out animation duration
-}
-
-// Initialize navigation
-function initNavigation() {
-    const navButtons = document.querySelectorAll('.nav-button');
-    console.log(`Found ${navButtons.length} navigation buttons`);
-    
-    navButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const tabName = this.getAttribute('data-tab');
-            console.log(`Switching to tab: ${tabName}`);
-            field?.ripple(e.clientX, e.clientY, 1.2);
-
-            // Use requestAnimationFrame for smoother transitions
-            requestAnimationFrame(() => {
-                openTab(tabName);
-            });
-        });
-    });
-}
-
-// Mobile menu toggle functionality
-const menuToggle = document.getElementById('menuToggle');
-const navLinksContainer = document.getElementById('navLinks');
-
-if (menuToggle) {
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        navLinksContainer.classList.toggle('active');
-    });
-}
-
-// Handle nav link clicks
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const tabName = link.getAttribute('data-tab');
-        if (tabName) {
-            openTab(tabName);
-            // Close mobile menu
-            navLinksContainer.classList.remove('active');
-        }
-    });
-});
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (menuToggle && navLinksContainer && 
-        !menuToggle.contains(e.target) && 
-        !navLinksContainer.contains(e.target)) {
-        navLinksContainer.classList.remove('active');
-    }
-});
-
-// Smooth scrolling and animations
-function initAnimations() {
-    // Add smooth scroll behavior to external links
-    const externalLinks = document.querySelectorAll('a[target="_blank"]');
-    externalLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Add a small delay to show the click feedback
-            setTimeout(() => {
-                // The browser will handle opening the external link
-            }, 100);
-        });
-    });
-    
-    // Add animation classes for better UX
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    });
-    
-    // Observe all job, degree, project, publication, and interest cards
-    const cards = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
-}
-
-// Removed loading animation to prevent blinking
-
-// Add search functionality (optional)
-function initSearch() {
-    const searchInput = document.getElementById('search');
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const searchableElements = document.querySelectorAll('.job, .degree, .project, .publication, .interest-card, .skill-category');
-        
-        searchableElements.forEach(element => {
-            const text = element.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                element.style.display = 'block';
-                element.style.opacity = '1';
-            } else {
-                element.style.display = 'none';
-                element.style.opacity = '0.5';
-            }
-        });
-    });
-}
-
-// Theme toggler (optional feature)
-function initThemeToggler() {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
-    
-    themeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('dark-theme');
-        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
-    });
-    
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    }
-}
-
-// Print functionality
-function printResume() {
-    window.print();
-}
-
-// Social media sharing (optional)
-function shareResume(platform) {
-    const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent('Ali Abbasi - Machine Learning Engineer');
-    
-    let shareUrl;
-    switch(platform) {
-        case 'linkedin':
-            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
-            break;
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            break;
-        default:
-            return;
-    }
-    
-    window.open(shareUrl, '_blank', 'width=600,height=400');
-}
-
-// Add tooltips for skill tags
-function initSkillTags() {
-    const skillTags = document.querySelectorAll('.skill-tag, .tech-tag');
-    
-    skillTags.forEach(tag => {
-        tag.addEventListener('mouseenter', function() {
-            // You can add custom tooltips here if needed
-            this.style.transform = 'scale(1.05)';
-        });
-        
-        tag.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-        });
-        
-        // Add transition for smooth hover effect
-        tag.style.transition = 'transform 0.2s ease';
-    });
-}
-
-// Copy email to clipboard
-function copyEmail() {
-    const email = 'abbasialiar@gmail.com';
-    navigator.clipboard.writeText(email).then(function() {
-        // Show a temporary notification
-        const notification = document.createElement('div');
-        notification.textContent = 'Email copied to clipboard!';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #2ecc71;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 5px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    });
-}
-
-// Add slideIn animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-`;
-document.head.appendChild(style);
-
-// Blog post toggle functionality
-function toggleBlogPost(button) {
-    const blogPost = button.closest('.blog-post');
-    const fullContent = blogPost.querySelector('.blog-full-content');
-    const isExpanded = fullContent.style.display !== 'none';
-    
-    if (isExpanded) {
-        // Collapse
-        fullContent.style.display = 'none';
-        button.textContent = UI.show_more;
+initPicker(() => {
+    if (panes.has(start) || !deferField || phone.matches) {
+        focus(panes.has(start) ? start : 'home', { instant: true, push: false });
     } else {
-        // Expand
-        fullContent.style.display = 'block';
-        button.textContent = UI.show_less;
+        // First the whole map, so the layout is clear at a glance; then into Ali's pane
+        overview(true);
+        intro = setTimeout(() => focus('home', { push: false }), 1100);
     }
-}
-
-// Make toggleBlogPost available globally
-window.toggleBlogPost = toggleBlogPost;
-
-// Main initialization
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAll);
-} else {
-    initAll();
-}
-
-function initAll() {
-    initBackground();
-    initTheme();
-    initOpening();
-    initPicker();
-    initLanguageMemory();
-    initTemperature();
-    initTilt();
-    initExternalLinks();
-    initNavigation();
-    initAnimations();
-    initSkillTags();
-}
+    scramble(document.querySelector('.home-name'), undefined, 900);
+    // The orb says what it does, for a moment
+    orb.classList.add('tip-show');
+    setTimeout(() => orb.classList.remove('tip-show'), 5200);
+    sayTimer = setTimeout(callOut, deferField ? 6500 : 4500);
+});

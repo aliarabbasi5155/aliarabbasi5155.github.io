@@ -75,10 +75,13 @@
 
     function visibleBounds() {
         const section = document.getElementById(currentSection);
-        if (!section || !content) return null;
-        const rect = section.getBoundingClientRect();
-        const viewport = content.getBoundingClientRect();
-        const scrolls = getComputedStyle(content).overflowY === 'auto';
+        // A section on the canvas reads inside its own pane, in the box it scrolls in
+        const text = section && section.querySelector ? section.querySelector('.tab-contents') : null;
+        const box = text ? text.parentElement : content;
+        if (!section || !box) return null;
+        const rect = (text || section).getBoundingClientRect();
+        const viewport = box.getBoundingClientRect();
+        const scrolls = getComputedStyle(box).overflowY === 'auto';
         const top = Math.max(0, rect.top, scrolls ? viewport.top : 0);
         const bottom = Math.min(window.innerHeight, rect.bottom, scrolls ? viewport.bottom : window.innerHeight);
         return { rect, top, bottom };
@@ -156,7 +159,7 @@
         enabled = true;
         for (const id of ids) window['ga-disable-' + id] = false;
         lastTick = lastActivity = lastReport = performance.now();
-        currentSection = document.querySelector('.tab-content.active')?.id || '';
+        currentSection = document.querySelector('.tab-content.active')?.id || document.body?.dataset.section || '';
         wasEligible = false;
         const hasIncomingCampaign = [...incoming.searchParams.keys()].some(key => key.startsWith('utm_'));
         outreachId = campaign.get('utm_content') || (hasIncomingCampaign ? '' : read(session, OUTREACH_KEY)) || '';

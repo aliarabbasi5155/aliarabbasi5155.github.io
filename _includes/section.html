@@ -1,10 +1,10 @@
 {%- comment -%}
-  Lab only (the concept prototypes in lab/): one section of the CV, by include.id, from the
-  English data, in the site's own markup so styles.css dresses it. include.limit caps a
-  list (jobs, projects, posts) for a preview. Every line carries a reference (data-ref),
-  the same one that heads it in cv.txt, so an answer from Ask can point at it.
+  One section of the CV, by include.id, in the page's language (include.lang). Every line
+  carries a reference (data-ref), the same one that heads it in cv.txt, so an answer from
+  Alino can point at it; the references are the same in every language. Projects,
+  publications and posts carry data-analytics-item for analytics.js.
 {%- endcomment -%}
-{%- assign data = site.data.en -%}
+{%- assign data = site.data[include.lang] -%}
 {%- assign ui = data.ui -%}
 {%- case include.id -%}
 {%- when "about" %}
@@ -13,21 +13,32 @@
     <p data-ref="about-{{ forloop.index0 }}">{% include inline.html text=paragraph %}</p>
     {%- endfor %}
 </section>
+{%- if data.updates.items.size > 0 %}
+<section class="updates">
+    <h3 class="earlier-title"><i class="fas fa-bolt" aria-hidden="true"></i> {{ data.updates.title | escape }}</h3>
+    <ul class="update-list">
+        {%- for update in data.updates.items %}
+        <li class="update-item" data-ref="update-{{ forloop.index0 }}">
+            <span class="update-date">{{ update.date | escape }}</span>
+            <span class="update-text"><strong>{{ update.label | escape }}</strong> {% include inline.html text=update.text %}</span>
+        </li>
+        {%- endfor %}
+    </ul>
+</section>
+{%- endif %}
 {%- when "experience" %}
 <section class="experience">
-    {%- for job in data.experience.jobs limit: include.limit %}
+    {%- for job in data.experience.jobs %}
     {%- capture ref %}job-{{ forloop.index0 }}{% endcapture %}
-    {% include lab/job.html job=job ref=ref %}
+    {% include job.html job=job ref=ref %}
     {%- endfor %}
-    {%- unless include.limit %}
     {%- if data.experience.earlier_jobs.size > 0 %}
     <h3 class="earlier-title">{{ data.experience.earlier_title | escape }}</h3>
     {%- for job in data.experience.earlier_jobs %}
     {%- capture ref %}early-{{ forloop.index0 }}{% endcapture %}
-    {% include lab/job.html job=job ref=ref %}
+    {% include job.html job=job ref=ref %}
     {%- endfor %}
     {%- endif %}
-    {%- endunless %}
 </section>
 {%- when "education" %}
 <section class="education">
@@ -37,7 +48,13 @@
         <div class="degree-header">
             <h4 data-ref="degree-{{ d }}">{{ degree.title | escape }}</h4>
             <div class="institution-location">
-                <span class="institution"><a href="{{ degree.institution_url }}">{{ degree.institution | escape }}</a></span>
+                <span class="institution">
+                    {%- if degree.institution_url != blank -%}
+                    <a href="{{ degree.institution_url }}">{{ degree.institution | escape }}</a>
+                    {%- else -%}
+                    {{ degree.institution | escape }}
+                    {%- endif -%}
+                </span>
                 <span class="location">{{ degree.location | escape }}</span>
             </div>
             <span class="duration">{{ degree.period | escape }}</span>
@@ -69,9 +86,9 @@
 </section>
 {%- when "projects" %}
 <section class="projects">
-    {%- for project in data.projects.items limit: include.limit %}
+    {%- for project in data.projects.items %}
     {%- assign p = forloop.index0 %}
-    <div class="project">
+    <div class="project" data-analytics-item="{{ project.title | slugify | escape }}">
         <div class="project-header">
             <h4 data-ref="project-{{ p }}">{{ project.title | escape }}</h4>
             {%- if project.links.size > 0 %}
@@ -100,13 +117,13 @@
 {%- when "publications" %}
 <section class="publications">
     {%- for publication in data.publications.items %}
-    <div class="publication">
+    <div class="publication" data-analytics-item="{{ publication.title | slugify | escape }}">
         <div class="publication-header">
             <h4 data-ref="pub-{{ forloop.index0 }}">{{ publication.title | escape }}</h4>
-            <div class="publication-authors">{% include inline.html text=publication.authors %}</div>
+            <div class="publication-authors"><span dir="ltr">{% include inline.html text=publication.authors %}</span></div>
             <div class="publication-venue">
                 <span class="journal">{{ publication.journal | escape }}</span>
-                <span class="details">{{ publication.details | escape }}</span>
+                <span class="details" dir="ltr">{{ publication.details | escape }}</span>
             </div>
             <div class="publication-links">
                 <a href="{{ publication.url }}" class="publication-link"><i class="fas fa-external-link-alt"></i> {{ publication.link_label | escape }}</a>
@@ -119,10 +136,10 @@
     {%- endfor %}
 </section>
 {%- when "blog" %}
-{%- assign posts = site.blog | where: "lang", "en" | sort: "date" | reverse %}
+{%- assign posts = site.blog | where: "lang", include.lang | sort: "date" | reverse %}
 <section class="blog">
-    {%- for post in posts limit: include.limit %}
-    <article class="blog-post">
+    {%- for post in posts %}
+    <article class="blog-post" data-analytics-item="{{ post.slug | escape }}">
         <div class="blog-header">
             <h4 data-ref="post-{{ forloop.index0 }}">{{ post.title | escape }}</h4>
             <div class="blog-meta">
@@ -132,10 +149,10 @@
         </div>
         <div class="blog-content">
             <p class="blog-excerpt" data-ref="post-{{ forloop.index0 }}-summary">{% include inline.html text=post.summary %}</p>
-            <div class="blog-full-content" hidden>
+            <div class="blog-full-content" style="display: none;">
                 {{ post.content }}
             </div>
-            <button class="blog-toggle-btn" type="button">{{ ui.show_more | escape }}</button>
+            <button class="blog-toggle-btn" type="button" aria-expanded="false">{{ ui.show_more | escape }}</button>
         </div>
     </article>
     {%- endfor %}
