@@ -110,8 +110,8 @@
         <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask about Ali</span><kbd>/</kbd></span>
     </div>
 
-    {%- comment -%} data-endpoint: the URL of the AI proxy that keeps its key on a server (lab/ask-proxy), once there is one {%- endcomment %}
-    <section class="ask" id="ask" aria-label="Ask about Ali" data-endpoint="" hidden>
+    {%- comment -%} data-endpoint: the AI proxy that keeps its key on a server (lab/ask-proxy, deployed on Cloudflare) {%- endcomment %}
+    <section class="ask" id="ask" aria-label="Ask about Ali" data-endpoint="https://ask-ali.abbasialiar.workers.dev/" hidden>
         <form class="ask-form">
             <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
             <input type="text" name="q" maxlength="300" placeholder="Ask anything about Ali&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali">

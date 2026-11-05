@@ -4,7 +4,7 @@
 // turned away, so it is no use as a free chatbot.
 //
 // Every line of the CV carries a reference (data-ref on the page, the same at the head of
-// each line of lab/cv.txt), so whoever writes the answer can cite lines and the page can show
+// each line of cv.txt), so whoever writes the answer can cite lines and the page can show
 // them. The answer is written by the first of these that is at hand:
 //
 // 1. An AI model behind a proxy that keeps its key on a server (data-endpoint on .ask;
@@ -220,8 +220,15 @@ function proxyWriter(url) {
     return {
         name: 'Written by AI from his CV',
         async *write(question, lines, signal) {
-            const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question }), signal });
-            if (!response.ok || !response.body) throw new Error(`The proxy answered ${response.status}`);
+            // Sent as plain text, so the browser asks once rather than checking first
+            const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ question }), signal });
+            // Asked too often: the proxy's own words say so
+            if (response.status === 429) {
+                this.busy = true;
+                yield await response.text();
+                return;
+            }
+            if (!response.ok || !response.body) throw Object.assign(new Error(`The proxy answered ${response.status}`), { status: response.status });
             const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
             for (;;) {
                 const { value, done } = await reader.read();
@@ -326,6 +333,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
     let turn = 0;
     let writing = null;
     let tokens = [];
+    let proxyDown = false;
 
     const brain = meaning(docs, (state, value) => {
         panel.dataset.mode = state;
@@ -427,6 +435,20 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         place();
     }
 
+    // The page's own answer from the lines nearest the question, by meaning once the model
+    // is ready (it starts here if it hasn't), otherwise by words
+    async function nearby(q, mine) {
+        brain.start();
+        await brain.settled(20000);
+        let similar = null;
+        try {
+            similar = await brain.similarities(q);
+        } catch {}
+        if (mine !== turn) return null;
+        const ranked = rank(q, similar);
+        return { ranked, fallback: compose(q, ranked, Boolean(similar)) };
+    }
+
     async function ask(question) {
         const q = clean(question).slice(0, 300);
         if (!q) return;
@@ -444,20 +466,15 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         input.value = '';
         place();
 
-        let writer = proxy;
+        let writer = proxy && !proxyDown ? proxy : null;
         let lines = [];
         let fallback = null;
         if (!writer) {
-            await brain.settled(20000);
-            let similar = null;
-            try {
-                similar = await brain.similarities(q);
-            } catch {}
-            if (mine !== turn) return;
-            const ranked = rank(q, similar);
-            fallback = compose(q, ranked, Boolean(similar));
+            const found = await nearby(q, mine);
+            if (!found) return;
+            fallback = found.fallback;
             writer = chrome && fallback !== REFUSE ? chrome : null;
-            lines = ranked.slice(0, 10).map(r => r.doc);
+            lines = found.ranked.slice(0, 10).map(r => r.doc);
         }
         if (!writer) {
             reply.classList.remove('thinking');
@@ -473,13 +490,22 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
                 show(text, false);
             }
             if (mine !== turn) return;
-            by.textContent = writer.name;
+            by.textContent = writer.busy ? '' : writer.name;
+            writer.busy = false;
             show(text || REFUSE, true);
         } catch (error) {
             if (error.name === 'AbortError' || mine !== turn) return;
             console.warn('Ask: the writer failed; answering from the page.', error);
+            // A proxy out of reach, or one that won't take questions from here, stays so
+            // until the page is opened again; the page answers from now on
+            if (writer === proxy && (!error.status || error.status === 403)) proxyDown = true;
+            if (!fallback) {
+                const found = await nearby(q, mine);
+                if (!found) return;
+                fallback = found.fallback;
+            }
             by.textContent = 'From his CV';
-            show(fallback ?? compose(q, rank(q, null), false), true);
+            show(fallback, true);
         } finally {
             if (mine === turn) reply.classList.remove('thinking');
         }
