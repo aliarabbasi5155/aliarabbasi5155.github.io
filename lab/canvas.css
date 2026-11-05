@@ -619,6 +619,59 @@ html:has(.canvas-page),
     transform-origin: 50% 50%;
 }
 
+/* Every disc takes the press that picks the orb up */
+.orb .gr-disc {
+    pointer-events: auto;
+    cursor: grab;
+    touch-action: none;
+}
+
+.orb-carried,
+.orb-carried * {
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+/* Lifted, it casts a shadow that falls away below it */
+.orb::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--orb-size) * 0.9);
+    height: calc(var(--orb-size) * 0.9);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, light-dark(rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.55)), transparent);
+    opacity: 0;
+    pointer-events: none;
+    translate: -50% -50%;
+    transition: opacity 0.35s var(--ease), translate 0.35s var(--ease);
+}
+
+/* Carried, it rides above everything */
+.orb.carried {
+    z-index: 40;
+}
+
+.orb.carried::before {
+    opacity: 1;
+    translate: -50% -26%;
+}
+
+/* What it would take you to */
+.focus-mode .pane.drop-target > :not(.pane-label) {
+    opacity: 1;
+}
+
+.rail-item.drop-target {
+    background: color-mix(in srgb, var(--coral) 16%, transparent);
+    color: var(--coral);
+}
+
+.mm-pane.drop-target {
+    fill: var(--coral);
+}
+
 /* The middle of the front disc: the section in view, and the way into Ask */
 .orb-core {
     position: absolute;
@@ -717,13 +770,28 @@ html:has(.canvas-page),
 .orb:hover .orb-tip,
 .orb:focus-within .orb-tip,
 .orb.here .orb-tip,
-.orb.tip-show .orb-tip {
+.orb.tip-show .orb-tip,
+.orb.carried .orb-tip {
     opacity: 1;
     translate: 0 -50%;
 }
 
-.orb.asking .orb-tip {
+.orb.tip-right .orb-tip {
+    right: auto;
+    left: calc(50% + var(--orb-size) / 2 + 4px);
+    translate: -8px -50%;
+}
+
+.orb.tip-right:is(:hover, :focus-within, .here, .tip-show, .carried) .orb-tip {
+    translate: 0 -50%;
+}
+
+.orb.asking:not(.carried) .orb-tip {
     opacity: 0;
+}
+
+.orb.carried .orb-tip kbd {
+    display: none;
 }
 
 .orb.here .orb-tip kbd {
@@ -805,14 +873,12 @@ html:has(.canvas-page),
 }
 
 .ask-chip {
-    padding: 8px 12px;
+    padding: 8px 13px;
     border: 0;
     border-radius: 999px;
     background: var(--wash);
     box-shadow: inset 0 0 0 1px var(--dash);
-    font: 700 10.5px/1 var(--mono);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font: 500 13px/1.2 var(--sans);
     color: var(--soft);
     cursor: pointer;
     transition: color 0.3s, box-shadow 0.3s;
@@ -828,6 +894,93 @@ html:has(.canvas-page),
     font-size: 13.5px;
     line-height: 1.45;
     color: var(--soft);
+}
+
+/* The best answer: the closest passage, or what an LLM wrote from the passages found */
+.ask-best {
+    position: relative;
+    display: grid;
+    flex: none;
+    gap: 8px;
+    padding: 14px 16px 15px;
+    border: 0;
+    border-radius: 20px;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--coral) 14%, transparent), color-mix(in srgb, var(--mint) 8%, transparent));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 30%, transparent);
+    font: inherit;
+    text-align: start;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.ask-best[hidden] {
+    display: none;
+}
+
+.ask-best.active,
+.ask-best:hover {
+    box-shadow: inset 0 0 0 1px var(--coral);
+}
+
+.ask-best-kind {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font: 700 10px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--coral);
+}
+
+.ask-best-kind::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--coral);
+}
+
+.ask-best-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.ask-best-text .ask-snippet {
+    font-size: inherit;
+    color: inherit;
+}
+
+/* While an LLM writes, its mark breathes */
+.ask.writing .ask-best-kind::before {
+    animation: ask-breathe 1s ease-in-out infinite;
+}
+
+@keyframes ask-breathe {
+    50% {
+        opacity: 0.25;
+        scale: 0.6;
+    }
+}
+
+.ask-mode {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 8px 0;
+    font: 700 9.5px/1.3 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.ask[data-mode="loading"] .ask-mode i {
+    animation: ask-breathe 1.2s ease-in-out infinite;
+}
+
+.ask[data-mode="ready"] .ask-mode {
+    color: var(--mint);
 }
 
 .ask-results {
@@ -864,9 +1017,12 @@ html:has(.canvas-page),
 }
 
 .ask-where {
-    font: 700 10px/1 var(--mono);
-    letter-spacing: 0.12em;
+    overflow: hidden;
+    font: 700 10px/1.4 var(--mono);
+    letter-spacing: 0.1em;
+    text-overflow: ellipsis;
     text-transform: uppercase;
+    white-space: nowrap;
     color: var(--mint);
 }
 
@@ -944,6 +1100,8 @@ html:has(.canvas-page),
     display: grid;
     gap: 4px;
     width: 300px;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
     padding: 8px;
     border-radius: 26px;
     background: color-mix(in srgb, var(--bg) 84%, transparent);
@@ -954,6 +1112,19 @@ html:has(.canvas-page),
 
 .fonts-menu[hidden] {
     display: none;
+}
+
+.fonts-menu [role="radiogroup"] {
+    display: grid;
+    gap: 2px;
+}
+
+.fonts-group {
+    padding: 8px 16px 4px;
+    font: 700 9.5px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 .fonts-menu button {
@@ -1013,6 +1184,28 @@ html:has(.canvas-page),
     text-transform: uppercase;
 }
 
+[data-text] > .fonts-sample {
+    font-size: 17px;
+    color: var(--text);
+}
+
+[data-text="instrument-sans"] > .fonts-sample {
+    font-family: "Instrument Sans", sans-serif;
+}
+
+[data-text="geist"] > .fonts-sample {
+    font-family: "Geist", sans-serif;
+}
+
+[data-text="newsreader"] > .fonts-sample {
+    font-family: "Newsreader", serif;
+    font-size: 18px;
+}
+
+[data-text="inter"] > .fonts-sample {
+    font-family: "Inter", sans-serif;
+}
+
 /* The pairings: a typeface for names and titles (display), one to read (sans) and one for
    labels (mono), with how the titles are set in each */
 :root[data-fonts="geist"] {
@@ -1042,8 +1235,40 @@ html:has(.canvas-page),
     --d-size: 0.86;
 }
 
+/* The reading text, chosen on its own (data-text), with any pairing but the one from before */
+:root[data-text="instrument-sans"]:not([data-fonts="original"]) {
+    --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+:root[data-text="geist"]:not([data-fonts="original"]) {
+    --sans: "Geist", "Helvetica Neue", Arial, sans-serif;
+}
+
+:root[data-text="newsreader"]:not([data-fonts="original"]) {
+    --sans: "Newsreader", Georgia, serif;
+}
+
+:root[data-text="inter"]:not([data-fonts="original"]) {
+    --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
 :root:not([data-fonts="original"]) .canvas-page {
     font-weight: 400;
+}
+
+/* Ali's pane: what he does as a quiet line in the reading face, and what he does it for as a
+   lede in the titles' face, larger, so the pane reads as one voice with its name */
+:root:not([data-fonts="original"]) .canvas-page .home-role {
+    font: 600 12.5px/1.4 var(--sans);
+    letter-spacing: 0.18em;
+    color: var(--soft);
+}
+
+:root:not([data-fonts="original"]) .canvas-page .home-pitch {
+    max-width: 30em;
+    font: var(--d-weight) calc(23px * var(--d-size))/1.32 var(--display);
+    letter-spacing: calc(var(--d-track) * 0.4);
+    color: var(--soft);
 }
 
 :root:not([data-fonts="original"]) .canvas-page :is(.section-title, .tab-contents h4:not(.skill-category h4), .home-name, .pane-label, .journal, .rail-home) {

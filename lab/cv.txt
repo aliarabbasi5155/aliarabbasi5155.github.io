@@ -1,0 +1,43 @@
+---
+layout: null
+---
+{%- comment -%}
+  Lab only: the CV as plain text, from the same data as the pages, for an AI model to answer
+  questions from (lab/ask-proxy reads it). Links are left as their words.
+{%- endcomment -%}
+{%- assign d = site.data.en -%}
+{{ d.profile.name }}, {{ d.profile.role }}
+Open to AI engineering and technical lead roles.
+Contact: {% for contact in d.profile.contacts %}{{ contact.label }}{% unless forloop.last %}; {% endunless %}{% endfor %}
+
+ABOUT
+{% for paragraph in d.about.paragraphs %}{{ paragraph | strip_html | replace: "**", "" }}
+{% endfor %}
+EXPERIENCE
+{% for job in d.experience.jobs %}- {{ job.title }}, {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% for bullet in job.bullets %}  * {{ bullet | strip_html | replace: "**", "" }}
+{% endfor %}{% endfor %}{% for job in d.experience.earlier_jobs %}- {{ job.title }}, {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% for bullet in job.bullets %}  * {{ bullet | strip_html | replace: "**", "" }}
+{% endfor %}{% endfor %}
+EDUCATION
+{% for degree in d.education.degrees %}- {{ degree.title }}, {{ degree.institution }}, {{ degree.location }} ({{ degree.period }})
+{% for detail in degree.details %}  * {{ detail | strip_html | replace: "**", "" }}
+{% endfor %}{% endfor %}
+SKILLS
+{% for group in d.skills.groups %}- {{ group.title }}: {{ group.tags | join: ", " }}
+{% endfor %}
+PROJECTS
+{% for project in d.projects.items %}- {{ project.title }} ({{ project.org }}, {{ project.period }})
+{% for bullet in project.bullets %}  * {{ bullet | strip_html | replace: "**", "" }}
+{% endfor %}  Tech: {{ project.tech | join: ", " }}
+{% endfor %}
+PUBLICATIONS
+{% for publication in d.publications.items %}- {{ publication.title }}. {{ publication.journal }}, {{ publication.details }}.
+  {{ publication.abstract | strip_html | replace: "**", "" }}
+{% endfor %}
+INTERESTS
+{% for interest in d.interests.items %}- {{ interest.title }}: {{ interest.text }}
+{% endfor %}
+BLOG POSTS
+{% assign posts = site.blog | where: "lang", "en" | sort: "date" | reverse %}{% for post in posts %}- {{ post.title }} ({{ post.date | date: "%B %Y" }}): {{ post.summary | strip_html }}
+{% endfor %}

@@ -10,7 +10,9 @@
 // in view (each pane's .orb-slot) on a spring, so it trails a flight, stretching with its
 // speed, and rings as it lands; on the map it marks where you are, and off screen it waits
 // at the edge. Its middle shows the section in view, flipping over to the next. Pressed, it
-// opens "Ask about Ali" (lab/ask.js).
+// opens "Ask about Ali" (lab/ask.js). Picked up, it follows the pointer on a looser spring,
+// lifted and stretching with its speed; let go over a pane or a name in the rail, it takes
+// you there; anywhere else, it springs back to its place.
 import { GlassRings } from '../glass-rings.js';
 import { SCENES, REDUCE_MOTION, createField, initTheme, scramble, initBlogToggles, initExternalLinks } from './concepts.js';
 import { initAsk } from './ask.js';
@@ -57,7 +59,8 @@ const orbRings = orb.querySelector('.orb-rings');
 const orbCore = orb.querySelector('.orb-core');
 const orbIcon = orb.querySelector('.orb-icon');
 const orbTip = orb.querySelector('.orb-tip-text');
-const rings = new GlassRings(orbRings, { reduceMotion: REDUCE_MOTION });
+// The orb takes its own presses (to carry it), so the rings don't grab them
+const rings = new GlassRings(orbRings, { reduceMotion: REDUCE_MOTION, grab: false });
 rings.start();
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -248,6 +251,8 @@ const orbAt = { x: 0, y: 0, vx: 0, vy: 0, size: 132, vs: 0, away: false, placed:
 const written = { transform: '', rings: '', size: '' };
 
 function orbTarget() {
+    // Carried: under the pointer where it was picked up, lifted a little
+    if (carry?.moved) return { x: carry.px - carry.dx, y: carry.py - carry.dy, size: Math.min(ORB, carry.size * 1.12) };
     const slot = panes.get(current).querySelector('.orb-slot');
     const box = slot.getBoundingClientRect();
     const size = Math.min(ORB, Math.max(phone.matches ? 72 : 64, box.width));
@@ -267,8 +272,9 @@ function moveOrb(dt) {
     if (!o.placed || REDUCE_MOTION) {
         Object.assign(o, { x: target.x, y: target.y, size: target.size, vx: 0, vy: 0, vs: 0, placed: true });
     } else {
-        const k = 130;
-        const c = 2 * 0.74 * Math.sqrt(k);
+        // Carried, it keeps closer to the pointer, and swings more
+        const k = carry?.moved ? 360 : 130;
+        const c = 2 * (carry?.moved ? 0.62 : 0.74) * Math.sqrt(k);
         o.vx += (k * (target.x - o.x) - c * o.vx) * dt;
         o.vy += (k * (target.y - o.y) - c * o.vy) * dt;
         o.vs += (220 * (target.size - o.size) - 2 * 0.9 * Math.sqrt(220) * o.vs) * dt;
@@ -285,7 +291,7 @@ function moveOrb(dt) {
     }
     // Stretched along its way, the faster the more, like a drop
     const speed = Math.hypot(o.vx, o.vy);
-    const stretch = Math.min(0.16, speed / 7000);
+    const stretch = Math.min(carry?.moved ? 0.24 : 0.16, speed / 7000);
     const angle = Math.atan2(o.vy, o.vx);
     const scale = o.size / ORB;
     write('transform', orb, 'transform', `translate(${(o.x - ORB / 2).toFixed(1)}px, ${(o.y - ORB / 2).toFixed(1)}px)`);
@@ -293,6 +299,12 @@ function moveOrb(dt) {
         ? `rotate(${angle.toFixed(3)}rad) scale(${(scale * (1 + stretch)).toFixed(4)}, ${(scale * (1 - stretch * 0.55)).toFixed(4)}) rotate(${(-angle).toFixed(3)}rad)`
         : `scale(${scale.toFixed(4)})`);
     write('size', orb, '--orb-size', `${o.size.toFixed(1)}px`);
+    // Near the left edge its label goes on its right
+    const right = o.x < 320;
+    if (right !== written.right) {
+        written.right = right;
+        orb.classList.toggle('tip-right', right);
+    }
 }
 
 function write(key, element, property, value) {
@@ -485,27 +497,93 @@ const ask = initAsk({
     },
 });
 
-// A press on the orb that doesn't pull it opens Ask (the rings take the press, and the
-// click after it, for their squeeze)
-let orbPress = null;
+// ---------- Carrying the orb ----------
+
+// A press that doesn't move is a tap, and opens Ask; one that moves picks the orb up
+let carry = null;
+
+// What lies under the pointer that the orb can be dropped on: another pane, or a name in the
+// rail or the small map
+function dropTarget(x, y) {
+    for (const el of document.elementsFromPoint(x, y)) {
+        if (el.closest('.orb')) continue;
+        const go = el.closest('.rail-item[data-go], .mm-pane[data-pane]');
+        if (go) return { id: go.dataset.go ?? go.dataset.pane, el: go };
+        const pane = el.closest('.pane');
+        if (pane && (pane.id !== current || mode === 'map')) return { id: pane.id, el: pane };
+        if (el.closest('.rail, .stepper, .ask, .fonts')) return null;
+    }
+    return null;
+}
+
+function markDrop(target, on) {
+    if (!target) return;
+    target.el.classList.toggle('drop-target', on);
+    // A pane's glass takes the tint the field gives the active pane
+    if (target.el.classList.contains('pane')) target.el.classList.toggle('active', on);
+}
+
 orb.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button > 0) return;
+    event.preventDefault();
     interacted();
-    orbPress = { x: event.clientX, y: event.clientY, at: performance.now() };
+    carry = { id: event.pointerId, x: event.clientX, y: event.clientY, px: event.clientX, py: event.clientY, dx: event.clientX - orbAt.x, dy: event.clientY - orbAt.y, size: orbAt.size, moved: false, drop: null };
 });
-orb.addEventListener('pointerup', event => {
-    const press = orbPress;
-    orbPress = null;
-    if (!press || event.target.closest('.orb-core')) return;
-    if (Math.hypot(event.clientX - press.x, event.clientY - press.y) < 6 && performance.now() - press.at < 600) ask.toggle(orbCore);
+addEventListener('pointermove', event => {
+    if (!carry || event.pointerId !== carry.id) return;
+    carry.px = event.clientX;
+    carry.py = event.clientY;
+    if (!carry.moved) {
+        if (Math.hypot(event.clientX - carry.x, event.clientY - carry.y) < 6) return;
+        carry.moved = true;
+        ask.close(false);
+        orb.classList.add('carried');
+        document.documentElement.classList.add('orb-carried');
+        rings.poke();
+    }
+    const target = dropTarget(event.clientX, event.clientY);
+    if (target?.el !== carry.drop?.el) {
+        markDrop(carry.drop, false);
+        markDrop(target, true);
+        carry.drop = target;
+        orbTip.textContent = target ? `Take me to ${panes.get(target.id)?.dataset.title ?? 'the map'}` : 'Let go to send it back';
+    }
 });
-orbCore.addEventListener('click', () => ask.toggle(orbCore));
+function letGo(event) {
+    if (!carry || event.pointerId !== carry.id) return;
+    const { moved, drop } = carry;
+    carry = null;
+    if (!moved) {
+        if (event.type === 'pointerup') ask.toggle(orbCore);
+        return;
+    }
+    orb.classList.remove('carried');
+    document.documentElement.classList.remove('orb-carried');
+    markDrop(drop, false);
+    // The click that ends a carry is the orb's, not the button's under it
+    const swallow = click => { click.stopPropagation(); click.preventDefault(); };
+    addEventListener('click', swallow, { capture: true, once: true });
+    setTimeout(() => removeEventListener('click', swallow, { capture: true }));
+    orbAt.away = true;
+    if (drop && event.type === 'pointerup' && panes.has(drop.id)) focus(drop.id);
+    else orbState();
+}
+addEventListener('pointerup', letGo);
+addEventListener('pointercancel', letGo);
+// From the keyboard the middle opens Ask (a pointer's tap is handled above)
+orbCore.addEventListener('click', event => {
+    if (event.detail === 0) ask.toggle(orbCore);
+});
 
 // ---------- Typefaces ----------
 
 const fontsButton = document.querySelector('.fonts-button');
 const fontsMenu = document.querySelector('.fonts-menu');
 function markFonts() {
-    for (const option of fontsMenu.querySelectorAll('[data-fonts]')) option.setAttribute('aria-checked', option.dataset.fonts === document.documentElement.dataset.fonts);
+    const root = document.documentElement.dataset;
+    for (const option of fontsMenu.querySelectorAll('[data-fonts], [data-text]')) {
+        option.setAttribute('aria-checked', option.dataset.fonts ? option.dataset.fonts === root.fonts : option.dataset.text === root.text);
+    }
 }
 function showFonts(open) {
     fontsMenu.hidden = !open;
@@ -514,12 +592,12 @@ function showFonts(open) {
 markFonts();
 fontsButton.addEventListener('click', () => showFonts(fontsMenu.hidden));
 fontsMenu.addEventListener('click', event => {
-    const option = event.target.closest('[data-fonts]');
+    const option = event.target.closest('[data-fonts], [data-text]');
     if (!option) return;
-    document.documentElement.dataset.fonts = option.dataset.fonts;
-    try { localStorage.setItem('lab-fonts', option.dataset.fonts); } catch {}
+    const [name, value] = option.dataset.fonts ? ['fonts', option.dataset.fonts] : ['text', option.dataset.text];
+    document.documentElement.dataset[name] = value;
+    try { localStorage.setItem(`lab-${name}`, value); } catch {}
     markFonts();
-    showFonts(false);
     scramble(document.querySelector('.home-name'), undefined, 700);
     const title = panes.get(current).querySelector('.section-title span');
     if (title) scramble(title);

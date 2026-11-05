@@ -18,14 +18,17 @@
 <html lang="en">
 <head>
     {%- include lab/head.html title="Concept 2 · Spatial canvas" %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400..700&family=Newsreader:opsz,wght@6..72,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
     <script>
-        // The pairing of typefaces chosen last time (or ?fonts=), before the first paint
+        // The typefaces chosen last time (or ?fonts= and ?text=), before the first paint
         (() => {
-            const pairs = ['instrument', 'geist', 'bricolage', 'original'];
-            let pick = new URLSearchParams(location.search).get('fonts');
-            try { pick ||= localStorage.getItem('lab-fonts'); } catch {}
-            document.documentElement.dataset.fonts = pairs.includes(pick) ? pick : pairs[0];
+            const choose = (name, options) => {
+                let pick = new URLSearchParams(location.search).get(name);
+                try { pick ||= localStorage.getItem(`lab-${name}`); } catch {}
+                document.documentElement.dataset[name] = options.includes(pick) ? pick : options[0];
+            };
+            choose('fonts', ['instrument', 'geist', 'bricolage', 'original']);
+            choose('text', ['instrument-sans', 'geist', 'newsreader', 'inter']);
         })();
     </script>
     <link rel="stylesheet" href="canvas.css">
@@ -107,30 +110,47 @@
         <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask about Ali</span><kbd>/</kbd></span>
     </div>
 
-    <section class="ask" id="ask" aria-label="Ask about Ali" hidden>
+    {%- comment -%} data-endpoint: the URL of an AI proxy that keeps its key on a server (lab/ask-proxy), when there is one {%- endcomment %}
+    <section class="ask" id="ask" aria-label="Ask about Ali" data-endpoint="" hidden>
         <form class="ask-form" role="search">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" name="q" placeholder="Ask about Ali: RAG, Python, AWS&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali" aria-controls="ask-results">
+            <input type="search" name="q" placeholder="Ask anything about Ali&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask about Ali" aria-controls="ask-results">
             <kbd>Esc</kbd>
         </form>
         <p class="ask-answer" aria-live="polite"></p>
+        <button type="button" class="ask-best" hidden>
+            <span class="ask-best-kind"></span>
+            <span class="ask-best-text"></span>
+            <span class="ask-where"></span>
+        </button>
         <div class="ask-suggest">
-            {%- assign asks = "Agentic RAG,LangGraph,AWS,Fine-tuning,Team lead,Contact" | split: "," %}
+            {%- assign asks = "Has he led a team?|What has he built with RAG?|Which cloud does he use?|Has he published research?|How can I reach him?" | split: "|" %}
             {%- for ask in asks %}
             <button type="button" class="ask-chip">{{ ask }}</button>
             {%- endfor %}
         </div>
         <ol class="ask-results" id="ask-results"></ol>
+        <p class="ask-mode"><i class="fa-solid fa-microchip" aria-hidden="true"></i><span class="ask-mode-text">Searching by words</span></p>
     </section>
 
     <!-- Typefaces to try: the pick is kept in this browser -->
     <div class="fonts">
         <button type="button" class="fonts-button" aria-expanded="false" aria-controls="fonts-menu" aria-label="Typefaces" title="Typefaces">Aa</button>
-        <div class="fonts-menu" id="fonts-menu" role="radiogroup" aria-label="Typefaces" hidden>
-            <button type="button" role="radio" data-fonts="instrument"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Instrument Serif &middot; Inter &middot; JetBrains Mono</span></button>
-            <button type="button" role="radio" data-fonts="geist"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Geist &middot; Geist Mono</span></button>
-            <button type="button" role="radio" data-fonts="bricolage"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Bricolage Grotesque &middot; Figtree &middot; DM Mono</span></button>
-            <button type="button" role="radio" data-fonts="original"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Now: Xanh Mono &middot; General Sans &middot; Space Mono</span></button>
+        <div class="fonts-menu" id="fonts-menu" hidden>
+            <p class="fonts-group" id="fonts-titles">Titles &amp; labels</p>
+            <div role="radiogroup" aria-labelledby="fonts-titles">
+                <button type="button" role="radio" data-fonts="instrument"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Instrument Serif &middot; JetBrains Mono</span></button>
+                <button type="button" role="radio" data-fonts="geist"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Geist &middot; Geist Mono</span></button>
+                <button type="button" role="radio" data-fonts="bricolage"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Bricolage Grotesque &middot; DM Mono</span></button>
+                <button type="button" role="radio" data-fonts="original"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Before: Xanh Mono &middot; General Sans &middot; Space Mono</span></button>
+            </div>
+            <p class="fonts-group" id="fonts-reading">Reading text</p>
+            <div role="radiogroup" aria-labelledby="fonts-reading">
+                <button type="button" role="radio" data-text="instrument-sans"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Instrument Sans</span></button>
+                <button type="button" role="radio" data-text="geist"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Geist</span></button>
+                <button type="button" role="radio" data-text="newsreader"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Newsreader (serif)</span></button>
+                <button type="button" role="radio" data-text="inter"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Before: Inter</span></button>
+            </div>
         </div>
     </div>
 
