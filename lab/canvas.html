@@ -1,0 +1,165 @@
+---
+---
+{%- comment -%}
+  Concept 2, the spatial canvas (lab only): the CV as glass panes laid out like a map over
+  the dot field, around a pane for Ali himself, his photo in it. Wires run from his pane to
+  each section like a node graph. The rail lists the sections by name, with a small map of
+  the whole canvas under them; a pill at the bottom steps through them in the CV's order.
+  The coral orb goes everywhere with you, riding the corner of the pane in view (its
+  .orb-slot), and opens Alino, Ali’s assistant, who answers from the CV (lab/ask.js).
+  The font switcher tries pairings of typefaces (data-fonts on <html>, canvas.css).
+  The order of `places` is that order, clockwise from the top left. Each pane's place
+  (data-x, data-y: its centre) and size are in world pixels.
+{%- endcomment -%}
+{%- assign data = site.data.en -%}
+{%- assign ui = data.ui -%}
+{%- assign places = "about:-1120:-760:760:540,experience:0:-800:900:620,projects:1140:-810:860:640,skills:1140:0:860:480,education:1140:740:860:500,publications:0:720:900:460,blog:-1120:770:760:560,interests:-1120:0:760:380" | split: "," -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%- include lab/head.html title="Concept 2 · Spatial canvas" %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400..700&family=Newsreader:opsz,wght@6..72,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+    <script>
+        // The typefaces chosen last time (or ?fonts= and ?text=), before the first paint
+        (() => {
+            const choose = (name, options) => {
+                let pick = new URLSearchParams(location.search).get(name);
+                try { pick ||= localStorage.getItem(`lab-${name}`); } catch {}
+                document.documentElement.dataset[name] = options.includes(pick) ? pick : options[0];
+            };
+            choose('fonts', ['instrument', 'geist', 'bricolage', 'original']);
+            choose('text', ['instrument-sans', 'geist', 'newsreader', 'inter']);
+        })();
+    </script>
+    <link rel="stylesheet" href="canvas.css">
+</head>
+<body class="concept canvas-page">
+    <canvas id="canvas" aria-hidden="true"></canvas>
+
+    <div class="viewport">
+        <div class="world">
+            <svg class="wires" aria-hidden="true"></svg>
+
+            <section class="pane pane-home glass" id="home" data-x="0" data-y="0" data-w="1000" data-h="580" data-title="{{ data.profile.name | escape }}" aria-label="{{ data.profile.name | escape }}">
+                <div class="home-visual">
+                    <figure class="home-photo">
+                        <img src="../profile-photo.jpg" alt="{{ data.profile.name | escape }}" width="963" height="825" decoding="async" draggable="false">
+                    </figure>
+                    <span class="orb-slot" aria-hidden="true"></span>
+                </div>
+                <div class="home-text">
+                    <p class="home-role">{{ data.profile.role | escape }}</p>
+                    <h1 class="home-name">{{ data.profile.name | escape }}</h1>
+                    <p class="home-pitch">I build production GenAI systems end to end, from agentic RAG and fine-tuning to evaluation and reliable deployment on AWS, and lead the small teams that ship them.</p>
+                    {%- include lab/actions.html %}
+                </div>
+            </section>
+
+            {%- for place in places %}
+            {%- assign bits = place | split: ":" %}
+            {%- assign id = bits[0] %}
+            {%- assign item = ui.nav | where: "tab", id | first %}
+            <section class="pane glass" id="{{ id }}" data-x="{{ bits[1] }}" data-y="{{ bits[2] }}" data-w="{{ bits[3] }}" data-h="{{ bits[4] }}" data-title="{{ item.label | escape }}" aria-labelledby="{{ id }}-title">
+                <header class="pane-head">
+                    <h2 class="section-title" id="{{ id }}-title"><i aria-hidden="true"></i><span>{{ item.label | escape }}</span></h2>
+                </header>
+                <span class="orb-slot" aria-hidden="true"></span>
+                <div class="pane-body">
+                    <div class="tab-contents lab-content">{% include lab/section.html id=id %}</div>
+                </div>
+                <span class="pane-label" aria-hidden="true">{{ item.label | escape }}</span>
+            </section>
+            {%- endfor %}
+        </div>
+    </div>
+
+    <!-- The way around: Ali, every section by name, and a map of the whole canvas -->
+    <nav class="rail" aria-label="Sections">
+        <div class="rail-list">
+            <button type="button" class="rail-item rail-home" data-go="home">
+                <img class="rail-avatar" src="../profile-photo.jpg" alt="" width="24" height="24" draggable="false">
+                <span class="rail-label">{{ data.profile.name | escape }}</span>
+            </button>
+            {%- for place in places %}
+            {%- assign id = place | split: ":" | first %}
+            {%- assign item = ui.nav | where: "tab", id | first %}
+            <button type="button" class="rail-item" data-go="{{ id }}">
+                <span class="rail-dot" aria-hidden="true"></span>
+                <span class="rail-label">{{ item.label | escape }}</span>
+            </button>
+            {%- endfor %}
+        </div>
+        <button type="button" class="rail-map" data-go="overview" aria-label="The whole map">
+            <svg class="minimap" aria-hidden="true"></svg>
+            <span class="rail-map-caption"><span>The whole map</span><kbd>Esc</kbd></span>
+        </button>
+    </nav>
+
+    <!-- The CV in order: back, where you are, on -->
+    <nav class="stepper" aria-label="Previous and next section">
+        <button type="button" class="step step-prev" data-step="-1"><span aria-hidden="true">&larr;</span><span class="step-name"></span></button>
+        <span class="step-count"></span>
+        <button type="button" class="step step-next" data-step="1"><span class="step-name"></span><span aria-hidden="true">&rarr;</span></button>
+    </nav>
+
+    <!-- The orb: everywhere you go, it shows where you are, and it answers questions -->
+    <div class="orb">
+        <div class="orb-rings">
+            <button type="button" class="orb-core" aria-label="Ask Alino, Ali’s assistant" aria-expanded="false" aria-controls="ask" aria-keyshortcuts="/"><i class="orb-icon fa-solid fa-hand" aria-hidden="true"></i></button>
+        </div>
+        <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask Alino</span><kbd>/</kbd></span>
+    </div>
+
+    {%- comment -%} data-endpoint: the AI proxy that keeps its key on a server (lab/ask-proxy, deployed on Cloudflare) {%- endcomment %}
+    <section class="ask" id="ask" aria-label="Alino, Ali’s assistant" data-endpoint="https://ask-ali.abbasialiar.workers.dev/" hidden>
+        <header class="ask-head">
+            <span class="ask-avatar" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="ask-who"><strong>Alino</strong><span>Ali’s assistant, answers from his CV</span></span>
+            <kbd>Esc</kbd>
+        </header>
+        <div class="ask-thread" aria-live="polite"></div>
+        <div class="ask-suggest">
+            {%- assign asks = "Has he led a team?|What has he built with RAG?|Which cloud does he use?|Has he published research?|What does he do for fun?|How can I reach him?" | split: "|" %}
+            {%- for ask in asks %}
+            <button type="button" class="ask-chip">{{ ask }}</button>
+            {%- endfor %}
+        </div>
+        <form class="ask-form">
+            <input type="text" name="q" maxlength="300" placeholder="Ask Alino anything about Ali&hellip;" autocomplete="off" spellcheck="false" aria-label="Ask Alino">
+            <button type="submit" class="ask-send" aria-label="Send"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
+        </form>
+        <p class="ask-mode"><i class="fa-solid fa-microchip" aria-hidden="true"></i><span class="ask-mode-text">Alino · answers from his CV</span></p>
+    </section>
+
+    <!-- Typefaces to try: the pick is kept in this browser -->
+    <div class="fonts">
+        <button type="button" class="fonts-button" aria-expanded="false" aria-controls="fonts-menu" aria-label="Typefaces" title="Typefaces">Aa</button>
+        <div class="fonts-menu" id="fonts-menu" hidden>
+            <p class="fonts-group" id="fonts-titles">Titles &amp; labels</p>
+            <div role="radiogroup" aria-labelledby="fonts-titles">
+                <button type="button" role="radio" data-fonts="instrument"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Instrument Serif &middot; JetBrains Mono</span></button>
+                <button type="button" role="radio" data-fonts="geist"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Geist &middot; Geist Mono</span></button>
+                <button type="button" role="radio" data-fonts="bricolage"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Bricolage Grotesque &middot; DM Mono</span></button>
+                <button type="button" role="radio" data-fonts="original"><span class="fonts-sample">Ali Abbasi</span><span class="fonts-names">Before: Xanh Mono &middot; General Sans &middot; Space Mono</span></button>
+            </div>
+            <p class="fonts-group" id="fonts-reading">Reading text</p>
+            <div role="radiogroup" aria-labelledby="fonts-reading">
+                <button type="button" role="radio" data-text="instrument-sans"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Instrument Sans</span></button>
+                <button type="button" role="radio" data-text="geist"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Geist</span></button>
+                <button type="button" role="radio" data-text="newsreader"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Newsreader (serif)</span></button>
+                <button type="button" role="radio" data-text="inter"><span class="fonts-sample">I build GenAI systems</span><span class="fonts-names">Before: Inter</span></button>
+            </div>
+        </div>
+    </div>
+
+    <p class="canvas-hint" aria-hidden="true">Drag to look around &middot; <kbd>Arrows</kbd> to move &middot; <kbd>Esc</kbd> for the map</p>
+
+    <div class="canvas-top">
+        {%- include theme-toggle.html id="canvas" label=ui.theme class="concept-theme" %}
+    </div>
+
+    <a class="concept-chip" href="./">&larr; Lab</a>
+    <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
+    <script type="module" src="canvas.js"></script>
+</body>
+</html>

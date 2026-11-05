@@ -1,0 +1,149 @@
+---
+---
+{%- comment -%}
+  The lab's home, at /lab/: the development space for the site's next design, kept out of
+  search results (noindex). The four one-page concepts side by side, to open and compare,
+  and the earlier experiments.
+{%- endcomment -%}
+{%- assign ui = site.data.en.ui -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%- include lab/head.html title="Lab" %}
+    <style>
+        .concepts {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            align-content: center;
+            gap: 28px;
+            min-height: 100vh;
+            width: min(1180px, 100% - 32px);
+            margin: 0 auto;
+            padding: 48px 0;
+        }
+
+        .concepts-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--gap);
+        }
+
+        .concept-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 300px;
+            padding: 26px;
+            color: var(--text);
+            text-decoration: none;
+            transition: translate 0.4s var(--ease);
+        }
+
+        .concept-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .concept-card:hover {
+            translate: 0 -4px;
+        }
+
+        .concept-number {
+            font: 400 54px/1 var(--display);
+            color: var(--mint);
+        }
+
+        .concept-name {
+            font: 400 26px/1.1 var(--display);
+            text-transform: uppercase;
+        }
+
+        .concept-card p {
+            font-size: 15px;
+            line-height: 1.55;
+            color: var(--soft);
+        }
+
+        .concept-open {
+            margin-top: auto;
+            font: 700 12px/1 var(--mono);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--mint);
+        }
+
+        .concepts-foot {
+            font: 400 12px/1.6 var(--mono);
+            color: var(--muted);
+        }
+
+        .concepts-foot a {
+            color: var(--mint);
+        }
+
+        @media (max-width: 1000px) {
+            .concepts-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 560px) {
+            .concepts-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .concept-card {
+                min-height: 0;
+            }
+        }
+    </style>
+</head>
+<body class="concept">
+    <main class="concepts">
+        <div class="concepts-head">
+            <h1 class="section-title"><i aria-hidden="true"></i><span>One page, four ways</span></h1>
+            {%- include theme-toggle.html id="concepts" label=ui.theme class="concept-theme" %}
+        </div>
+        <div class="concepts-grid">
+            <a class="concept-card glass" href="bento.html">
+                <span class="concept-number">1</span>
+                <span class="concept-name">Bento board</span>
+                <p>Everything on one screen as glass tiles. A tile grows into a sheet with the full section, and shrinks back.</p>
+                <span class="concept-open">Open &rarr;</span>
+            </a>
+            <a class="concept-card glass" href="canvas.html">
+                <span class="concept-number">2</span>
+                <span class="concept-name">Spatial canvas</span>
+                <p>Your sections as round glass panes around you and your photo, wired like a node graph. The names on the rail fly the view between them; the coral orb travels with you and answers questions.</p>
+                <span class="concept-open">Open &rarr;</span>
+            </a>
+            <a class="concept-card glass" href="pinned.html">
+                <span class="concept-number">3</span>
+                <span class="concept-name">Pinned dashboard</span>
+                <p>Today's dashboard, held on screen while one page scroll steps through A to H and through each long section. No inner scrollbars.</p>
+                <span class="concept-open">Open &rarr;</span>
+            </a>
+            <a class="concept-card glass" href="chapters.html">
+                <span class="concept-number">4</span>
+                <span class="concept-name">Chapters</span>
+                <p>Full-screen scenes, one at a time: the dot shape large on one side, a glass panel on the other, a scene for each role.</p>
+                <span class="concept-open">Open &rarr;</span>
+            </a>
+        </div>
+        <p class="concepts-foot">The lab: where the next design is built, in English, with the real content, both themes and phones. The live site is unchanged: <a href="../">open it</a>. Earlier experiments: <a href="button.html">the ember button</a>, <a href="rings.html">the glass rings</a>.</p>
+    </main>
+    <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
+    <script type="module">
+        import { initTheme } from './concepts.js';
+        initTheme(() => null);
+    </script>
+</body>
+</html>

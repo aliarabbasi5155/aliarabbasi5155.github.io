@@ -1,0 +1,111 @@
+---
+---
+{%- comment -%}
+  Concept 4, the chapters (lab only): the CV as full-screen scenes, scrolled one at a time.
+  Each scene's dot-field shape fills one side of the screen and a glass panel the other,
+  alternating; Experience takes a scene per role. A rail of letters shows where you are.
+  data-shape, data-x and data-scale give each scene's shape to the field (chapters.js).
+{%- endcomment -%}
+{%- assign data = site.data.en -%}
+{%- assign ui = data.ui -%}
+{%- assign about = ui.nav | where: "tab", "about" | first -%}
+{%- assign experience = ui.nav | where: "tab", "experience" | first -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%- include lab/head.html title="Concept 4 · Chapters" %}
+    <link rel="stylesheet" href="chapters.css">
+</head>
+<body class="concept chapters-page">
+    <canvas id="canvas" aria-hidden="true"></canvas>
+
+    <main class="scenes">
+        <section class="scene scene-hero" id="top" data-shape="ripples" data-x="-0.5" data-scale="0.9" data-letter="">
+            <div class="hero-copy">
+                <p class="hero-role">{{ data.profile.role | escape }}</p>
+                <h1 class="hero-name">{{ data.profile.name | escape }}</h1>
+                <p class="hero-pitch">I build production GenAI systems end to end, from agentic RAG and fine-tuning to evaluation and reliable deployment on AWS, and lead the small teams that ship them.</p>
+                {%- include lab/actions.html %}
+            </div>
+            <div class="hero-rings"></div>
+            <a class="scene-next" href="#about" aria-label="Next">&darr;</a>
+        </section>
+
+        <section class="scene" id="about" data-shape="portrait" data-x="0.42" data-scale="1.5" data-letter="{{ about.letter }}" data-side="left">
+            <div class="scene-panel glass">
+                <p class="scene-kicker"><span class="badge">{{ about.letter }}</span> Chapter 1</p>
+                <h2 class="section-title"><i aria-hidden="true"></i><span>{{ about.label | escape }}</span></h2>
+                <div class="tab-contents lab-content">{% include lab/section.html id="about" %}</div>
+            </div>
+        </section>
+
+        {%- assign jobs = data.experience.jobs %}
+        {%- for job in jobs %}
+        {%- capture side %}{% cycle "right", "left" %}{% endcapture %}
+        <section class="scene" id="{% if forloop.first %}experience{% else %}experience-{{ forloop.index }}{% endif %}" data-shape="beam" data-x="{% if side == 'right' %}-0.4{% else %}0.4{% endif %}" data-scale="1" data-letter="{{ experience.letter }}" data-side="{{ side }}">
+            <div class="scene-panel glass">
+                <p class="scene-kicker"><span class="badge">{{ experience.letter }}</span> {{ experience.label | escape }} · {{ forloop.index }} of {{ jobs.size | plus: 1 }}</p>
+                {%- if forloop.first %}
+                <h2 class="section-title"><i aria-hidden="true"></i><span>{{ experience.label | escape }}</span></h2>
+                {%- endif %}
+                <div class="tab-contents lab-content"><section class="experience">{% include job.html job=job %}</section></div>
+            </div>
+        </section>
+        {%- endfor %}
+
+        <section class="scene" id="experience-earlier" data-shape="beam" data-x="-0.4" data-scale="0.8" data-letter="{{ experience.letter }}" data-side="right">
+            <div class="scene-panel glass">
+                <p class="scene-kicker"><span class="badge">{{ experience.letter }}</span> {{ experience.label | escape }} · {{ jobs.size | plus: 1 }} of {{ jobs.size | plus: 1 }}</p>
+                <h3 class="scene-subtitle">{{ data.experience.earlier_title | escape }}</h3>
+                <div class="tab-contents lab-content earlier-list">
+                    {%- for job in data.experience.earlier_jobs %}
+                    <div class="earlier-row">
+                        <span class="earlier-role">{{ job.title | escape }}</span>
+                        <span class="earlier-company">{{ job.company | escape }} · {{ job.location | escape }}</span>
+                        <span class="duration">{{ job.period | escape }}</span>
+                    </div>
+                    {%- endfor %}
+                </div>
+            </div>
+        </section>
+
+        {%- assign rest = "projects:0.42:1:left,skills:-0.4:1:right,education:0.3:0.95:left,publications:-0.42:1:right,blog:0.3:1:left,interests:-0.45:1:right" | split: "," %}
+        {%- for entry in rest %}
+        {%- assign bits = entry | split: ":" %}
+        {%- assign sid = bits[0] %}
+        {%- assign item = ui.nav | where: "tab", sid | first %}
+        <section class="scene" id="{{ bits[0] }}" data-shape="{{ bits[0] }}" data-x="{{ bits[1] }}" data-scale="{{ bits[2] }}" data-letter="{{ item.letter }}" data-side="{{ bits[3] }}">
+            <div class="scene-panel glass">
+                <p class="scene-kicker"><span class="badge">{{ item.letter }}</span> Chapter {{ forloop.index | plus: 2 }}</p>
+                <h2 class="section-title"><i aria-hidden="true"></i><span>{{ item.label | escape }}</span></h2>
+                <div class="scene-scroll tab-contents lab-content">
+                    {%- if sid == "blog" %}{% include lab/section.html id="blog" limit=4 %}{% else %}{% include lab/section.html id=sid %}{% endif -%}
+                </div>
+                {%- if sid == "interests" %}
+                <div class="scene-contact">
+                    <p>Open to AI engineering and technical lead roles, and always happy to talk about LLM systems.</p>
+                    {%- include lab/actions.html %}
+                </div>
+                {%- endif %}
+            </div>
+        </section>
+        {%- endfor %}
+    </main>
+
+    <!-- Where you are: a letter for each chapter, and the scene's number -->
+    <nav class="rail" aria-label="Chapters">
+        {%- for item in ui.nav %}
+        <a href="#{{ item.tab }}" data-letter="{{ item.letter }}" title="{{ item.label | escape }}">{{ item.letter }}</a>
+        {%- endfor %}
+        <span class="rail-count" aria-hidden="true"></span>
+    </nav>
+
+    <div class="chapters-top">
+        {%- include theme-toggle.html id="chapters" label=ui.theme class="concept-theme" %}
+    </div>
+
+    <a class="concept-chip" href="./">&larr; Lab</a>
+    <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
+    <script type="module" src="chapters.js"></script>
+</body>
+</html>

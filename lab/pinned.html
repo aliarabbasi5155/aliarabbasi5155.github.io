@@ -1,0 +1,118 @@
+---
+---
+{%- comment -%}
+  Concept 3, the pinned dashboard (lab only): the site's dashboard as it is, held on screen
+  while the page scrolls underneath it. Scrolling steps through the sections A to H, and
+  through the length of a long one inside its pane, so nothing scrolls but the page. Each
+  letter is a link (#experience). The opening comes first, as on the site.
+{%- endcomment -%}
+{%- assign data = site.data.en -%}
+{%- assign ui = data.ui -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%- include lab/head.html title="Concept 3 · Pinned dashboard" %}
+    <link rel="stylesheet" href="pinned.css">
+</head>
+<body class="concept pinned-page">
+    <canvas id="canvas" aria-hidden="true"></canvas>
+
+    <div class="opening">
+        <div class="opening-rings">
+            <a class="opening-down" href="#{{ ui.nav.first.tab }}" aria-label="{{ ui.opening.enter | escape }}">
+                <svg viewBox="0 -10 20 54" aria-hidden="true"><path d="M10 2v29M2.5 23.5 10 31l7.5-7.5"/></svg>
+            </a>
+        </div>
+        <div class="opening-controls">
+            {%- include theme-toggle.html id="opening" label=ui.theme %}
+        </div>
+        <div class="opening-text" aria-hidden="true">
+            <p class="opening-name">{{ data.profile.name | escape }}</p>
+            <p class="opening-role">{{ data.profile.role | escape }}</p>
+            <p class="opening-hint">{{ ui.opening.hint | escape }}</p>
+        </div>
+    </div>
+
+    <!-- The track the dashboard is pinned over: as tall as it takes to step through every
+         section and the length of each (pinned.js) -->
+    <div class="pin-track">
+        <div class="pin-stage">
+            <div class="container">
+                <div class="left-column">
+                    <aside class="profile-panel glass">
+                        <div class="profile-content">
+                            <div class="profile-header">
+                                <img src="../profile-photo.jpg" alt="{{ data.profile.photo_alt | escape }}" class="profile-photo">
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-text">
+                                    <h1 class="profile-name">{{ data.profile.name | escape }}</h1>
+                                    <h2 class="profile-role">{{ data.profile.role | escape }}</h2>
+                                </div>
+                                <a href="../Resume_Ali_Abbasi.pdf" class="resume-download" download><i class="fas fa-download" aria-hidden="true"></i><span>{{ data.profile.resume.label | escape }}</span></a>
+                                <div class="profile-contacts">
+                                    {%- for contact in data.profile.contacts %}
+                                    <a href="{{ contact.url }}" class="contact-item"><i class="{{ contact.icon }}"></i><span>{{ contact.label | escape }}</span></a>
+                                    {%- endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <aside class="updates-panel glass">
+                        <div class="updates-header">
+                            <h3><i class="fas fa-bolt"></i> {{ data.updates.title | escape }}</h3>
+                        </div>
+                        <div class="updates-content">
+                            {%- for update in data.updates.items %}
+                            <div class="update-item">
+                                <div class="update-date">{{ update.date | escape }}</div>
+                                <div class="update-text"><strong>{{ update.label | escape }}</strong> {% include inline.html text=update.text %}</div>
+                            </div>
+                            {%- endfor %}
+                        </div>
+                    </aside>
+                </div>
+
+                <aside class="navigation-panel">
+                    <nav class="section-nav">
+                        {%- for item in ui.nav %}
+                        <a class="nav-button glass{% if forloop.first %} active{% endif %}" href="#{{ item.tab }}" data-tab="{{ item.tab }}">
+                            <span class="nav-letter">{{ item.letter }}</span>
+                            <span class="nav-label">{{ item.label | escape }}</span>
+                        </a>
+                        {%- endfor %}
+                    </nav>
+                </aside>
+
+                <main class="content-panel">
+                    <div class="section-header-card glass">
+                        <span class="section-badge" id="section-badge" aria-hidden="true">{{ ui.nav.first.letter }}</span>
+                        <h2 class="section-title"><i aria-hidden="true"></i><span id="section-title">{{ ui.nav.first.label | escape }}</span></h2>
+                        <span class="pin-progress" aria-hidden="true"><span></span></span>
+                    </div>
+                    <div class="section-content-card glass">
+                        <div class="tab-contents">
+                            {%- for item in ui.nav %}
+                            <div id="tab-{{ item.tab }}" class="tab-content{% if forloop.first %} active{% endif %}" data-tab="{{ item.tab }}">
+                                <div class="pin-inner">{% include lab/section.html id=item.tab %}</div>
+                            </div>
+                            {%- endfor %}
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <footer class="dock">
+                <div class="dock-info"><p class="copyright">{{ ui.copyright | escape }}</p></div>
+                <div class="dock-controls">
+                    {%- include theme-toggle.html id="dock" label=ui.theme class="glass" %}
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <a class="concept-chip" href="./">&larr; Lab</a>
+    <script type="application/json" id="ui-strings">{{ ui | jsonify }}</script>
+    <script type="module" src="pinned.js"></script>
+</body>
+</html>
