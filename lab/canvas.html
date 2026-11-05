@@ -108,6 +108,8 @@
             <button type="button" class="orb-core" aria-label="Ask Alino, Ali’s assistant" aria-expanded="false" aria-controls="ask" aria-keyshortcuts="/"><i class="orb-icon fa-solid fa-hand" aria-hidden="true"></i></button>
         </div>
         <span class="orb-tip" aria-hidden="true"><span class="orb-tip-text">Ask Alino</span><kbd>/</kbd></span>
+        <span class="orb-badge" aria-hidden="true">1</span>
+        <button type="button" class="orb-say" aria-live="polite"><span class="orb-say-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="orb-say-text"></span></button>
     </div>
 
     {%- comment -%} data-endpoint: the AI proxy that keeps its key on a server (lab/ask-proxy, deployed on Cloudflare) {%- endcomment %}
@@ -115,6 +117,7 @@
         <header class="ask-head">
             <span class="ask-avatar" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
             <span class="ask-who"><strong>Alino</strong><span>Ali’s assistant, answers from his CV</span></span>
+            <button type="button" class="ask-clear" aria-label="Clear the conversation" title="Clear the conversation"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
             <kbd>Esc</kbd>
         </header>
         <div class="ask-thread" aria-live="polite"></div>

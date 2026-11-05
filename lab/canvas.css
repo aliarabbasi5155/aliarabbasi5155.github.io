@@ -815,6 +815,126 @@ html:has(.canvas-page),
     display: none;
 }
 
+/* The badge: Alino has something to say, until the visitor first opens it */
+.orb-badge {
+    position: absolute;
+    top: calc(50% - var(--orb-size) * 0.46);
+    left: calc(50% + var(--orb-size) * 0.24);
+    display: grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--mint);
+    box-shadow: 0 0 0 3px var(--bg);
+    font: 700 11px/1 var(--mono);
+    color: var(--bg);
+    pointer-events: none;
+    animation: orb-badge 2.4s ease-in-out infinite;
+}
+
+.orb-badge[hidden] {
+    display: none;
+}
+
+@keyframes orb-badge {
+    0%,
+    70%,
+    100% {
+        scale: 1;
+    }
+
+    80% {
+        scale: 1.25;
+    }
+
+    90% {
+        scale: 0.95;
+    }
+}
+
+/* Alino speaks up: a bubble beside the orb, typing first, then a line; a tap opens the chat */
+.orb-say {
+    position: absolute;
+    top: 50%;
+    right: calc(50% + var(--orb-size) / 2 + 6px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    max-width: 250px;
+    min-height: 40px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 20px 20px 6px 20px;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 45%, transparent), 0 14px 34px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.4));
+    font: 500 14px/1.4 var(--sans);
+    text-align: start;
+    color: var(--text);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    translate: 10px -50%;
+    scale: 0.9;
+    transform-origin: 100% 100%;
+    transition: opacity 0.3s, translate 0.45s var(--ease), scale 0.45s var(--ease);
+}
+
+.orb-say.on {
+    opacity: 1;
+    pointer-events: auto;
+    translate: 0 -50%;
+    scale: 1;
+}
+
+.orb.tip-right .orb-say {
+    right: auto;
+    left: calc(50% + var(--orb-size) / 2 + 6px);
+    border-radius: 20px 20px 20px 6px;
+    transform-origin: 0 100%;
+}
+
+.orb-say-dots {
+    display: none;
+    gap: 4px;
+}
+
+.orb-say.typing .orb-say-dots {
+    display: flex;
+}
+
+.orb-say-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--coral);
+    animation: orb-dots 1s ease-in-out infinite;
+}
+
+.orb-say-dots i:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.orb-say-dots i:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes orb-dots {
+    50% {
+        opacity: 0.3;
+        translate: 0 -3px;
+    }
+}
+
+/* While it speaks, the label stays out of its way */
+.orb:has(.orb-say.on) .orb-tip {
+    opacity: 0;
+}
+
 /* ---------- Ask about Ali ---------- */
 
 .ask {
@@ -824,7 +944,8 @@ html:has(.canvas-page),
     flex-direction: column;
     gap: 12px;
     width: min(410px, 100vw - 32px);
-    max-height: min(540px, 100vh - 32px);
+    /* A chat window: tall enough for a few messages at once */
+    height: min(620px, 100vh - 32px);
     padding: 14px;
     border-radius: 30px;
     background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -975,9 +1096,10 @@ html:has(.canvas-page),
 /* The conversation: every message of the session, the latest at the foot */
 .ask-thread {
     display: grid;
+    flex: 1 1 auto;
     align-content: start;
     gap: 16px;
-    min-height: 60px;
+    min-height: 0;
     padding: 4px;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -1070,14 +1192,16 @@ html:has(.canvas-page),
     display: none;
 }
 
+/* A reference on one line: its number, where, and the start of the line */
 .ask-ref {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 3px 10px;
+    grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 6px 10px 6px 6px;
     border: 0;
-    border-radius: 16px;
+    border-radius: 999px;
     background: var(--wash);
     font: inherit;
     text-align: start;
@@ -1091,7 +1215,6 @@ html:has(.canvas-page),
 }
 
 .ask-ref-n {
-    grid-row: span 2;
     display: grid;
     place-items: center;
     width: 22px;
@@ -1116,6 +1239,54 @@ html:has(.canvas-page),
     font-size: 13px;
     line-height: 1.45;
     color: var(--soft);
+}
+
+.ask-ref .ask-where {
+    max-width: 22ch;
+}
+
+.ask-ref .ask-snippet {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Where a session began */
+.ask-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 9.5px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.ask-divider::before,
+.ask-divider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed var(--dash);
+}
+
+.ask-clear {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.ask-clear:hover {
+    background: var(--wash-strong);
+    color: var(--coral);
 }
 
 .ask-by {
@@ -1463,13 +1634,18 @@ html:has(.canvas-page),
         display: none;
     }
 
+    .orb-say {
+        max-width: min(230px, 60vw);
+        font-size: 13px;
+    }
+
     .ask {
         top: auto;
         right: 10px;
         bottom: 74px;
         left: 10px;
         width: auto;
-        max-height: 68vh;
+        height: min(72vh, 620px);
         transform-origin: 50% 100%;
     }
 

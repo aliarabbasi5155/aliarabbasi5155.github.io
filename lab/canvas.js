@@ -495,10 +495,96 @@ const ask = initAsk({
     onToggle(open) {
         orbCore.setAttribute('aria-expanded', open);
         orb.classList.toggle('asking', open);
-        if (open) showIcon('ask');
-        else orbState();
+        if (open) {
+            showIcon('ask');
+            met();
+        } else {
+            orbState();
+        }
     },
 });
+
+// ---------- Alino calls out ----------
+
+// Until the visitor has opened Alino once, the orb wears a badge; and until they have chatted
+// this visit, Alino pipes up now and then in a bubble beside the orb: a moment of "typing",
+// then a line (some about the section in view), and the rings ripple as it speaks
+const badge = orb.querySelector('.orb-badge');
+const say = orb.querySelector('.orb-say');
+const sayText = say.querySelector('.orb-say-text');
+const LINES = [
+    'Psst… I know things about Ali. Ask me 👀',
+    'I’m Alino! I answer questions about Ali, and I tell terrible jokes for free.',
+    'Bet you can’t stump me with a question about Ali 😏',
+    'Hey, you! Yes, you. Want the inside scoop on Ali?',
+    'I’ve read Ali’s whole CV. Twice. Go on, test me!',
+    'Recruiter? Curious? Lost? I can help with at least two of those 😄',
+    'I was told to stay quiet. I’m terrible at that. Ask me something!',
+    'Click me, I’m much friendlier than I look 🫧',
+    'Fun fact: I never get tired of questions about Ali. Never. Ever.',
+    'Don’t be shy, I only have nice things to say about Ali.',
+];
+const ABOUT = {
+    experience: 'Too much to read? Ask me for the short version 😉',
+    projects: 'Ask me which of these he built with RAG. I dare you.',
+    skills: 'Looking for one skill in particular? Just ask, I’ll point at it.',
+    education: 'Turin, research, a thesis… want the story? Ask me!',
+    publications: 'Science words ahead! Ask me to put it in plain English.',
+    blog: 'He writes about books too. Ask me which ones!',
+    interests: 'Ask me about his football team. Go on. Ask. 🙈',
+};
+let said = 0;
+let sayTimer = 0;
+let lastLine = -1;
+const quiet = () => {
+    try {
+        return JSON.parse(localStorage.getItem('alino:v2') || '{}').turns?.some(t => t.at > Date.now() - 30 * 60 * 1000);
+    } catch {
+        return false;
+    }
+};
+function met() {
+    badge.hidden = true;
+    hideSay();
+    try { localStorage.setItem('alino:met', '1'); } catch {}
+}
+try { badge.hidden = localStorage.getItem('alino:met') === '1'; } catch {}
+
+function hideSay() {
+    say.classList.remove('on', 'typing');
+}
+
+function callOut() {
+    clearTimeout(sayTimer);
+    if (said >= 5 || quiet()) return;
+    // Not while the visitor is busy with Alino, carrying it, or looking at the map
+    if (ask.isOpen() || carry?.moved || mode !== 'focus' || document.hidden) {
+        sayTimer = setTimeout(callOut, 8000);
+        return;
+    }
+    said++;
+    let line = ABOUT[current] && Math.random() < 0.6 ? ABOUT[current] : null;
+    if (!line) {
+        let pick = Math.floor(Math.random() * LINES.length);
+        if (pick === lastLine) pick = (pick + 1) % LINES.length;
+        lastLine = pick;
+        line = LINES[pick];
+    }
+    sayText.textContent = '';
+    say.classList.add('on', 'typing');
+    if (!REDUCE_MOTION) rings.poke();
+    setTimeout(() => {
+        sayText.textContent = line;
+        say.classList.remove('typing');
+    }, 900);
+    setTimeout(hideSay, 7500);
+    sayTimer = setTimeout(callOut, 38000 + Math.random() * 30000);
+}
+say.addEventListener('click', () => {
+    hideSay();
+    ask.open(orbCore);
+});
+sayTimer = setTimeout(callOut, deferField ? 6500 : 4500);
 
 // ---------- Carrying the orb ----------
 
@@ -540,6 +626,7 @@ addEventListener('pointermove', event => {
         if (Math.hypot(event.clientX - carry.x, event.clientY - carry.y) < 6) return;
         carry.moved = true;
         ask.close(false);
+        hideSay();
         orb.classList.add('carried');
         document.documentElement.classList.add('orb-carried');
         rings.poke();
