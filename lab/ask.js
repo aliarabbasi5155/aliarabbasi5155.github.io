@@ -5,9 +5,11 @@
 // friendly refusals, and after a few of those it says goodbye for the session. The first
 // question of a session it meets with a joke.
 //
-// The conversation is kept for the session (sessionStorage): every message, to show again,
-// and, for Alino to remember, a short summary of what came before and the last few messages
-// (up to four; every fifth message they are folded into the summary).
+// The conversation is kept in this browser (localStorage), across refreshes, tabs and visits:
+// every message, to show again (with a line where each visit began), and, for Alino to
+// remember, a short summary of what came before and the last few messages (up to four; every
+// fifth message they are folded into the summary). A visit, a "session", ends after half an
+// hour of quiet: the joke, the small talk allowed and the questions off the topic start over.
 //
 // Every line of the CV carries a reference (data-ref on the page, the same at the head of
 // each line of cv.txt), so whoever writes the answer can cite lines and the page can show
@@ -57,6 +59,17 @@ const REFUSALS = [
 ];
 const CLOSING = 'I think we’ve wandered quite far from Ali, so I’ll take a little break here ☕ Come back anytime with a question about him, and I’ll be all ears!';
 // The page's own jokes for a session's first question, and its small talk
+// Leg-pulls the page puts before about one answer in three, after the first
+const JOKES = [
+    'That’s top secret… oh, go on then, just for you.',
+    'That’ll be one compliment, please. Kidding, it’s free:',
+    'Hold on, let me wake Ali up and ask him… kidding, I know this one.',
+    'Ugh, everyone asks me that! Just kidding, I love this question.',
+    'I’m legally required to say “no comment”… kidding!',
+    '*gasps dramatically* Okay, okay, here it is:',
+    'Honestly? I’m a little jealous of this one.',
+    'You’re going to love this. Or at least nod politely:',
+];
 const TEASES = [
     'Let me check my notes… oh no, I spilled coffee all over them! Just kidding, they’re fine.',
     'Hmm, that’s classified information… I’m kidding, it’s right there in his CV.',
@@ -67,16 +80,19 @@ const TEASES = [
 const SMALL_TALK = [
     [/\b(thanks|thank you|thx|cheers|grazie|merci|mersi|mamnoon)\b/i, 'You’re very welcome! Anything else you’d like to know about Ali?'],
     [/\b(bye|goodbye|see you|ciao ciao|khodahafez)\b/i, 'Bye for now! It was lovely chatting. Come back anytime you’re curious about Ali 👋'],
-    [/\b(how are you|how('?s| is) it going|how do you do|what'?s up)\b/i, 'Doing great, thanks for asking! I spend my days talking about Ali, so I can’t complain. What would you like to know about him?'],
-    [/\b(who are you|what('?s| is) your name|what are you|your name)\b/i, 'I’m Alino, Ali’s little assistant. I know his CV inside out, so ask away!'],
-    [/^(hi|hello|hey|hiya|yo|salam|salaam|ciao|buongiorno|buonasera|good (morning|afternoon|evening))\b/i, 'Hi there! 👋 I’m Alino. Ask me anything about Ali: his work, his projects, his studies…'],
+    [/\b(how are you|how('?s| is) it going|how do you do|what'?s up)\b/i, 'Terrible, nobody asked me about Ali for a whole minute! …Kidding, I’m great. What would you like to know about him?'],
+    [/\b(who are you|what('?s| is) your name|what are you|your name)\b/i, 'I’m Ali, obviously. …Okay, okay, I’m Alino, his assistant. I know his CV inside out, so ask away!'],
+    [/^(hi|hello|hey|hiya|yo|salam|salaam|ciao|buongiorno|buonasera|good (morning|afternoon|evening))\b/i, 'Oh! You startled me, I was napping on Ali’s CV 😴 Hi there! I’m Alino. What would you like to know about him?'],
 ];
 const SYSTEM = `You are Alino, the friendly assistant on Ali Abbasi's CV website. Using only the CV lines
 given, answer the visitor's question about Ali in one to three short, warm, easy-going sentences, in the
 third person, speaking of him kindly. Each line starts with its id in square brackets: cite the ids of
 the lines each claim comes from, like [job-0-2]. If the lines don't answer it, say so lightly and suggest
 emailing him [contact]. Plain text, in the visitor's language.`;
-const STORE = 'alino:v1';
+const STORE = 'alino:v2';
+// Half an hour of quiet ends a session; the conversation keeps its last 60 messages
+const SESSION_GAP = 30 * 60 * 1000;
+const KEEP = 60;
 
 const clean = text => text.replace(/\s+/g, ' ').trim();
 const lowerFirst = text => text.charAt(0).toLowerCase() + text.slice(1);
@@ -392,20 +408,29 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
     let tokens = [];
     let proxyDown = false;
 
-    // The conversation, kept for the session
+    // The conversation, kept in this browser; a new session after half an hour of quiet
     const state = (() => {
-        const fresh = { turns: [], summary: '', recent: [], chats: 0, strikes: 0, closed: false, last: -1 };
+        const fresh = { turns: [], summary: '', recent: [], chats: 0, strikes: 0, closed: false, last: -1, session: 1, seen: 0 };
+        let stored = {};
         try {
-            return { ...fresh, ...JSON.parse(sessionStorage.getItem(STORE) || '{}') };
-        } catch {
-            return fresh;
+            stored = JSON.parse(localStorage.getItem(STORE) || 'null')
+                // A conversation kept the old way, for the tab only, carries over
+                ?? JSON.parse(sessionStorage.getItem('alino:v1') || '{}');
+        } catch {}
+        const saved = { ...fresh, ...stored };
+        if (Date.now() - saved.seen > SESSION_GAP) {
+            Object.assign(saved, { session: saved.session + 1, chats: 0, strikes: 0, closed: false, last: -1 });
         }
+        return saved;
     })();
     const save = () => {
+        state.seen = Date.now();
+        state.turns = state.turns.slice(-KEEP);
         try {
-            sessionStorage.setItem(STORE, JSON.stringify(state));
+            localStorage.setItem(STORE, JSON.stringify(state));
         } catch {}
     };
+    const firstOfSession = () => !state.turns.some(saved => saved.s === state.session);
 
     const brain = meaning(docs, (mode, value) => {
         if (proxy && !proxyDown) return;
@@ -533,15 +558,46 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         place();
     }
 
-    // Alino's hello, when there is no conversation yet
+    // Alino's hello, when this session has no messages yet (a welcome back after earlier ones)
     function hello() {
         const view = document.createElement('div');
         view.className = 'ask-turn ask-hello';
         const answer = document.createElement('div');
         answer.className = 'ask-answer';
-        answer.append(bubble('ask-text', 'Hi! I’m Alino 👋 Ask me anything about Ali, his work, his projects, his studies, and I’ll show you where his CV says so.'));
+        answer.append(bubble('ask-text', state.turns.length
+            ? 'Welcome back! 👋 I kept our last chat right up there. What else would you like to know about Ali?'
+            : 'Hi! I’m Alino 👋 Ask me anything about Ali, his work, his projects, his studies, and I’ll show you where his CV says so. Go on, I don’t bite (I don’t even have teeth).'));
         view.append(answer);
         thread.append(view);
+    }
+
+    // A line where a session began, with when
+    const when = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    function divider(at, label) {
+        const line = document.createElement('p');
+        line.className = 'ask-divider';
+        line.textContent = label ?? (at ? when.format(at) : 'Earlier');
+        thread.append(line);
+    }
+
+    // The whole conversation, as kept
+    function drawThread() {
+        thread.replaceChildren();
+        let session = null;
+        state.turns.forEach((saved, i) => {
+            if (saved.s !== session) {
+                divider(saved.at);
+                session = saved.s;
+            }
+            const view = addTurn(saved.q);
+            render(view, saved.a, true, i === state.turns.length - 1);
+        });
+        if (firstOfSession()) {
+            if (state.turns.length) divider(null, 'Now');
+            hello();
+        }
+        suggest.hidden = !firstOfSession();
+        thread.scrollTop = thread.scrollHeight;
     }
 
     function lock() {
@@ -580,7 +636,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             question: q,
             summary: state.summary,
             recent: state.recent.slice(-4),
-            first: !state.turns.length,
+            first: firstOfSession(),
             chats: state.chats,
             strikes: state.strikes,
             last: state.last,
@@ -602,7 +658,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
     // On the page: small talk, a refusal, or the answer from the nearest lines (written by
     // Chrome's model when it has one), with a joke first in a session's first question
     async function viaPage(q, view, mine) {
-        const tease = state.turns.length ? '' : `${TEASES[Math.floor(Math.random() * TEASES.length)]} `;
+        const tease = firstOfSession() ? `${TEASES[Math.floor(Math.random() * TEASES.length)]} ` : '';
         const talk = SMALL_TALK.find(([pattern]) => pattern.test(q));
         if (talk && !HIM.test(q)) return state.chats >= CHATS ? refusal() : { kind: 'chat', text: tease + talk[1], by: 'Alino' };
         const found = await nearby(q, mine);
@@ -622,7 +678,9 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
                 if (error.name === 'AbortError') return null;
             }
         }
-        return { kind: 'about', text: tease + found.answer, by: 'Alino · from his CV' };
+        // After the first answer, a leg-pull now and then
+        const joke = !tease && Math.random() < 0.34 ? `${JOKES[Math.floor(Math.random() * JOKES.length)]} ` : '';
+        return { kind: 'about', text: tease + joke + found.answer, by: 'Alino · from his CV' };
     }
 
     async function ask(question) {
@@ -661,7 +719,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         view.by.textContent = result.kind === 'busy' ? '' : result.by;
 
         // What Alino remembers, and how the conversation stands
-        state.turns.push({ q, a: text, kind: result.kind });
+        state.turns.push({ q, a: text, kind: result.kind, s: state.session, at: Date.now() });
         if (result.kind === 'chat') state.chats++;
         if (result.kind === 'off' || result.kind === 'closed') {
             state.strikes++;
@@ -757,16 +815,19 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
     }
 
     // The conversation so far, as it was left
-    if (state.turns.length) {
-        state.turns.forEach((saved, i) => {
-            const view = addTurn(saved.q);
-            render(view, saved.a, true, i === state.turns.length - 1);
-        });
-        suggest.hidden = true;
-    } else {
-        hello();
-    }
+    drawThread();
     if (state.closed) lock();
+    save();
+
+    // Clear: the messages and what Alino remembers go; this session's limits stay
+    panel.querySelector('.ask-clear').addEventListener('click', () => {
+        writing?.abort();
+        turn++;
+        Object.assign(state, { turns: [], summary: '', recent: [] });
+        save();
+        drawThread();
+        if (!state.closed) input.focus({ preventScroll: true });
+    });
 
     form.addEventListener('submit', event => {
         event.preventDefault();
