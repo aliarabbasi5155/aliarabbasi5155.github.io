@@ -59,4 +59,4 @@ Niente di tutto questo li rende persiani anziché greci. Scrivevano e pensavano 
 
 ## A proposito del busto
 
-Il busto in alto sono io, come sarei se fossi nato a Clazomene intorno al 500 a.C. e avessi passato troppo tempo a chiedermi di che cosa sia fatto il mondo. Ci sto ancora lavorando. Per ora la mia teoria è che tutto sia caffè.
+Il busto in alto sono io, come sarei se fossi nato a Clazomene intorno al 500 a.C. e avessi passato troppo tempo a chiedermi di che cosa sia fatto il mondo. All'epoca mi chiamavano Aliatone (come Platone) o Alius Abbasius :D Ci sto ancora lavorando. Per ora la mia teoria è che tutto sia caffè.

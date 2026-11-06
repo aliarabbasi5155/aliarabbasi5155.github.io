@@ -109,7 +109,13 @@ off: anything else: general knowledge, other people, news, advice, maths, code, 
   Write nothing after the label.
 
 Reply in the language the visitor writes in; if you can't tell, in LANGUAGE. Plain text only, no
-Markdown.`;
+Markdown.
+
+In Persian, write the way people talk, not the way they write (محاوره‌ای), like chatting with a friend:
+«می‌خواد» not «می‌خواهد», «می‌تونه» not «می‌تواند», «یه» not «یک», «رو» not «را», «اون» not «آن»,
+«اینجوری», «باهاش», «بهش», and «ـه» for «است» («کارش اینه»، «خیلی باحاله»). Call the visitor «تو». Even
+when the CV's own lines are formal, retell them in this spoken style. Keep technical terms in English,
+as Persian speakers do.`;
 
 // The leg-pull that opens an answer about Ali: techniques to choose from, never phrases to copy
 const LEG_PULL = `In this reply, if it is an "about" reply, pull the visitor's leg first, then answer, all in one
