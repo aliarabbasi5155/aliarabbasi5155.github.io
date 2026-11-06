@@ -3,7 +3,7 @@
    moving these rules into the live file.
 
    Here: the spatial phone design (script.js in lab/ lays the phone panes out on the map), and
-   the Experience section as a timeline of jobs that open and close. */
+   Experience, Projects, Education and Publications as timelines of items that open and close. */
 @import url("/canvas.css");
 
 /* ---------- Phones: the same map, each pane the size of the screen, the names and the
@@ -82,18 +82,18 @@
     }
 }
 
-/* ---------- Experience as a timeline: a line down the start of the jobs, a dot at each (coral
-   for the job he is in now), and each job opening and closing from its header; the job he is
-   in now starts open (script.js in lab/) ---------- */
-.experience .job {
+/* ---------- Timelines: Experience, Projects, Education and Publications (script.js in lab/
+   marks them): a line down the start of the items, a dot at each (coral for what is current),
+   and each item opening and closing from its header ---------- */
+.timeline > .timeline-item {
     position: relative;
-    padding-block: 2px 24px;
+    padding-block: 2px 26px;
     padding-inline-start: 36px;
     border-bottom: 0;
 }
 
-/* The line, from the first job's dot to the last one's, in each group of jobs */
-.experience .job::before {
+/* The line, from the first item's dot to the last one's, in each group of items */
+.timeline-item::before {
     content: "";
     position: absolute;
     top: 0;
@@ -102,19 +102,23 @@
     border-inline-start: 1.5px solid color-mix(in srgb, var(--mint) 30%, transparent);
 }
 
-.experience > .job:first-child::before,
-.experience .earlier-title + .job::before {
+.timeline > .timeline-item:first-child::before,
+.timeline .earlier-title + .timeline-item::before {
     top: 18px;
 }
 
-.experience .job:last-child::before,
-.experience .job:has(+ .earlier-title)::before {
+.timeline-item:last-child::before,
+.timeline-item:has(+ .earlier-title)::before {
     bottom: auto;
     height: 18px;
 }
 
-/* The dot: open in mint, closed hollow, the job he is in now in coral */
-.experience .job::after {
+.timeline-item:first-child:last-child::before {
+    display: none;
+}
+
+/* The dot: filled while open, hollow while closed, coral for what is current */
+.timeline-item::after {
     content: "";
     position: absolute;
     top: 10px;
@@ -127,42 +131,42 @@
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.experience .job:not(.collapsed)::after {
+.timeline-item:not(.collapsed)::after {
     background: var(--mint);
 }
 
-.experience .job.current::after {
+.timeline-item.current::after {
     border-color: var(--coral);
     background: var(--coral);
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--coral) 20%, transparent);
 }
 
-/* The header opens and closes the job: a press anywhere on it, or its button */
-.experience .job-header {
+/* The header opens and closes the item: a press anywhere on it, or its button */
+.item-header {
     position: relative;
-    padding-inline-end: 64px;
+    padding-inline-end: 96px;
     cursor: pointer;
 }
 
-.focus-mode .pane:not(.focused) .job-header {
+.focus-mode .pane:not(.focused) .item-header {
     cursor: inherit;
 }
 
-.experience .job-header h4 {
+.item-header h4 {
     transition: color 0.3s;
 }
 
-.focused .experience .job-header:hover h4 {
+.focused .item-header:hover h4 {
     color: var(--mint);
 }
 
-.job-toggle {
+.item-toggle {
     position: absolute;
     top: 0;
     inset-inline-end: 0;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
     height: 30px;
     padding: 0 11px;
     border: 0;
@@ -175,61 +179,68 @@
     transition: color 0.3s, box-shadow 0.3s;
 }
 
-.job-toggle i {
+.item-toggle i {
     font-size: 10px;
+}
+
+.item-toggle span + i {
+    margin-inline-start: 4px;
+}
+
+.item-chevron {
     transition: rotate 0.35s var(--ease);
 }
 
-.job:not(.collapsed) .job-toggle i {
+.timeline-item:not(.collapsed) .item-chevron {
     rotate: 180deg;
 }
 
-.focused .experience .job-header:hover .job-toggle,
-.job-toggle:focus-visible {
+.focused .item-header:hover .item-toggle,
+.item-toggle:focus-visible {
     box-shadow: inset 0 0 0 1px var(--mint);
     color: var(--mint);
 }
 
-/* Opening and closing: the list eases between none of its height and all of it */
-.job-more {
+/* Opening and closing: the rest eases between none of its height and all of it */
+.item-more {
     display: grid;
     grid-template-rows: 1fr;
     transition: grid-template-rows 0.45s var(--ease), opacity 0.35s;
 }
 
-.job.collapsed .job-more {
+.timeline-item.collapsed .item-more {
     grid-template-rows: 0fr;
     opacity: 0;
 }
 
-.job.instant .job-more {
+.timeline-item.instant .item-more {
     transition: none;
 }
 
-.job-more-inner {
+.item-more-inner {
     min-height: 0;
     overflow: hidden;
 }
 
-/* A closed job sits closer to the next */
-.experience .job.collapsed {
-    padding-bottom: 16px;
+/* A closed item sits closer to the next */
+.timeline > .timeline-item.collapsed {
+    padding-bottom: 18px;
 }
 
-.experience .earlier-title {
+.timeline .earlier-title {
     margin-block: 1.6rem 20px;
 }
 
 @media (max-width: 760px) {
-    .experience .job {
+    .timeline > .timeline-item {
         padding-inline-start: 30px;
     }
 
-    .experience .job-header {
-        padding-inline-end: 52px;
+    .item-header {
+        padding-inline-end: 84px;
     }
 
-    .job-toggle {
+    .item-toggle {
         padding: 0 9px;
     }
 }

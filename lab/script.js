@@ -17,8 +17,8 @@
 // remembered, the theme, and the section in view told to analytics.js (portfolio:section).
 // Right to left (Persian), the map is mirrored and the rail sits on the right.
 //
-// The lab's copy (lab/script.js): Experience is a timeline of jobs that open and close (the job
-// he is in now starts open), and on phones the canvas is a map too. The panes, each the size
+// The lab's copy (lab/script.js): Experience, Projects, Education and Publications are timelines
+// of items that open and close, and on phones the canvas is a map too. The panes, each the size
 // of the screen, sit on the same three-by-three map, wired to Ali's, and the camera flies
 // between them, pulling back on the way. A swipe goes to the pane on that side, a pinch (or the
 // map button) shows the whole map, and a tap there flies into a pane.
@@ -27,6 +27,7 @@ import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
 import { initAsk } from './ask.js';
 import { livePhoto } from './live-photo.js';
+import { initGalleries } from './lightbox.js';
 
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const ALINO = UI.alino ?? {};
@@ -35,20 +36,24 @@ const RTL = document.documentElement.dir === 'rtl';
 const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const root = document.documentElement;
 
-// Each section's shape in the dot field: [x, y, scale] in half-view units
+// Each section's shape in the dot field, [x, y, scale] in half-view units, each from his work:
+// the path of a career as a strange attractor, projects as a knowledge graph that queries light,
+// skills as a manifold unrolling, research as a brain with waves of activity, his studies as the
+// way from Arak to Turin, and a football for what he loves
 const SCENES = {
     blog: { shape: 'book', wide: [0.2, 0.02, 1], tall: [0, 0.05, 0.75] },
     about: { shape: 'portrait', wide: [0.42, -0.08, 1.6], tall: [0, 0.05, 0.85] },
-    experience: { shape: 'beam', wide: [0, 0, 1] },
+    experience: { shape: 'attractor', wide: [0.3, 0, 1.05], tall: [0, 0, 0.8] },
     education: { shape: 'globe', wide: [0.25, 0, 1], tall: [0, 0.05, 0.8] },
-    skills: { shape: 'streams', wide: [0, 0, 1] },
-    projects: { shape: 'terrain', wide: [0, -0.05, 1] },
-    publications: { shape: 'rings', wide: [0.42, -0.08, 1], tall: [0, 0, 0.7] },
-    interests: { shape: 'ripples', wide: [0.46, -0.05, 1] },
+    skills: { shape: 'manifold', wide: [0.2, 0, 1], tall: [0, 0, 0.75] },
+    projects: { shape: 'graph', wide: [0.15, 0, 1], tall: [0, 0, 0.8] },
+    publications: { shape: 'brain', wide: [0.35, -0.02, 1.05], tall: [0, 0, 0.8] },
+    interests: { shape: 'ball', wide: [0.4, 0, 1], tall: [0, 0, 0.8] },
 };
 const IDS = Object.keys(SCENES);
 // Then Ali's pane, and the globe for the map (and the language picker)
-const ORDER = [...IDS.map(id => SCENES[id]), { shape: 'ripples', wide: [0.3, 0, 1], tall: [0, 0.1, 0.9] }, { shape: 'globe', wide: [0, 0, 1.15], tall: [0, 0, 1] }];
+// Then Ali's pane: a neural network, a signal running through it
+const ORDER = [...IDS.map(id => SCENES[id]), { shape: 'neural', wide: [0.12, 0, 1.05], tall: [0, 0, 0.8] }, { shape: 'globe', wide: [0, 0, 1.15], tall: [0, 0, 1] }];
 const HOME = IDS.length;
 const MAP = HOME + 1;
 const SVG = 'http://www.w3.org/2000/svg';
@@ -452,7 +457,8 @@ initTheme();
 initLanguageMemory();
 initBlogToggles();
 initExternalLinks();
-initTimeline();
+initTimelines();
+initGalleries();
 
 const orb = document.querySelector('.orb');
 const orbRings = orb.querySelector('.orb-rings');
@@ -677,8 +683,8 @@ function neighbour(dx, dy) {
 
 // Fly to a pane, bring a line of it into view, then do something there
 function goTo(id, element, then) {
-    // A line in a closed job: the job opens first
-    element?.closest('.job.collapsed')?.openJob?.(true, true);
+    // A line in a closed item: the item opens first
+    element?.closest('.timeline-item.collapsed')?.openItem?.(true, true);
     focus(id);
     afterLanding(() => {
         const body = element?.closest('.pane-body');
@@ -1095,47 +1101,62 @@ addEventListener('hashchange', () => {
     if (panes.has(id)) focus(id);
 });
 
-// ---------- Experience as a timeline ----------
+// ---------- Timelines ----------
 
-// Each job opens and closes from its header (a press anywhere on it, or its button, which says
-// how many lines it holds); the job he is in now starts open and the rest closed, so the whole
-// career fits in view. A reference from Alino opens the job it points into.
-function initTimeline() {
+// In Experience, Projects, Education and Publications, a line runs down the side of the items
+// with a dot at each, and each item opens and closes from its header (a press anywhere on it, or
+// its button, which says how many lines and pictures it holds). What is current (still
+// "present") starts open, or else the newest; the rest start closed, so a whole section fits in
+// view. A reference from Alino opens the item it points into.
+function initTimelines() {
     const NOW = /present|oggi|attuale|اکنون|تاکنون/i;
-    document.querySelectorAll('.experience .job').forEach((job, i) => {
-        const header = job.querySelector('.job-header');
-        const list = job.querySelector('.job-description');
-        if (!header || !list) return;
-        job.classList.toggle('current', NOW.test(job.querySelector('.duration')?.textContent ?? ''));
-        // The list, in a box whose height can ease open and shut
-        const more = Object.assign(document.createElement('div'), { className: 'job-more', id: `job-more-${i}` });
-        const inner = Object.assign(document.createElement('div'), { className: 'job-more-inner' });
-        list.replaceWith(more);
-        inner.append(list);
-        more.append(inner);
-        const toggle = Object.assign(document.createElement('button'), { type: 'button', className: 'job-toggle' });
-        toggle.setAttribute('aria-controls', more.id);
-        toggle.innerHTML = `<span class="job-count">${digits(list.children.length)}</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>`;
-        header.append(toggle);
-        const set = (open, instant = false) => {
-            if (instant) job.classList.add('instant');
-            job.classList.toggle('collapsed', !open);
-            toggle.setAttribute('aria-expanded', open);
-            toggle.setAttribute('aria-label', open ? UI.show_less : UI.show_more);
-            inner.inert = !open;
-            if (instant) requestAnimationFrame(() => job.classList.remove('instant'));
-            // The pane's fade at its foot follows the new length
-            setTimeout(() => job.closest('.pane-body')?.dispatchEvent(new Event('scroll')), instant ? 0 : 480);
-        };
-        job.openJob = set;
-        set(job.classList.contains('current'), true);
-        header.addEventListener('click', event => {
-            // Only in the pane being read, and not when a link in the header is pressed
-            if (!job.closest('.pane.focused') || (event.target.closest('a') && !event.target.closest('.job-toggle'))) return;
-            interacted();
-            set(job.classList.contains('collapsed'));
+    const SECTIONS = [['.experience', '.job', '.job-header'], ['.projects', '.project', '.project-header'], ['.education', '.degree', '.degree-header'], ['.publications', '.publication', '.publication-header']];
+    for (const [sectionSelector, itemSelector, headerSelector] of SECTIONS) {
+        const section = document.querySelector(sectionSelector);
+        const list = [...(section?.querySelectorAll(itemSelector) ?? [])];
+        if (!list.length) continue;
+        section.classList.add('timeline');
+        const current = list.filter(item => NOW.test(item.querySelector('.duration')?.textContent ?? ''));
+        list.forEach((item, i) => {
+            const header = item.querySelector(headerSelector);
+            const rest = [...item.children].filter(child => child !== header);
+            item.classList.add('timeline-item');
+            item.classList.toggle('current', current.includes(item));
+            // Nothing more than its header: nothing to open
+            if (!header || !rest.length) return;
+            header.classList.add('item-header');
+            // The rest, in a box whose height can ease open and shut
+            const more = Object.assign(document.createElement('div'), { className: 'item-more', id: `${sectionSelector.slice(1)}-more-${i}` });
+            const inner = Object.assign(document.createElement('div'), { className: 'item-more-inner' });
+            inner.append(...rest);
+            more.append(inner);
+            item.append(more);
+            const lines = inner.querySelectorAll('li').length;
+            const pictures = inner.querySelectorAll('.gallery-item').length;
+            const toggle = Object.assign(document.createElement('button'), { type: 'button', className: 'item-toggle' });
+            toggle.setAttribute('aria-controls', more.id);
+            toggle.innerHTML = `${lines ? `<span>${digits(lines)}</span>` : ''}${pictures ? `<i class="fa-regular fa-image" aria-hidden="true"></i><span>${digits(pictures)}</span>` : ''}<i class="fa-solid fa-chevron-down item-chevron" aria-hidden="true"></i>`;
+            header.append(toggle);
+            const set = (open, instant = false) => {
+                if (instant) item.classList.add('instant');
+                item.classList.toggle('collapsed', !open);
+                toggle.setAttribute('aria-expanded', open);
+                toggle.setAttribute('aria-label', open ? UI.show_less : UI.show_more);
+                inner.inert = !open;
+                if (instant) requestAnimationFrame(() => item.classList.remove('instant'));
+                // The pane's fade at its foot follows the new length
+                setTimeout(() => item.closest('.pane-body')?.dispatchEvent(new Event('scroll')), instant ? 0 : 480);
+            };
+            item.openItem = set;
+            set(current.length ? current.includes(item) : i === 0, true);
+            header.addEventListener('click', event => {
+                // Only in the pane being read, and not when a link in the header is pressed
+                if (!item.closest('.pane.focused') || (event.target.closest('a') && !event.target.closest('.item-toggle'))) return;
+                interacted();
+                set(item.classList.contains('collapsed'));
+            });
         });
-    });
+    }
 }
 
 // ---------- The language picker ----------
