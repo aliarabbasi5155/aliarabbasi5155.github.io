@@ -74,9 +74,10 @@ It uses the site's own files, except those with a copy in `lab/`: a stylesheet o
 copied there (`lab/canvas.css`, `lab/script.js`, any of the scripts it imports…) is used in
 the lab instead (`_includes/asset.html`, and an import map in `_layouts/cv.html`). The text
 comes from the same data, so new words can be added there freely. To work on something, copy
-the file into `lab/` and change the copy; to put it live, move the copy over the original
-(`git mv -f lab/script.js script.js`); with nothing in `lab/` but its three pages, the lab is
-simply the live site.
+the file into `lab/` and change the copy; a stylesheet can instead `@import` the live one and
+add only its changes (as `lab/canvas.css` does). To put it live, move the copy over the
+original (`git mv -f lab/script.js script.js`) or the added rules into the live stylesheet;
+with nothing in `lab/` but its three pages, the lab is simply the live site.
 
 ## Themes
 

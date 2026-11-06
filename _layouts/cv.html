@@ -163,17 +163,19 @@
                     <p class="home-pitch">{{ data.profile.pitch | escape }}</p>
                     {%- endif %}
                     {%- include actions.html profile=data.profile %}
-                    {%- assign news = data.updates.items | first %}
-                    {%- if news %}
-                    {%- capture news_text %}{% include plain.txt text=news.text %}{% endcapture %}
-                    <button type="button" class="home-news" data-news="update-0">
-                        <span class="home-news-head">
-                            <span class="home-news-tag"><i class="fas fa-bolt" aria-hidden="true"></i>{{ ui.canvas.news | escape }}</span>
-                            <span class="home-news-date">{{ news.date | escape }}</span>
-                        </span>
-                        <span class="home-news-text"><strong>{{ news.label | escape }}</strong> {{ news_text | escape }}</span>
-                        <i class="fas fa-arrow-right home-news-go" aria-hidden="true"></i>
-                    </button>
+                    {%- if data.updates.items.size > 0 %}
+                    <!-- The latest updates, newest first: a few in view, the rest a scroll away -->
+                    <section class="home-updates" aria-labelledby="updates-title">
+                        <h2 class="home-updates-head" id="updates-title"><span class="home-news-tag"><i class="fas fa-bolt" aria-hidden="true"></i>{{ ui.canvas.news | escape }}</span><span>{{ data.updates.title | escape }}</span></h2>
+                        <ol class="home-updates-list">
+                            {%- for update in data.updates.items %}
+                            <li class="home-update" data-ref="update-{{ forloop.index0 }}">
+                                <span class="update-date">{{ update.date | escape }}</span>
+                                <span class="update-text"><strong>{{ update.label | escape }}</strong> {% include inline.html text=update.text %}</span>
+                            </li>
+                            {%- endfor %}
+                        </ol>
+                    </section>
                     {%- endif %}
                 </div>
             </section>

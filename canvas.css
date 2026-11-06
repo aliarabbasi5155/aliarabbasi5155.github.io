@@ -330,7 +330,7 @@ html:has(.canvas-page),
     /* One column the pane's width, so a long line can't widen it */
     grid-template-columns: minmax(0, 1fr);
     justify-items: start;
-    gap: 18px;
+    gap: 16px;
 }
 
 .home-role {
@@ -1265,21 +1265,8 @@ html:has(.canvas-page),
 .ask-text {
     font-size: 15px;
     line-height: 1.6;
-    /* A leg-pull comes on a line of its own, before the real answer */
     white-space: pre-line;
     color: var(--text);
-}
-
-/* A leg-pull, before the real answer: said with a wink */
-.ask-prank {
-    display: block;
-    margin-bottom: 6px;
-    font-style: italic;
-    color: var(--soft);
-}
-
-html[lang="fa"] .ask-prank {
-    font-style: normal;
 }
 
 /* Thinking: three dots that breathe in turn */
@@ -1459,7 +1446,7 @@ html[lang="fa"] .ask-prank {
 }
 
 .canvas-page .home-name {
-    font-size: calc(96px * var(--d-size));
+    font-size: calc(88px * var(--d-size));
     line-height: 0.95;
 }
 
@@ -1482,11 +1469,13 @@ html[lang="fa"] .ask-prank {
 
 /* Persian: titles in Markazi Text need more room between lines */
 html[lang="fa"] .canvas-page .home-name {
-    line-height: 1.2;
+    font-size: calc(76px * var(--d-size));
+    line-height: 1.15;
 }
 
 html[lang="fa"] .canvas-page .home-pitch {
-    line-height: 1.6;
+    font-size: 21px;
+    line-height: 1.65;
 }
 
 html[lang="fa"] .canvas-page .pane-label {
@@ -1550,35 +1539,23 @@ html[lang="fa"] .home-role {
     padding: 0;
 }
 
-/* The latest update, as a card: what it is, when, and the start of it; it opens the list of
-   updates on the About pane */
-.home-news {
-    position: relative;
+/* The latest updates, newest first, on Ali's pane: a tag and the list's name, then each update
+   with its date; a few in view, the rest a scroll away */
+.home-updates {
     display: grid;
-    gap: 7px;
-    width: min(100%, 560px);
-    padding-block: 12px 13px;
-    padding-inline: 16px 44px;
-    border: 0;
-    border-radius: 20px;
-    background: color-mix(in srgb, var(--coral) 8%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 32%, transparent);
-    font: inherit;
-    text-align: start;
-    color: var(--soft);
-    cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
 }
 
-.home-news:hover {
-    background: color-mix(in srgb, var(--coral) 13%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--coral) 60%, transparent);
-}
-
-.home-news-head {
+.home-updates-head {
     display: flex;
     align-items: center;
     gap: 10px;
+    font: 700 10.5px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 .home-news-tag {
@@ -1595,76 +1572,75 @@ html[lang="fa"] .home-role {
     color: #fff;
 }
 
-.home-news-date {
-    font: 700 10px/1 var(--mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.home-news-text {
-    display: -webkit-box;
-    min-width: 0;
-    overflow: hidden;
-    font-size: 14.5px;
-    line-height: 1.45;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-}
-
-.home-news-text strong {
-    color: var(--text);
-}
-
-.home-news-go {
-    position: absolute;
-    top: 50%;
-    inset-inline-end: 16px;
-    font-size: 13px;
-    color: var(--coral);
-    translate: 0 -50%;
-    transition: translate 0.3s var(--ease);
-}
-
-.home-news:hover .home-news-go {
-    translate: 3px -50%;
-}
-
-[dir="rtl"] .home-news-go {
-    scale: -1 1;
-}
-
-[dir="rtl"] .home-news:hover .home-news-go {
-    translate: -3px -50%;
-}
-
-/* The updates, under About */
-.updates {
-    margin-top: 26px;
-}
-
-.update-list {
+.home-updates-list {
+    --fade-top: 0px;
+    --fade-bottom: 0px;
+    max-height: 196px;
+    margin: 0;
+    padding: 0;
+    padding-inline-end: 8px;
     list-style: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--coral) 45%, transparent) transparent;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
 }
 
-.update-item {
+.home-updates-list.more {
+    --fade-bottom: 40px;
+}
+
+.home-updates-list.scrolled {
+    --fade-top: 24px;
+}
+
+.home-update {
+    position: relative;
     display: grid;
-    gap: 4px;
-    padding: 12px 0;
+    gap: 3px;
+    padding-block: 9px;
+    padding-inline-start: 18px;
     border-top: 1px dashed var(--dash);
 }
 
+.home-update:first-child {
+    border-top: 0;
+    padding-top: 2px;
+}
+
+/* A coral dot for the newest, a hollow one for the rest */
+.home-update::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    inset-inline-start: 0;
+    width: 7px;
+    height: 7px;
+    border: 1.5px solid var(--coral);
+    border-radius: 50%;
+}
+
+.home-update:first-child::before {
+    top: 7px;
+    background: var(--coral);
+}
+
+.home-update .update-text {
+    font-size: 14.5px;
+    line-height: 1.45;
+}
+
+/* An update's date and words, wherever an update is shown */
 .update-date {
-    font: 700 10.5px/1.3 var(--mono);
+    font: 700 10px/1.3 var(--mono);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--mint);
 }
 
 .update-text {
-    font-size: 15px;
-    line-height: 1.5;
     color: var(--soft);
 }
 
@@ -1672,11 +1648,10 @@ html[lang="fa"] .home-role {
     color: var(--text);
 }
 
-.updates .earlier-title i {
-    margin-inline-end: 6px;
-    font-size: 0.6em;
-    vertical-align: 0.2em;
-    color: var(--coral);
+.update-text a {
+    color: var(--mint);
+    text-decoration-style: dashed;
+    text-underline-offset: 3px;
 }
 
 /* ---------- Phones: the panes in a row the width of the screen, the names along the
@@ -1746,9 +1721,13 @@ html[lang="fa"] .home-role {
         font-size: calc(clamp(52px, 16vw, 80px) * var(--d-size));
     }
 
-    /* On a phone the latest update comes right under the photo, where it is seen */
-    .home-news {
+    /* On a phone the latest updates come right under the photo, where they are seen */
+    .home-updates {
         order: -1;
+    }
+
+    .home-updates-list {
+        max-height: 168px;
     }
 
     .interests-grid {

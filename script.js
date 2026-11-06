@@ -249,6 +249,13 @@ function layout() {
         const g = phone.matches
             ? { x: flip * SEQUENCE.indexOf(id) * (vw + 40), y: 0, w: vw - 24, h: vh - 136 }
             : { x: flip * pane.dataset.x, y: +pane.dataset.y, w: +pane.dataset.w, h: +pane.dataset.h };
+        // Ali's pane grows to hold its words, however long they are in its language
+        if (id === 'home' && !phone.matches) {
+            pane.style.width = `${g.w}px`;
+            const style = getComputedStyle(pane);
+            const text = pane.querySelector('.home-text');
+            g.h = Math.max(g.h, Math.ceil(text.offsetHeight + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) + 48));
+        }
         geometry.set(id, g);
         Object.assign(pane.style, { left: `${g.x - g.w / 2}px`, top: `${g.y - g.h / 2}px`, width: `${g.w}px`, height: `${g.h}px` });
     }
@@ -508,8 +515,9 @@ function moveOrb(dt) {
         ? `rotate(${angle.toFixed(3)}rad) scale(${(scale * (1 + stretch)).toFixed(4)}, ${(scale * (1 - stretch * 0.55)).toFixed(4)}) rotate(${(-angle).toFixed(3)}rad)`
         : `scale(${scale.toFixed(4)})`);
     write('size', orb, '--orb-size', `${o.size.toFixed(1)}px`);
-    // Near the left edge its label goes on its right
-    const right = o.x < 320;
+    // Its label and bubbles go on the side with room: near the edge where a line starts,
+    // on the other side (so on Ali's pane they lie over his photo, not his words)
+    const right = RTL ? o.x < innerWidth - 320 : o.x < 320;
     if (right !== written.right) {
         written.right = right;
         orb.classList.toggle('tip-right', right);
@@ -607,7 +615,7 @@ function focus(id, { instant = false, push = true } = {}) {
     if (title && fresh) setTimeout(() => scramble(title), instant ? 0 : 450);
     if (push) history.replaceState(null, '', id === 'home' ? location.pathname + location.search : `#${id}`);
     // Analytics counts attention by the section in view
-    if (fresh) {
+    if (document.body.dataset.section !== id) {
         document.body.dataset.section = id;
         document.dispatchEvent(new CustomEvent('portfolio:section', { detail: { section: id } }));
     }
@@ -628,6 +636,8 @@ function overview(instant = false) {
     document.body.classList.remove('focus-mode');
     for (const pane of panes.values()) pane.classList.remove('focused');
     mark('overview');
+    // Alino's bubble belongs to a pane; on the map it goes
+    hideSay();
     field?.morphTo(MAP);
     orbState();
 }
@@ -667,8 +677,18 @@ function goTo(id, element, then) {
     });
 }
 
-// A long pane fades at its foot while there is more of it below
-for (const body of document.querySelectorAll('.pane-body')) {
+// Once the web fonts have come, Ali's words may take more room: his pane grows to them
+new ResizeObserver(() => {
+    if (!geometry.size || phone.matches) return;
+    const before = geometry.get('home').h;
+    layout();
+    if (geometry.get('home').h === before || flight) return;
+    if (mode === 'map') overview(true);
+    else focus(current, { instant: true, push: false });
+}).observe(document.querySelector('.home-text'));
+
+// A long pane (or the list of updates) fades at its foot while there is more of it below
+for (const body of document.querySelectorAll('.pane-body, .home-updates-list')) {
     const more = () => {
         body.classList.toggle('more', body.scrollTop + body.clientHeight < body.scrollHeight - 4);
         body.classList.toggle('scrolled', body.scrollTop > 4);
@@ -695,13 +715,6 @@ const ask = initAsk({
             orbState();
         }
     },
-});
-
-// The latest news on Ali's pane opens the updates under About
-const news = document.querySelector('.home-news');
-news?.addEventListener('click', () => {
-    interacted();
-    goTo('about', ask.lineOf(news.dataset.news), () => ask.light(news.dataset.news));
 });
 
 // ---------- Alino calls out ----------
@@ -888,7 +901,7 @@ addEventListener('pointermove', event => {
     const dy = event.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 6) return;
     // A mouse in the pane being read selects its text instead
-    if (!drag.moved && drag.mouse && drag.target.closest('.focused .pane-body')) {
+    if (!drag.moved && drag.mouse && drag.target.closest('.focused .pane-body, .focused .home-updates-list')) {
         drag = null;
         return;
     }
@@ -949,7 +962,7 @@ viewport.addEventListener('wheel', event => {
         return;
     }
     const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX * (RTL ? -1 : 1) : event.deltaY;
-    const body = event.target.closest('.focused .pane-body');
+    const body = event.target.closest('.focused .pane-body, .focused .home-updates-list');
     if (body && body.scrollHeight > body.clientHeight + 2) {
         const atEnd = delta > 0 ? body.scrollTop + body.clientHeight >= body.scrollHeight - 2 : body.scrollTop <= 2;
         if (!atEnd) {
@@ -979,7 +992,7 @@ document.addEventListener('keydown', event => {
         return;
     }
     const moves = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
-    const inPane = event.target.closest('.pane-body');
+    const inPane = event.target.closest('.pane-body, .home-updates-list');
     if (moves[event.key] && !inPane) {
         event.preventDefault();
         interacted();

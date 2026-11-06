@@ -4,6 +4,7 @@
 provider: deepseek
 # The provider's model, e.g. deepseek-chat, or gpt-4.1-mini, gpt-4.1, gpt-4o-mini
 model: deepseek-chat
-# How often Alino pulls the visitor's leg before answering, in percent; the first question
-# of a visit always gets one unless this is 0
-pranks: 50
+# How often an answer about Ali opens with a playful made-up "fact" that turns back to the
+# truth, in percent: 100 is every answer; below that, the first question of a visit still gets
+# one, unless this is 0
+pranks: 100
