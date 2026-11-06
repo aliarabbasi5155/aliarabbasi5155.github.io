@@ -5,8 +5,14 @@
 // A page hands over a list of scenes ({ shape, wide, tall }) and then jumps
 // between them with morphTo(). setGlass() turns DOM elements into liquid-glass
 // panes: the same pass refracts, frosts and rims the field under each of them.
+//
+// Besides the first shapes, some drawn from Ali's work: a neural network with a signal running
+// through its layers, the Lorenz attractor (a path that never repeats and never
+// leaves its shape), a knowledge graph that queries light up, a swiss-roll manifold unrolling
+// flat and curling back, a brain with waves of activity, a football, and on the globe the arc
+// from Arak to Turin.
 
-export const SHAPES = ['ring', 'portrait', 'beam', 'rings', 'terrain', 'streams', 'ripples', 'book', 'globe'];
+export const SHAPES = ['ring', 'portrait', 'beam', 'rings', 'terrain', 'streams', 'ripples', 'book', 'globe', 'neural', 'attractor', 'graph', 'manifold', 'brain', 'ball'];
 
 // Glass: face lifts the flat face above the background, edge darkens the rim's hairline
 // (light reflections alone vanish on a pale ground), shade darkens the bevel away from the
@@ -65,6 +71,8 @@ layout(location = 0) in vec4 aSeed;
 layout(location = 1) in vec4 aSeed2;
 // Portrait sample: xy in image space (height spans -0.5…0.5), z is relief
 layout(location = 2) in vec3 aImage;
+// A point of the Lorenz attractor (xyz, about -1…1) and how far along the path it is (w, 0…1)
+layout(location = 3) in vec4 aPath;
 
 uniform mat4 uProjView;
 // Half extents of the view at z = 0, in world units
@@ -125,6 +133,8 @@ float dustShare(int i) {
 	if (i == 5) return 0.3;
 	if (i == 7) return 0.12;
 	if (i == 8) return 0.14;
+	if (i == 10) return 0.05;
+	if (i == 14) return 0.06;
 	return 0.1;
 }
 
@@ -301,19 +311,195 @@ vec4 globe(vec4 s, vec4 r, float t) {
 		p = normalize(vec3(gauss(s.xy), g.x) + 1e-4);
 		alpha = 0.3;
 	} else {
-		float a = s.x * TAU + t * 0.2;
-		p = rotX(1.2) * vec3(cos(a) * 1.45, sin(a) * 1.45, 0.0);
-		alpha = 0.7;
-		p = rotY(0.4) * p;
-		p *= R;
-		p.xy += g * 0.012;
-		return vec4(p, alpha);
+		// His way: from Arak (34.1° N, 49.7° E) to Turin (45.1° N, 7.7° E), lifted off the
+		// surface, a pulse travelling it, both cities lit
+		vec3 a = vec3(cos(0.595) * cos(0.867), sin(0.595), cos(0.595) * sin(0.867));
+		vec3 b = vec3(cos(0.787) * cos(0.134), sin(0.787), cos(0.787) * sin(0.134));
+		if (r.x < 0.3) {
+			p = (r.y < 0.5 ? a : b) * 1.01 + vec3(g, gauss(r.yw).x) * 0.035;
+			alpha = 1.1;
+		} else {
+			float u = s.x;
+			p = normalize(mix(a, b, u)) * (1.0 + 0.24 * sin(u * PI));
+			alpha = 0.8 + 1.0 * exp(-pow((u - fract(t * 0.18)) * 7.0, 2.0));
+		}
 	}
 	p = rotX(0.35) * rotY(t * 0.12) * p;
 	// Back of the globe sits dimmer
 	alpha *= 0.45 + 0.55 * smoothstep(-1.0, 1.0, p.z);
 	p = p * R + vec3(g * 0.008, 0.0);
 	return vec4(p, alpha);
+}
+
+// A neural network: layers of neurons, each wired to every neuron of the next, the stronger
+// links brighter; a signal sweeps through the layers and lights what it passes
+float layerSize(float l) {
+	if (l < 0.5) return 4.0;
+	if (l < 1.5) return 7.0;
+	if (l < 2.5) return 9.0;
+	if (l < 3.5) return 9.0;
+	if (l < 4.5) return 6.0;
+	return 3.0;
+}
+
+vec3 neuron(float l, float k, float n, float W, float H) {
+	float y = mix(H, -H, k / max(n - 1.0, 1.0)) * (n - 1.0) / 8.0;
+	return vec3(mix(-W, W, l / 5.0), y, (hash(l * 17.0 + k * 3.1) - 0.5) * 0.7);
+}
+
+vec4 neural(vec4 s, vec4 r, float t) {
+	float W = min(uHalf.x * 0.92, uHalf.y * 1.55);
+	float H = uHalf.y * 0.8;
+	float wave = fract(t * 0.16) * 7.0 - 1.0;
+	vec2 g = gauss(s.zw);
+	vec3 p;
+	float alpha;
+	if (r.z < 0.28) {
+		float l = floor(s.x * 6.0);
+		float n = layerSize(l);
+		float k = floor(s.y * n);
+		p = neuron(l, k, n, W, H) + vec3(g, gauss(r.xy).x) * 0.02;
+		alpha = 0.95 + 0.6 * exp(-pow((l - wave) * 1.3, 2.0));
+	} else {
+		float l = floor(s.x * 5.0);
+		float na = layerSize(l);
+		float nb = layerSize(l + 1.0);
+		float a = floor(hash(s.y * 113.1) * na);
+		float b = floor(hash(s.y * 71.7 + 3.1) * nb);
+		float u = r.x;
+		p = mix(neuron(l, a, na, W, H), neuron(l + 1.0, b, nb, W, H), u) + vec3(0.0, g * 0.004);
+		float weight = hash(a * 13.0 + b * 7.0 + l * 31.0);
+		float pulse = exp(-pow((l + u - wave) * 2.4, 2.0));
+		alpha = 0.2 + 0.55 * weight * weight + pulse * (0.5 + 0.6 * weight);
+	}
+	p = rotY(0.35 * sin(t * 0.08)) * rotX(0.08 * cos(t * 0.07)) * p;
+	return vec4(p, alpha);
+}
+
+// The Lorenz attractor: a path that never repeats yet never leaves its two orbits, like a career
+// drawn to what it cares about; light runs along it as if it were being traced now
+vec4 attractor(vec4 s, vec4 r, float t) {
+	vec3 q = aPath.xyz * uHalf.y * 0.66;
+	q += vec3(gauss(s.zw), gauss(r.xy).x) * 0.006;
+	float d = fract((t * 0.022 - aPath.w) * 2.0);
+	float alpha = 0.55 + 0.9 * exp(-d * 26.0);
+	q = rotY(t * 0.045) * rotX(-0.2) * q;
+	return vec4(q, alpha);
+}
+
+// A knowledge graph: ideas as nodes on a turning cloud, each linked to its nearest neighbours
+// (on a Fibonacci sphere those are Fibonacci steps apart), a few hubs; queries run along links
+vec3 graphNode(float i) {
+	float y = 1.0 - (i + 0.5) / 48.0 * 2.0;
+	float rad = sqrt(1.0 - y * y);
+	float phi = i * 2.39996323;
+	vec3 p = vec3(cos(phi) * rad, y, sin(phi) * rad);
+	return p * (1.0 + 0.3 * (hash(i * 7.3) - 0.5)) * vec3(1.35, 0.85, 0.95);
+}
+
+vec4 graph(vec4 s, vec4 r, float t) {
+	float i = floor(s.x * 48.0);
+	vec2 g = gauss(s.zw);
+	vec3 p;
+	float alpha;
+	if (r.z < 0.32) {
+		float hub = step(0.82, hash(i * 3.7));
+		p = graphNode(i) + vec3(g, gauss(r.xy).x) * (0.022 + 0.045 * hub);
+		alpha = 0.9 + 0.45 * hub;
+	} else {
+		float pick = floor(hash(s.y * 91.3) * 7.0);
+		float step_ = pick < 1.0 ? 1.0 : pick < 2.0 ? 2.0 : pick < 3.0 ? 3.0 : pick < 4.0 ? 5.0 : pick < 5.0 ? 8.0 : pick < 6.0 ? 13.0 : 21.0;
+		float j = mod(i + step_, 48.0);
+		float u = r.x;
+		p = mix(graphNode(i), graphNode(j), u) * (1.0 + 0.07 * sin(u * PI));
+		// Now and then a link carries a query, a bright bead running along it
+		float h = hash(i * 31.0 + j * 7.0);
+		float lit = step(0.82, hash(h * 97.0 + floor(t * 0.35 + h)));
+		float bead = exp(-pow((u - fract(t * 0.5 + h)) * 9.0, 2.0));
+		alpha = 0.26 + lit * (0.3 + 0.9 * bead);
+	}
+	p = rotY(t * 0.05) * rotX(0.28) * p;
+	alpha *= 0.45 + 0.55 * smoothstep(-1.5, 1.5, p.z);
+	return vec4(p * uHalf.y * 0.68, alpha);
+}
+
+// A swiss roll: data curled on a manifold, slowly unrolled flat and curled again, as a model
+// learns the shape of things; its stripes stay in order, neighbours stay neighbours, and the
+// grains gather in clusters, like groups of skills
+vec4 manifold(vec4 s, vec4 r, float t) {
+	float u = s.x;
+	if (r.z < 0.6) u = (floor(s.x * 7.0) + 0.5 + gauss(s.zw).x * 0.12) / 7.0;
+	u = clamp(u, 0.0, 1.0);
+	float v = s.y - 0.5;
+	float th = 1.5 * PI * (1.0 + 2.0 * u);
+	vec3 rolled = vec3(th * cos(th), v * 9.0, th * sin(th)) / 14.0;
+	float arc = 0.5 * th * th;
+	vec3 flat_ = vec3(mix(-1.55, 1.55, (arc - 11.1) / 87.7), v * 9.0 / 14.0, 0.0);
+	float k = smoothstep(0.15, 0.85, 0.5 - 0.5 * cos(t * 0.11));
+	vec3 p = mix(rolled, flat_, k);
+	vec2 g = gauss(r.xy);
+	p += vec3(g.x, 0.0, g.y) * 0.012;
+	float stripe = 0.5 + 0.5 * sin(u * 46.0);
+	float alpha = 0.5 + 0.6 * stripe * stripe;
+	p = rotY(-0.45 + 0.25 * sin(t * 0.05)) * rotX(1.05) * p;
+	return vec4(p * uHalf.y * 0.82, alpha);
+}
+
+// A brain: two folded hemispheres and the cerebellum, waves of activity sweeping across them
+// the way an EEG reads them
+vec4 brain(vec4 s, vec4 r, float t) {
+	vec3 d = normalize(vec3(gauss(s.xy), gauss(s.zw).x) + 1e-4);
+	vec3 p;
+	float alpha;
+	if (r.z < 0.13) {
+		// The cerebellum, finely striped, low at the back
+		p = d * vec3(0.5, 0.26, 0.32) * (1.0 + 0.03 * sin(d.y * 60.0)) + vec3(0.0, -0.5, -0.78);
+		alpha = 0.75;
+	} else {
+		float side = d.x < 0.0 ? -1.0 : 1.0;
+		float folds = sin(d.y * 11.0 + sin(d.z * 7.0) * 1.6) * sin(d.z * 9.0 + d.x * 5.0 + cos(d.y * 6.0));
+		p = d * (1.0 + 0.06 * folds) * vec3(0.76, 0.8, 1.12);
+		p.x += side * 0.07;
+		if (p.y < -0.3) p.y = -0.3 + (p.y + 0.3) * 0.45;
+		alpha = 0.6 + 0.35 * (0.5 + 0.5 * folds);
+	}
+	float wave = sin(p.z * 5.0 - t * 1.5) * sin(p.y * 3.0 + p.x * 2.0 + t * 0.6);
+	alpha += 0.6 * smoothstep(0.55, 1.0, wave);
+	p = rotY(0.95 + 0.3 * sin(t * 0.09)) * rotX(0.18) * p;
+	alpha *= 0.5 + 0.5 * smoothstep(-1.2, 1.2, p.z);
+	return vec4(p * uHalf.y * 0.6, alpha);
+}
+
+// A football: twelve pentagons at an icosahedron's corners, hexagons between, the seams where
+// they meet; it rolls
+vec4 ball(vec4 s, vec4 r, float t) {
+	vec3 d = normalize(vec3(gauss(s.xy), gauss(s.zw).x) + 1e-4);
+	const float F = 1.618034;
+	const float G = 0.618034;
+	vec3 centres[32] = vec3[32](
+		vec3(0.0, 1.0, F), vec3(0.0, 1.0, -F), vec3(0.0, -1.0, F), vec3(0.0, -1.0, -F),
+		vec3(1.0, F, 0.0), vec3(1.0, -F, 0.0), vec3(-1.0, F, 0.0), vec3(-1.0, -F, 0.0),
+		vec3(F, 0.0, 1.0), vec3(F, 0.0, -1.0), vec3(-F, 0.0, 1.0), vec3(-F, 0.0, -1.0),
+		vec3(1.0, 1.0, 1.0), vec3(1.0, 1.0, -1.0), vec3(1.0, -1.0, 1.0), vec3(1.0, -1.0, -1.0),
+		vec3(-1.0, 1.0, 1.0), vec3(-1.0, 1.0, -1.0), vec3(-1.0, -1.0, 1.0), vec3(-1.0, -1.0, -1.0),
+		vec3(0.0, G, F), vec3(0.0, G, -F), vec3(0.0, -G, F), vec3(0.0, -G, -F),
+		vec3(G, F, 0.0), vec3(G, -F, 0.0), vec3(-G, F, 0.0), vec3(-G, -F, 0.0),
+		vec3(F, 0.0, G), vec3(F, 0.0, -G), vec3(-F, 0.0, G), vec3(-F, 0.0, -G)
+	);
+	float best = -2.0;
+	float second = -2.0;
+	int owner = 0;
+	for (int k = 0; k < 32; k++) {
+		float c = dot(d, normalize(centres[k]));
+		if (c > best) { second = best; best = c; owner = k; }
+		else if (c > second) second = c;
+	}
+	float seam = 1.0 - smoothstep(0.0, 0.03, best - second);
+	float pentagon = owner < 12 ? 1.0 : 0.0;
+	float alpha = 0.14 + 0.85 * pentagon + 1.1 * seam;
+	vec3 p = rotY(t * 0.22) * rotX(t * 0.13) * d;
+	alpha *= 0.45 + 0.55 * smoothstep(-1.0, 1.0, p.z);
+	return vec4(p * uHalf.y * 0.52, alpha);
 }
 
 vec4 shapeAt(int i, vec4 s, vec4 r, float t) {
@@ -325,6 +511,12 @@ vec4 shapeAt(int i, vec4 s, vec4 r, float t) {
 	if (i == 5) return streams(s, r, t);
 	if (i == 6) return ripples(s, r, t);
 	if (i == 7) return book(s, r, t);
+	if (i == 9) return neural(s, r, t);
+	if (i == 10) return attractor(s, r, t);
+	if (i == 11) return graph(s, r, t);
+	if (i == 12) return manifold(s, r, t);
+	if (i == 13) return brain(s, r, t);
+	if (i == 14) return ball(s, r, t);
 	return globe(s, r, t);
 }
 
@@ -643,6 +835,32 @@ function attribute(gl, location, data, size, usage = gl.STATIC_DRAW) {
 	return buffer;
 }
 
+// The Lorenz attractor as `count` points along one long path (xyz scaled to about -1…1, w how
+// far along it is), integrated once with RK4 after the start has settled onto the attractor
+function lorenz(count) {
+	const out = new Float32Array(count * 4);
+	const f = ([x, y, z]) => [10 * (y - x), x * (28 - z) - y, x * y - (8 / 3) * z];
+	let v = [0.1, 0, 20];
+	const dt = 0.0045;
+	const step = () => {
+		const k1 = f(v);
+		const k2 = f(v.map((c, i) => c + (dt / 2) * k1[i]));
+		const k3 = f(v.map((c, i) => c + (dt / 2) * k2[i]));
+		const k4 = f(v.map((c, i) => c + dt * k3[i]));
+		v = v.map((c, i) => c + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+	};
+	for (let i = 0; i < 3000; i++) step();
+	for (let i = 0; i < count; i++) {
+		step();
+		// Its two wings side by side, its height up the screen
+		out[i * 4] = v[0] / 22;
+		out[i * 4 + 1] = (v[2] - 25) / 22;
+		out[i * 4 + 2] = v[1] / 26;
+		out[i * 4 + 3] = i / count;
+	}
+	return out;
+}
+
 function randoms(length) {
 	const data = new Float32Array(length);
 	for (let i = 0; i < length; i++) data[i] = Math.random();
@@ -810,6 +1028,7 @@ export class DotField {
 		attribute(gl, 0, randoms(count * 4), 4);
 		attribute(gl, 1, randoms(count * 4), 4);
 		this.imageBuffer = attribute(gl, 2, new Float32Array(count * 3), 3, gl.DYNAMIC_DRAW);
+		attribute(gl, 3, lorenz(count), 4);
 
 		this.triangle = gl.createVertexArray();
 		gl.bindVertexArray(this.triangle);
