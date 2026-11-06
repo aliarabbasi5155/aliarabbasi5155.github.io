@@ -149,6 +149,10 @@ function proxyWriter(url) {
     };
 }
 
+// What may be left of the AI's label line at the start of an answer: the label itself
+// ("about:", "**chat**" on its own line) or a stray colon
+const LEFTOVER = /^\s*(?:[*_]*\s*(?:about|chat)\b\s*[*_]*\s*(?:[:：.]|\n))?[\s:：]*/i;
+
 // The proxy's reply so far: what kind it was, and the answer
 function unpack(raw) {
     if (!raw.startsWith('§')) return { kind: 'about', text: raw };
@@ -158,7 +162,7 @@ function unpack(raw) {
     try {
         meta = JSON.parse(raw.slice(1, end));
     } catch {}
-    return { ...meta, text: raw.slice(end + 1).replace(/^\s+/, '') };
+    return { ...meta, text: raw.slice(end + 1).replace(LEFTOVER, '') };
 }
 
 // A refusal, the goodbye, or "you're quick" in the page's own language
