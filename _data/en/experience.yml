@@ -4,6 +4,16 @@ jobs:
     company_url: https://primentoring.ai/
     location: London, UK
     period: Nov 2025 - Present
+    images:
+      - src: /assets/work/primentoring/dana-ai.webp
+        thumb: /assets/work/primentoring/dana-ai-thumb.webp
+        caption: "Dana AI: a mentor who talks back in real time, by voice or text"
+      - src: /assets/work/primentoring/session-analytics.webp
+        thumb: /assets/work/primentoring/session-analytics-thumb.webp
+        caption: "AI session analytics: a voice recap, talk ratios and the topics covered"
+      - src: /assets/work/primentoring/support-chat.webp
+        thumb: /assets/work/primentoring/support-chat-thumb.webp
+        caption: "The support chatbot, answering from the company’s documents"
     bullets:
       - Lead a 2-engineer team end-to-end, owning solution architecture, feasibility research, project health reporting, and stakeholder alignment across product, QA, and software teams.
       - "Architected [Dana AI](https://aimentor.primentoring.ai/), a real-time multimodal agent (3D talking head, voice, text) over WebSocket: OmniTalker for lip-sync (LoRA fine-tuned per mentor on AWS SageMaker), GPT-4o Transcribe ASR with vocabulary hints, and GPT-4.1 fine-tuned on the OpenAI platform for mentor tone and persona, at ~2.5s time-to-first video response frame."

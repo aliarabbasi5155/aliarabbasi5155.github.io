@@ -17,25 +17,25 @@ LATEST UPDATES (newest first)
 {% for update in d.updates.items %}[update-{{ forloop.index0 }}] {{ update.date }}: {{ update.label }} {% include plain.txt text=update.text %}
 {% endfor %}
 EXPERIENCE
-{% for job in d.experience.jobs %}{% assign j = forloop.index0 %}[job-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% for job in d.experience.jobs %}{% assign j = forloop.index0 %}[job-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }}).{% if job.images.size > 0 %} Pictures: {{ job.images | map: "caption" | join: "; " }}.{% endif %}
 {% for bullet in job.bullets %}  [job-{{ j }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
-{% endfor %}{% endfor %}{% for job in d.experience.earlier_jobs %}{% assign j = forloop.index0 %}[early-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }})
+{% endfor %}{% endfor %}{% for job in d.experience.earlier_jobs %}{% assign j = forloop.index0 %}[early-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }}).{% if job.images.size > 0 %} Pictures: {{ job.images | map: "caption" | join: "; " }}.{% endif %}
 {% for bullet in job.bullets %}  [early-{{ j }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
 {% endfor %}{% endfor %}
 EDUCATION
-{% for degree in d.education.degrees %}{% assign g = forloop.index0 %}[degree-{{ g }}] {{ degree.title }}, {{ degree.institution }}, {{ degree.location }} ({{ degree.period }})
+{% for degree in d.education.degrees %}{% assign g = forloop.index0 %}[degree-{{ g }}] {{ degree.title }}, {{ degree.institution }}, {{ degree.location }} ({{ degree.period }}).{% for link in degree.links %} {{ link.label }}: {{ link.url }}.{% endfor %}{% if degree.images.size > 0 %} Pictures: {{ degree.images | map: "caption" | join: "; " }}.{% endif %}
 {% for detail in degree.details %}  [degree-{{ g }}-{{ forloop.index0 }}] {% include plain.txt text=detail %}
 {% endfor %}{% endfor %}
 SKILLS
 {% for group in d.skills.groups %}[skills-{{ forloop.index0 }}] {{ group.title }}: {{ group.tags | join: ", " }}
 {% endfor %}
 PROJECTS
-{% for project in d.projects.items %}{% assign p = forloop.index0 %}[project-{{ p }}] {{ project.title }} ({{ project.org }}, {{ project.period }})
+{% for project in d.projects.items %}{% assign p = forloop.index0 %}[project-{{ p }}] {{ project.title }} ({{ project.org }}, {{ project.period }}).{% if project.images.size > 0 %} Pictures: {{ project.images | map: "caption" | join: "; " }}.{% endif %}
 {% for bullet in project.bullets %}  [project-{{ p }}-{{ forloop.index0 }}] {% include plain.txt text=bullet %}
 {% endfor %}  [project-{{ p }}-tech] Tech: {{ project.tech | join: ", " }}
 {% endfor %}
 PUBLICATIONS
-{% for publication in d.publications.items %}[pub-{{ forloop.index0 }}] {{ publication.title }}. {{ publication.journal }}, {{ publication.details }}.
+{% for publication in d.publications.items %}[pub-{{ forloop.index0 }}] {{ publication.title }}. {{ publication.journal }}, {{ publication.details }}.{% if publication.images.size > 0 %} Pictures: {{ publication.images | map: "caption" | join: "; " }}.{% endif %}
   [pub-{{ forloop.index0 }}-abstract] {% include plain.txt text=publication.abstract %}
 {% endfor %}
 INTERESTS

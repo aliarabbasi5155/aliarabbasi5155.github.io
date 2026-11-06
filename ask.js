@@ -21,6 +21,8 @@
 // Its words (ui.alino in _data/<lang>/ui.yml) are the page's language; refusals come from
 // the proxy as a number, so they too are in the page's language.
 
+import { picturesOf } from './lightbox.js';
+
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const A = UI.alino ?? {};
 const LANG = document.documentElement.lang || 'en';
@@ -323,12 +325,13 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         const words = bubble('ask-text', text);
         const refs = Object.assign(document.createElement('ol'), { className: 'ask-refs', hidden: true });
         refs.setAttribute('aria-label', A.references);
+        const pictures = Object.assign(document.createElement('div'), { className: 'ask-images', hidden: true });
         const by = bubble('ask-by', '');
-        answer.append(words, refs, by);
+        answer.append(words, pictures, refs, by);
         if (question) view.append(bubble('ask-question', question));
         view.append(answer);
         thread.replaceChildren(view);
-        Object.assign(view, { text: words, refs, by });
+        Object.assign(view, { text: words, refs, pictures, by });
         return view;
     }
 
@@ -375,6 +378,28 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             return item;
         }));
         view.refs.hidden = !order.size;
+        // The pictures of what the answer cites (a project, a job, a degree…), up to four
+        const seen = new Set();
+        const pictures = [];
+        for (const id of order.keys()) {
+            const holder = byRef.get(id).el.closest('.project, .job, .degree, .publication');
+            for (const picture of picturesOf(holder?.querySelectorAll('.gallery-item') ?? [])) {
+                if (pictures.length < 4 && !seen.has(picture.full)) {
+                    seen.add(picture.full);
+                    pictures.push(picture);
+                }
+            }
+        }
+        if (pictures.map(p => p.full).join() !== view.pictures.dataset.shown) {
+            view.pictures.dataset.shown = pictures.map(p => p.full).join();
+            view.pictures.replaceChildren(...pictures.map(picture => {
+                const button = Object.assign(document.createElement('button'), { type: 'button', className: 'gallery-item' });
+                Object.assign(button.dataset, { full: picture.full, caption: picture.caption || '' });
+                button.append(Object.assign(document.createElement('img'), { src: picture.thumb || picture.full, alt: picture.caption || '', loading: 'lazy', decoding: 'async' }));
+                return button;
+            }));
+        }
+        view.pictures.hidden = !pictures.length;
         place();
     }
 
@@ -543,7 +568,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         }
     });
     document.addEventListener('pointerdown', event => {
-        if (!panel.hidden && !event.target.closest('.ask, .orb')) close(false);
+        if (!panel.hidden && !event.target.closest('.ask, .orb, .lightbox')) close(false);
     });
     addEventListener('resize', place);
 

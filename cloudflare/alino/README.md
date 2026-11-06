@@ -52,8 +52,8 @@ Console), paste this with your Worker's address, and press Enter:
 fetch('https://ask-ali.your-name.workers.dev', { method: 'POST', body: JSON.stringify({ question: 'Where does Ali work?', lang: 'en', first: true }) }).then(r => r.text()).then(console.log)
 ```
 
-You should see a first line like `§{"kind":"about","prank":true}`, then a made-up "fact"
-with a "just kidding 😜", then the real answer with references like `[job-0-0]`. Try `lang: 'fa'` or
+You should see a first line like `§{"kind":"about"}`, then a short, clever made-up claim that
+turns to the truth, then the real answer with references like `[job-0-0]`. Try `lang: 'fa'` or
 `lang: 'it'` too, and `question: 'hey, how is it going?'` for a bit of chat.
 
 ## What keeps it safe

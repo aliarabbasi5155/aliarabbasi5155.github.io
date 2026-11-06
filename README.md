@@ -79,6 +79,12 @@ add only its changes (as `lab/canvas.css` does). To put it live, move the copy o
 original (`git mv -f lab/script.js script.js`) or the added rules into the live stylesheet;
 with nothing in `lab/` but its three pages, the lab is simply the live site.
 
+In the lab now: the spatial phone design; Experience, Projects, Education and Publications as
+timelines of items that open and close; and dot shapes drawn from Ali's work (`lab/dot-field.js`):
+a neural network, the Lorenz attractor, a knowledge graph, a swiss-roll manifold, a brain, a
+football, and the arc from Arak to Turin on the globe. `lab/script.js` is the live `script.js`
+with these changes applied.
+
 ## Themes
 
 The site has a dark and a light theme. A visitor's first visit follows their system's
@@ -114,6 +120,15 @@ All text lives in data files; the page layout is `_layouts/cv.html`.
 - The line under your name on your pane: `pitch` in `_data/<lang>/profile.yml`; the latest
   update shows there too, and all of them under About (`_data/<lang>/updates.yml`)
 - The languages themselves, their names and their order in the language switches: `languages` in `_config.yml`
+
+### Pictures
+
+Projects, jobs, degrees and publications can carry pictures (**Pictures** in each item in the
+CMS: upload as many as you like, each with a caption in every language). They show as
+thumbnails that open full size (`lightbox.js`), and Alino shows them beside an answer that
+cites the item. Uploads are turned into WebP and scaled down on the way in. Pictures added by
+hand live in `assets/` (for example `assets/projects/local-image-studio/`), each with a smaller
+`-thumb` copy for the thumbnail.
 
 The Italian résumé link points to the English PDF until an Italian one is added; change
 `resume.url` in `_data/it/profile.yml` to switch it.

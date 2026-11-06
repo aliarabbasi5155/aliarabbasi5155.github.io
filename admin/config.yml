@@ -17,6 +17,17 @@ site_url: https://aliarabbasi5155.github.io
 display_url: https://aliarabbasi5155.github.io
 media_folder: assets/uploads
 public_folder: /assets/uploads
+# Pictures uploaded here are converted to WebP and scaled down, so the site stays quick
+media_libraries:
+  default:
+    config:
+      max_file_size: 15000000
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1800
+          height: 1800
 
 i18n:
   structure: multiple_folders
@@ -61,7 +72,7 @@ collections:
         fields:
           - { name: provider, label: Provider, widget: select, options: [deepseek, openai] }
           - { name: model, label: Model, widget: string, hint: "DeepSeek: deepseek-chat. OpenAI: gpt-4.1-mini (fast and cheap), gpt-4.1, gpt-4o-mini. Reasoning models (o…, gpt-5…) work but answer more slowly. A model the provider doesn't know falls back to its default." }
-          - { name: pranks, label: Leg-pulls (%), widget: number, value_type: int, min: 0, max: 100, step: 5, hint: "How often an answer about you opens with a short, made-up “fact” that turns straight back to the truth (“…well, not quite 😄”). 100 is every answer; with less, the first question of a visit still gets one, unless this is 0." }
+          - { name: pranks, label: Leg-pulls (%), widget: number, value_type: int, min: 0, max: 100, step: 5, hint: "How often an answer about you opens with a short, clever, made-up claim that turns straight to the truth. 100 is every answer; with less, the first question of a visit still gets one, unless this is 0." }
 
   - name: cv
     label: CV
@@ -142,6 +153,18 @@ collections:
                 widget: list
                 i18n: true
                 field: *markdown_line
+              - &pictures
+                name: images
+                label: Pictures
+                widget: list
+                i18n: duplicate
+                required: false
+                summary: "{{caption}}"
+                hint: "Screenshots or photos, shown as thumbnails that open full size; Alino shows them beside answers about this. Upload as many as you like."
+                fields:
+                  - { name: src, label: Picture, widget: image, i18n: duplicate }
+                  - { name: caption, label: Caption, widget: string, i18n: true, required: false }
+                  - { name: thumb, label: Smaller version, widget: image, i18n: duplicate, required: false, hint: "Optional; the thumbnail uses the picture itself otherwise" }
           - { name: earlier_title, label: Heading for earlier jobs, widget: string, i18n: true }
           - name: earlier_jobs
             label: Earlier jobs
@@ -172,6 +195,18 @@ collections:
                 i18n: true
                 required: false
                 field: *markdown_line
+              - &links
+                name: links
+                label: Links
+                widget: list
+                i18n: duplicate
+                required: false
+                summary: "{{label}}"
+                fields:
+                  - { name: label, label: Label, widget: string, i18n: true }
+                  - { name: url, label: Link, widget: string, i18n: duplicate }
+                  - *icon
+              - *pictures
 
       - name: skills
         label: Skills
@@ -217,6 +252,7 @@ collections:
                 i18n: true
                 field: *markdown_line
               - { name: tech, label: Tech, widget: list, i18n: true, hint: One per line }
+              - *pictures
 
       - name: publications
         label: Publications
@@ -236,6 +272,7 @@ collections:
               - { name: url, label: Link, widget: string, i18n: duplicate }
               - { name: link_label, label: Link label, widget: string, i18n: true }
               - { name: abstract, label: Abstract, widget: text, i18n: true }
+              - *pictures
 
       - name: interests
         label: Interests
@@ -300,6 +337,15 @@ collections:
               - { name: description, label: Question, widget: text }
               - { name: allow, label: Allow button, widget: string }
               - { name: decline, label: Decline button, widget: string }
+          - name: gallery
+            label: Pictures
+            widget: object
+            i18n: true
+            hint: "Read aloud for the buttons of the full-size picture viewer"
+            fields:
+              - { name: close, label: Close, widget: string }
+              - { name: previous, label: Previous picture, widget: string }
+              - { name: next, label: Next picture, widget: string }
           - name: canvas
             label: Getting around
             widget: object

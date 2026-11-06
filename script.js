@@ -21,6 +21,7 @@ import { samplePortrait } from './dot-portrait.js';
 import { GlassRings } from './glass-rings.js';
 import { initAsk } from './ask.js';
 import { livePhoto } from './live-photo.js';
+import { initGalleries } from './lightbox.js';
 
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const ALINO = UI.alino ?? {};
@@ -441,6 +442,7 @@ initTheme();
 initLanguageMemory();
 initBlogToggles();
 initExternalLinks();
+initGalleries();
 
 const orb = document.querySelector('.orb');
 const orbRings = orb.querySelector('.orb-rings');

@@ -104,7 +104,7 @@
     <link rel="stylesheet" href="{% include asset.html path='canvas.css' %}?v={{ site.time | date: '%s' }}">
     {%- if page.lab %}
     <!-- The lab: a script with a copy in lab/ is loaded from there, wherever it is imported -->
-    {%- assign modules = "script.js,ask.js,live-photo.js,dot-field.js,dot-portrait.js,glass-rings.js" | split: "," %}
+    {%- assign modules = "script.js,ask.js,live-photo.js,lightbox.js,dot-field.js,dot-portrait.js,glass-rings.js" | split: "," %}
     <script type="importmap">{ "imports": { {%- for module in modules %}{% assign own = "/" | append: module %}{% assign copy = "/lab/" | append: module %}{% assign found = site.static_files | where: "path", copy | first %}{% if found %}"{{ own }}": "{{ copy }}"{% else %}"{{ copy }}": "{{ own }}"{% endif %}{% unless forloop.last %}, {% endunless %}{% endfor %} } }</script>
     {%- else %}
     <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">

@@ -46,6 +46,13 @@
                 <span class="location">{{ degree.location | escape }}</span>
             </div>
             <span class="duration">{{ degree.period | escape }}</span>
+            {%- if degree.links.size > 0 %}
+            <div class="project-links">
+                {%- for link in degree.links %}
+                <a href="{{ link.url }}" class="project-link"><i class="{{ link.icon }}"></i> {{ link.label | escape }}</a>
+                {%- endfor %}
+            </div>
+            {%- endif %}
         </div>
         {%- if degree.details.size > 0 %}
         <ul class="degree-details">
@@ -54,6 +61,7 @@
             {%- endfor %}
         </ul>
         {%- endif %}
+        {%- include gallery.html images=degree.images %}
     </div>
     {%- endfor %}
 </section>
@@ -94,6 +102,7 @@
             <li data-ref="project-{{ p }}-{{ forloop.index0 }}">{% include inline.html text=bullet %}</li>
             {%- endfor %}
         </ul>
+        {%- include gallery.html images=project.images %}
         <div class="project-tech" data-ref="project-{{ p }}-tech">
             {%- for tech in project.tech %}
             <span class="tech-tag">{{ tech | escape }}</span>
@@ -120,6 +129,7 @@
         <div class="publication-abstract">
             <p data-ref="pub-{{ forloop.index0 }}-abstract">{% include inline.html text=publication.abstract %}</p>
         </div>
+        {%- include gallery.html images=publication.images %}
     </div>
     {%- endfor %}
 </section>

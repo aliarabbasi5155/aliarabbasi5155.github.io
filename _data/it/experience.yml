@@ -4,6 +4,16 @@ jobs:
     company_url: https://primentoring.ai/
     location: Londra, Regno Unito
     period: nov 2025 - oggi
+    images:
+      - src: /assets/work/primentoring/dana-ai.webp
+        thumb: /assets/work/primentoring/dana-ai-thumb.webp
+        caption: "Dana AI: una mentore che risponde in tempo reale, a voce o per iscritto"
+      - src: /assets/work/primentoring/session-analytics.webp
+        thumb: /assets/work/primentoring/session-analytics-thumb.webp
+        caption: "Analisi AI delle sessioni: riepilogo vocale, tempi di parola e argomenti trattati"
+      - src: /assets/work/primentoring/support-chat.webp
+        thumb: /assets/work/primentoring/support-chat-thumb.webp
+        caption: "Il chatbot di supporto, che risponde dai documenti dell’azienda"
     bullets:
       - Guido dall'inizio alla fine un team di 2 ingegneri, con la responsabilità dell'architettura della soluzione, degli studi di fattibilità, del reporting sullo stato del progetto e dell'allineamento con gli stakeholder dei team di prodotto, QA e software.
       - "Ho progettato l'architettura di [Dana AI](https://aimentor.primentoring.ai/), un agente multimodale in tempo reale (talking head 3D, voce, testo) su WebSocket: OmniTalker per il lip-sync (con fine-tuning LoRA per ogni mentor su AWS SageMaker), ASR con GPT-4o Transcribe e vocabulary hints, e GPT-4.1 con fine-tuning sulla piattaforma OpenAI per il tono e la persona del mentor, con circa 2,5 s fino al primo frame della risposta video."

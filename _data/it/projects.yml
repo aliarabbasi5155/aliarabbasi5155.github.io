@@ -6,6 +6,19 @@ items:
         icon: fab fa-github
     org: Progetto personale
     period: ott 2026 - nov 2026
+    images:
+      - src: /assets/projects/local-image-studio/studio.webp
+        thumb: /assets/projects/local-image-studio/studio-thumb.webp
+        caption: "Lo studio su computer e su telefono"
+      - src: /assets/projects/local-image-studio/compare.webp
+        thumb: /assets/projects/local-image-studio/compare-thumb.webp
+        caption: "Prima e dopo, a confronto"
+      - src: /assets/projects/local-image-studio/area.webp
+        thumb: /assets/projects/local-image-studio/area-thumb.webp
+        caption: "SAM 3 seleziona l’area da modificare"
+      - src: /assets/projects/local-image-studio/phone.webp
+        thumb: /assets/projects/local-image-studio/phone-thumb.webp
+        caption: "Modifiche dal telefono"
     bullets:
       - "Studio self-hosted e open source per creare e modificare immagini sulla propria GPU con FLUX.2 Klein 9B, SAM 3 e ComfyUI: MLX su Apple Silicon, GGUF con CUDA sulle GPU NVIDIA da 6 GB di VRAM. Installazione con un solo comando e deployment con Docker Compose."
       - "Generazione da testo, modifica tramite istruzioni e modifica di aree con maschere automatiche SAM 3 e protezione dei volti, close-up con dettagli rifiniti, sostituzione della testa o della persona e video da foto con LTX-2.3. I job sopravvivono ai riavvii e ogni immagine conserva una ricetta riproducibile."
@@ -22,10 +35,23 @@ items:
   - title: Vector DB Manager for Weaviate and Qdrant
     links:
       - label: GitHub
-        url: https://github.com/aliarabbasi5155/vector-db-manager
+        url: https://github.com/aliarabbasi5155/Weaviate-QDrant-Vector-Database-Manager
         icon: fab fa-github
     org: Progetto personale
     period: mar 2025
+    images:
+      - src: /assets/projects/vector-db-manager/weaviate.webp
+        thumb: /assets/projects/vector-db-manager/weaviate-thumb.webp
+        caption: "Weaviate: classi, shard e stato dei nodi a colpo d’occhio"
+      - src: /assets/projects/vector-db-manager/qdrant.webp
+        thumb: /assets/projects/vector-db-manager/qdrant-thumb.webp
+        caption: "Qdrant, con le impostazioni aperte"
+      - src: /assets/projects/vector-db-manager/browser.webp
+        thumb: /assets/projects/vector-db-manager/browser-thumb.webp
+        caption: "Esplorazione degli oggetti di una collezione"
+      - src: /assets/projects/vector-db-manager/edit.webp
+        thumb: /assets/projects/vector-db-manager/edit-thumb.webp
+        caption: "Modifica di un oggetto"
     bullets:
       - "Dashboard in Next.js/TypeScript per gestire i database vettoriali Weaviate e Qdrant: CRUD su collezioni e oggetti, ricerca semantica e ibrida, metriche in tempo reale e deployment Docker con un solo comando."
     tech:

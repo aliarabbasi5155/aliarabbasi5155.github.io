@@ -1654,6 +1654,216 @@ html[lang="fa"] .home-role {
     text-underline-offset: 3px;
 }
 
+/* ---------- Pictures: a row of thumbnails on a project, a job, a degree or a paper, and
+   beside an answer from Alino; a press opens them full size (lightbox.js) ---------- */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.gallery-item {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: start;
+    color: inherit;
+    cursor: zoom-in;
+}
+
+.gallery-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    outline: 1px solid var(--line);
+    outline-offset: -1px;
+    background: var(--wash-strong);
+    object-fit: cover;
+    object-position: 50% 20%;
+    transition: transform 0.4s var(--ease), filter 0.4s;
+}
+
+.gallery-item:hover img {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+
+.gallery-item:focus-visible img {
+    outline: 2px solid var(--mint);
+    outline-offset: 2px;
+}
+
+.gallery-caption {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+/* Beside an answer: small, no captions */
+.ask-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 6px;
+}
+
+.ask-images[hidden] {
+    display: none;
+}
+
+.ask-images .gallery-item img {
+    border-radius: 10px;
+}
+
+/* Full size, over everything */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: 64px 84px 40px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.lightbox.open {
+    opacity: 1;
+}
+
+.lightbox[hidden] {
+    display: none;
+}
+
+.lightbox-figure {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+}
+
+.lightbox-image {
+    max-width: min(1400px, 100%);
+    max-height: calc(100vh - 170px);
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgb(0 0 0 / 0.45);
+    object-fit: contain;
+    user-select: none;
+    touch-action: pan-y;
+}
+
+.lightbox-caption {
+    max-width: 60ch;
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--soft);
+}
+
+.lightbox-count {
+    position: absolute;
+    top: 30px;
+    inset-inline-start: 28px;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    color: var(--muted);
+}
+
+.lightbox-close,
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wash-strong);
+    box-shadow: inset 0 0 0 1px var(--line);
+    font-size: 16px;
+    color: var(--text);
+    cursor: pointer;
+    transition: color 0.3s, box-shadow 0.3s;
+}
+
+.lightbox-close:hover,
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--mint);
+}
+
+.lightbox-close {
+    top: 18px;
+    inset-inline-end: 18px;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    top: 50%;
+    translate: 0 -50%;
+}
+
+.lightbox-prev {
+    inset-inline-start: 20px;
+}
+
+.lightbox-next {
+    inset-inline-end: 20px;
+}
+
+[dir="rtl"] .lightbox-prev i,
+[dir="rtl"] .lightbox-next i {
+    scale: -1 1;
+}
+
+.lightbox.single :is(.lightbox-prev, .lightbox-next, .lightbox-count) {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lightbox {
+        padding: 70px 12px 90px;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+        top: auto;
+        bottom: 22px;
+        translate: none;
+    }
+
+    .lightbox-prev {
+        inset-inline-start: calc(50% - 56px);
+    }
+
+    .lightbox-next {
+        inset-inline-end: calc(50% - 56px);
+    }
+}
+
 /* ---------- Phones: the panes in a row the width of the screen, the names along the
    bottom ---------- */
 @media (max-width: 760px) {

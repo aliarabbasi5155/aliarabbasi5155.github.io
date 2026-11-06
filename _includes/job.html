@@ -23,4 +23,5 @@
         <li data-ref="{{ include.ref }}-{{ forloop.index0 }}">{% include inline.html text=bullet %}</li>
         {%- endfor %}
     </ul>
+    {%- include gallery.html images=include.job.images %}
 </div>

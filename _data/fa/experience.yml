@@ -4,6 +4,16 @@ jobs:
     company_url: https://primentoring.ai/
     location: لندن، بریتانیا
     period: نوامبر ۲۰۲۵ – اکنون
+    images:
+      - src: /assets/work/primentoring/dana-ai.webp
+        thumb: /assets/work/primentoring/dana-ai-thumb.webp
+        caption: "Dana AI: منتوری که در لحظه با صدا یا متن جواب می‌دهد"
+      - src: /assets/work/primentoring/session-analytics.webp
+        thumb: /assets/work/primentoring/session-analytics-thumb.webp
+        caption: "تحلیل AI جلسه‌ها: خلاصه‌ی صوتی، سهم صحبت و موضوع‌های مطرح‌شده"
+      - src: /assets/work/primentoring/support-chat.webp
+        thumb: /assets/work/primentoring/support-chat-thumb.webp
+        caption: "چت‌بات پشتیبانی که از روی اسناد شرکت جواب می‌دهد"
     bullets:
       - هدایت یک تیم دونفره‌ی مهندسی از ابتدا تا انتها، با مسئولیت solution architecture، بررسی امکان‌سنجی، گزارش سلامت پروژه و هماهنگی با stakeholderها در تیم‌های محصول، QA و نرم‌افزار.
       - "معماری [Dana AI](https://aimentor.primentoring.ai/)، یک agent چندوجهی (multimodal) و real-time با 3D talking head، صدا و متن روی WebSocket: OmniTalker برای lip-sync (fine-tune شده با LoRA برای هر منتور، روی AWS SageMaker)، GPT-4o Transcribe برای ASR با vocabulary hints، و GPT-4.1 که روی پلتفرم OpenAI برای لحن و پرسونای منتور fine-tune شده است؛ با time-to-first-frame حدود ۲٫۵ ثانیه برای پاسخ ویدیویی."
