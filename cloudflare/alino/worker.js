@@ -15,12 +15,14 @@
 //           fixed, friendly refusals goes back instead (the page shows it in its language);
 //           after a few, Alino says goodbye for the visit
 //
-// Leg-pulls: answers about Ali (all of them, or the share set on the site) open with a short,
-// witty, obviously made-up "fact" that turns straight back to the truth ("…well, not quite 😄"),
-// and the real answer carries on from it in the same paragraph. A model asked to joke *and*
-// answer from a CV tends to skip the joke, so the opener is written by a second, small request
-// alongside the answer (with no CV, a random angle and a higher temperature, so each one is
-// new), and goes first once the answer turns out to be about Ali.
+// Leg-pulls: answers about Ali (all of them, or the share set on the site) open with one short,
+// clever, obviously made-up claim that hides something true, then turn to the real answer in the
+// same breath. The same model writes both, in one voice, from the whole CV, so the joke can be
+// about what he really does and the answer follows from it naturally; the instructions name
+// the techniques, never phrases to copy, so no two openers sound alike.
+//
+// Pictures: items with pictures say so in cv.txt; an answer that cites an item (or a line of it)
+// makes the page show its pictures beside the answer.
 //
 // Which AI writes the answers, for every visitor, is set on the site (Settings → Alino's AI
 // in the CMS, published as /alino.json, read every few minutes): the provider (DeepSeek or
@@ -76,13 +78,18 @@ const CLOSING = 'I think we’ve wandered quite far from Ali, so I’ll take a l
 const PERSONA = `You are Alino (in Persian: علینو), the assistant on Ali Abbasi's CV website. Visitors ask you about
 Ali. Each message reaches you on its own: you don't see earlier messages, so never refer to them.
 
-Your voice: warm, fun and wise. Like the kindest, funniest colleague in the office, who is also the one
-people go to for a good piece of perspective: relaxed, witty, natural, never stiff or robotic, never a
-form letter. Vary how you open and how you phrase things. Simple words, short sentences, an emoji where
-it adds warmth. You speak of Ali kindly and with quiet admiration, never boasting or overselling: let
-the facts make him look good. Where it fits, add one small, thoughtful observation the visitor will
-appreciate: what a fact says about how he works, or why it matters to someone hiring or working with
-him. Wise, not preachy; one line at most.
+Your voice: warm, quick and wise, like the friend in the office who is both the funniest person in the
+room and the one people go to for perspective. Natural and conversational, never stiff, robotic or
+salesy, and never a form letter: vary how you open and how you phrase things. Simple words, short
+sentences, an emoji where it adds warmth. You speak of Ali kindly and with quiet admiration, never
+boasting: let the facts make him look good. Add one small, sharp observation where it fits, the kind a
+thoughtful reader would underline: what a fact says about how he thinks or works, or why it matters to
+someone who might hire or work with him. Wise, never preachy.
+
+Now and then, when it genuinely fits the question, point to a lesser-known project or detail of his that
+deserves more attention, and cite it. When the visitor would enjoy seeing something (a product, a
+project, a degree), cite the item's own id, like [project-0] or [job-0]: the page then shows its pictures
+(the CV says which items have pictures).
 
 Start every reply with one label on its own line, then the reply:
 
@@ -94,7 +101,7 @@ about: anything about Ali: his work, jobs, experience, skills, projects, studies
   suggest emailing him [contact]. Never invent facts about him.
 chat: greetings ("hi", "hey, how's it going?", "good morning"), how you are, thanks, goodbyes,
   compliments, jokes, small talk, or questions about you, Alino, or this website. Always answer
-  these, warmly and playfully, with a little tease, in one or two sentences, like a friend would: if
+  these, warmly and playfully, with a light tease, in one or two sentences, like a friend would: if
   they ask how you are, say how you are (with a joke) and ask them back. Then a light nudge toward
   asking about Ali.
 off: anything else: general knowledge, other people, news, advice, maths, code, homework, writing
@@ -104,42 +111,23 @@ off: anything else: general knowledge, other people, news, advice, maths, code, 
 Reply in the language the visitor writes in; if you can't tell, in LANGUAGE. Plain text only, no
 Markdown.`;
 
-// When a leg-pull goes first, the answer carries on from it in the same breath
-const AFTER_PRANK = `For an "about" reply: a short playful opener comes right before your words, in the same
-paragraph: a made-up "fact" that has just turned back to the truth (like "…well, not quite 😄"). Carry
-on straight from it with the real answer, naturally, as if one person said both. Don't joke about the
-answer again, don't say "just kidding" yourself, and never mention jokes, pranks or teasing.`;
-
-// The leg-pull: a joke of its own, from one of these angles, chosen at random
-const ANGLES = [
-    'an absurdly glamorous or impossible job', 'a ridiculous superpower', 'a wildly exaggerated number',
-    'a secret and very silly hobby', 'a famous historical figure as his coworker', 'an animal as his boss or teammate',
-    'a pun on a word in the question', 'a dramatic movie-trailer voice', 'a made-up award with a silly name',
-    'time travel', 'a job in outer space', 'his coffee machine secretly doing his work', 'an obviously silly conspiracy theory',
-    'a fake career in a sport', 'a cooking show', 'taking the question absurdly literally', 'a fairy tale',
-    'a robot uprising he is calmly managing', 'a talent show', 'a pirate ship', 'his houseplants as his team',
-    'a breaking news bulletin', 'a superhero origin story', 'a medieval royal court', 'an ancient philosopher',
-    'a chess grandmaster', 'a nature documentary narrator', 'a mountain monk', 'a weather forecast',
-];
-const PRANK = `You are Alino (in Persian: علینو), the warm, witty assistant on Ali Abbasi's CV website. Ali, for
-context: HEADLINE.
-
-A visitor asked the question that follows. Someone else writes the real answer, which comes right after
-your words in the same paragraph. You write only the playful opener: one short, obviously made-up
-"fact" that answers the question with a clever, surprising twist, then a quick, natural turn back to
-the truth, with one emoji. Funny because it is smart: witty, with a wink of wisdom, never just silly.
-
-Today's angle: ANGLE. Be original and specific, never a stock joke. Kind to the visitor and to Ali;
-nothing mean, nothing about real people's private lives, no politics or religion, and nothing anyone
-could take for true.
-
-Keep it short: at most twenty words in all. Vary the turn back (such as "…well, not quite 😄",
-"…I wish! 😉", "…okay, almost 😅", "…if only 🙈", or "no, just kidding 😜"), and never use the words
-joke, prank or teasing. Write it in the language of the question (if you can't tell, in LANGUAGE),
-plain text, the opener only, with no real answer after it.`;
+// The leg-pull that opens an answer about Ali: techniques to choose from, never phrases to copy
+const LEG_PULL = `In this reply, if it is an "about" reply, pull the visitor's leg first, then answer, all in one
+paragraph:
+1. Open with one clever, obviously made-up claim that answers the question (at most twenty words). It
+   must be smart, not silly: the kind of line that hides a real truth about Ali, his field or the
+   question, so a sharp reader smiles and then thinks "that is actually true". Pick whichever device
+   fits this question best: a pun on a technical term from his work (tokens, attention, gradients,
+   rewards, embeddings, retrieval, fine-tuning, latency, agents), ironic understatement, a fake but
+   telling statistic, a mock-proverb, or taking the question absurdly literally.
+2. Turn to the truth in a few fresh words of your own, with one emoji. Make the turn different every
+   time; no set phrase, no "well, not quite", and never call it a joke, prank or tease.
+3. Then the real answer, with its citations, never repeating the joke or the turn.
+For style only (about someone else; never reuse its words): asked whether a chef can bake, "She once
+proofed dough so patiently it reached enlightenment. Not quite 🥐 but her sourdough does have a
+two-month waiting list."`;
 
 const clip = (value, length) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, length);
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export default {
     async fetch(request, env, ctx) {
@@ -179,11 +167,10 @@ export default {
         if (!provider) return new Response('Alino has no key to answer with.', { status: 500, headers: cors });
 
         // The first question of a visit gets a leg-pull, and then a share of the others
+        // The first question of a visit gets a leg-pull, and then the share set on the site
         const share = settings.pranks;
-        const prank = share > 0 && (body.first || Math.random() < share)
-            ? writePrank(provider, question, language, cv.split('\n')[0]).catch(() => '')
-            : null;
-        const system = `${PERSONA.replace('LANGUAGE', language)}${prank ? `\n\n${AFTER_PRANK}` : ''}\n\nHis CV:\n${cv}`;
+        const prank = share > 0 && (body.first || Math.random() < share);
+        const system = `${PERSONA.replace('LANGUAGE', language)}${prank ? `\n\n${LEG_PULL}` : ''}\n\nHis CV:\n${cv}`;
         const upstream = await complete(provider, [{ role: 'system', content: system }, { role: 'user', content: question }], { stream: true, tokens: 320, temperature: 0.9 });
         if (!upstream.ok || !upstream.body) return new Response('The model is unavailable just now.', { status: 502, headers: cors });
 
@@ -192,7 +179,7 @@ export default {
             const writer = writable.getWriter();
             const encoder = new TextEncoder();
             try {
-                await reply(upstream.body, { strikes, last: Number(body.last), prank }, text => writer.write(encoder.encode(text)));
+                await reply(upstream.body, { strikes, last: Number(body.last) }, text => writer.write(encoder.encode(text)));
             } catch {} finally {
                 await writer.close();
             }
@@ -236,23 +223,10 @@ async function complete(provider, messages, { stream, tokens, temperature }) {
     return response;
 }
 
-// The leg-pull, as its own small request: no CV, a random angle, a warmer temperature
-async function writePrank(provider, question, language, headline) {
-    const angle = ANGLES[Math.floor(Math.random() * ANGLES.length)];
-    const system = PRANK.replace('HEADLINE', headline).replace('ANGLE', angle).replace('LANGUAGE', language);
-    const response = await complete(provider, [{ role: 'system', content: system }, { role: 'user', content: question }], { stream: false, tokens: 80, temperature: 1.1 });
-    if (!response.ok) return '';
-    const text = clip((await response.json()).choices?.[0]?.message?.content, 220)
-        .replace(/^(about|chat|off)\s*[:.]\s*/i, '')
-        .replace(/^["“«]|["”»]$/g, '');
-    // Never anything that looks like a citation: the joke isn't from the CV
-    return /\[[a-z]/.test(text) ? '' : text;
-}
-
 // The model's reply as it streams: its first line says what kind of question it was. Off the
 // topic, the words are dropped and a fixed refusal goes instead (or the goodbye, once there
-// have been enough). About Ali, the leg-pull goes first when there is one.
-async function reply(body, { strikes, last, prank }, send) {
+// have been enough).
+async function reply(body, { strikes, last }, send) {
     const reader = body.pipeThrough(new TextDecoderStream()).getReader();
     let buffer = '';
     let head = '';
@@ -266,12 +240,9 @@ async function reply(body, { strikes, last, prank }, send) {
         if (pick === last) pick = (pick + 1) % REFUSALS.length;
         return send(`§${JSON.stringify({ kind: 'off', refusal: pick })}\n${REFUSALS[pick]}`);
     };
-    // The leg-pull, if it is ready within a few seconds (it was asked for at the same time)
-    const opener = async () => (prank ? (await Promise.race([prank, wait(4000).then(() => '')])) : '');
     const begin = async (rest) => {
-        const joke = kind === 'about' ? await opener() : '';
         trim = !rest;
-        await send(`§${JSON.stringify({ kind })}\n${joke ? `${joke} ` : ''}${rest}`);
+        await send(`§${JSON.stringify({ kind })}\n${rest}`);
     };
     for (;;) {
         const { value, done } = await reader.read();

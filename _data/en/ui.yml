@@ -131,3 +131,8 @@ alino:
     how: Terrible, nobody asked me about Ali for a whole minute! …Kidding, I’m great, thanks for asking. How about you? Anything you’d like to know about him?
     who: I’m Ali, obviously. …Okay, okay, I’m Alino, his assistant. I know his CV inside out, so ask away!
     hello: Oh! You startled me, I was napping on Ali’s CV 😴 Hi there! I’m Alino. How’s your day going? Ask me anything about Ali.
+# The full-size picture viewer
+gallery:
+  close: Close
+  previous: Previous picture
+  next: Next picture

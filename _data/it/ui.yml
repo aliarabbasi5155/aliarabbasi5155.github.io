@@ -131,3 +131,8 @@ alino:
     how: Malissimo, nessuno mi ha chiesto di Ali per un minuto intero! …Scherzo, sto benissimo, grazie. E tu come stai? Vuoi sapere qualcosa di lui?
     who: Sono Ali, ovviamente. …Va bene, va bene, sono Alino, il suo assistente. Conosco il suo CV a memoria, quindi chiedi pure!
     hello: Oh! Mi hai fatto prendere un colpo, stavo sonnecchiando sul CV di Ali 😴 Ciao! Sono Alino. Come va la giornata? Chiedimi qualsiasi cosa su Ali.
+# The full-size picture viewer
+gallery:
+  close: Chiudi
+  previous: Immagine precedente
+  next: Immagine successiva

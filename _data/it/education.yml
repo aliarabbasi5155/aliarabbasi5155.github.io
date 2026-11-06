@@ -4,6 +4,10 @@ degrees:
     institution_url: https://www.polito.it/
     location: Torino, Italia
     period: 2020 - 2024
+    links:
+      - label: "Post della laurea"
+        url: https://lnkd.in/p/daDEPEVz
+        icon: fab fa-linkedin
     details:
       - "**Tesi:** [\"Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning\"](https://webthesis.biblio.polito.it/34008/)"
       - "**Pubblicazione:** pubblicata su [Elsevier Smart Health Journal](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (2025) a partire dal lavoro di tesi"

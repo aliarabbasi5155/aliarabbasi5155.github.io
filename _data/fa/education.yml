@@ -4,6 +4,10 @@ degrees:
     institution_url: https://www.polito.it/
     location: تورین، ایتالیا
     period: ۲۰۲۰ – ۲۰۲۴
+    links:
+      - label: "پست فارغ‌التحصیلی"
+        url: https://lnkd.in/p/daDEPEVz
+        icon: fab fa-linkedin
     details:
       - "**پایان‌نامه:** [«Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning»](https://webthesis.biblio.polito.it/34008/)"
       - "**مقاله:** بر پایه‌ی همین پایان‌نامه، در [ژورنال Smart Health انتشارات Elsevier](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (۲۰۲۵) منتشر شد"
