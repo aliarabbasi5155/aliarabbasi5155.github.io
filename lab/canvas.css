@@ -2,7 +2,8 @@
    lab/ can start this way, so the lab never drifts from the live site; putting it live means
    moving these rules into the live file.
 
-   Here: the spatial phone design (script.js in lab/ lays the phone panes out on the map). */
+   Here: the spatial phone design (script.js in lab/ lays the phone panes out on the map), and
+   the Experience section as a timeline of jobs that open and close. */
 @import url("/canvas.css");
 
 /* ---------- Phones: the same map, each pane the size of the screen, the names and the
@@ -78,5 +79,157 @@
     .touch-hint.on {
         opacity: 1;
         translate: -50% 0;
+    }
+}
+
+/* ---------- Experience as a timeline: a line down the start of the jobs, a dot at each (coral
+   for the job he is in now), and each job opening and closing from its header; the job he is
+   in now starts open (script.js in lab/) ---------- */
+.experience .job {
+    position: relative;
+    padding-block: 2px 24px;
+    padding-inline-start: 36px;
+    border-bottom: 0;
+}
+
+/* The line, from the first job's dot to the last one's, in each group of jobs */
+.experience .job::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-start: 7px;
+    border-inline-start: 1.5px solid color-mix(in srgb, var(--mint) 30%, transparent);
+}
+
+.experience > .job:first-child::before,
+.experience .earlier-title + .job::before {
+    top: 18px;
+}
+
+.experience .job:last-child::before,
+.experience .job:has(+ .earlier-title)::before {
+    bottom: auto;
+    height: 18px;
+}
+
+/* The dot: open in mint, closed hollow, the job he is in now in coral */
+.experience .job::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    inset-inline-start: 1px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--mint);
+    border-radius: 50%;
+    background: var(--bg);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.experience .job:not(.collapsed)::after {
+    background: var(--mint);
+}
+
+.experience .job.current::after {
+    border-color: var(--coral);
+    background: var(--coral);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--coral) 20%, transparent);
+}
+
+/* The header opens and closes the job: a press anywhere on it, or its button */
+.experience .job-header {
+    position: relative;
+    padding-inline-end: 64px;
+    cursor: pointer;
+}
+
+.focus-mode .pane:not(.focused) .job-header {
+    cursor: inherit;
+}
+
+.experience .job-header h4 {
+    transition: color 0.3s;
+}
+
+.focused .experience .job-header:hover h4 {
+    color: var(--mint);
+}
+
+.job-toggle {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--dash);
+    font: 700 11px/1 var(--mono);
+    color: var(--soft);
+    cursor: pointer;
+    transition: color 0.3s, box-shadow 0.3s;
+}
+
+.job-toggle i {
+    font-size: 10px;
+    transition: rotate 0.35s var(--ease);
+}
+
+.job:not(.collapsed) .job-toggle i {
+    rotate: 180deg;
+}
+
+.focused .experience .job-header:hover .job-toggle,
+.job-toggle:focus-visible {
+    box-shadow: inset 0 0 0 1px var(--mint);
+    color: var(--mint);
+}
+
+/* Opening and closing: the list eases between none of its height and all of it */
+.job-more {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.45s var(--ease), opacity 0.35s;
+}
+
+.job.collapsed .job-more {
+    grid-template-rows: 0fr;
+    opacity: 0;
+}
+
+.job.instant .job-more {
+    transition: none;
+}
+
+.job-more-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* A closed job sits closer to the next */
+.experience .job.collapsed {
+    padding-bottom: 16px;
+}
+
+.experience .earlier-title {
+    margin-block: 1.6rem 20px;
+}
+
+@media (max-width: 760px) {
+    .experience .job {
+        padding-inline-start: 30px;
+    }
+
+    .experience .job-header {
+        padding-inline-end: 52px;
+    }
+
+    .job-toggle {
+        padding: 0 9px;
     }
 }

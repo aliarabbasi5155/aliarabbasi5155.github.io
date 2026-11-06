@@ -17,7 +17,8 @@
 // remembered, the theme, and the section in view told to analytics.js (portfolio:section).
 // Right to left (Persian), the map is mirrored and the rail sits on the right.
 //
-// The lab's copy (lab/script.js): on phones the canvas is a map too. The panes, each the size
+// The lab's copy (lab/script.js): Experience is a timeline of jobs that open and close (the job
+// he is in now starts open), and on phones the canvas is a map too. The panes, each the size
 // of the screen, sit on the same three-by-three map, wired to Ali's, and the camera flies
 // between them, pulling back on the way. A swipe goes to the pane on that side, a pinch (or the
 // map button) shows the whole map, and a tap there flies into a pane.
@@ -451,6 +452,7 @@ initTheme();
 initLanguageMemory();
 initBlogToggles();
 initExternalLinks();
+initTimeline();
 
 const orb = document.querySelector('.orb');
 const orbRings = orb.querySelector('.orb-rings');
@@ -675,6 +677,8 @@ function neighbour(dx, dy) {
 
 // Fly to a pane, bring a line of it into view, then do something there
 function goTo(id, element, then) {
+    // A line in a closed job: the job opens first
+    element?.closest('.job.collapsed')?.openJob?.(true, true);
     focus(id);
     afterLanding(() => {
         const body = element?.closest('.pane-body');
@@ -1090,6 +1094,49 @@ addEventListener('hashchange', () => {
     const id = location.hash.slice(1);
     if (panes.has(id)) focus(id);
 });
+
+// ---------- Experience as a timeline ----------
+
+// Each job opens and closes from its header (a press anywhere on it, or its button, which says
+// how many lines it holds); the job he is in now starts open and the rest closed, so the whole
+// career fits in view. A reference from Alino opens the job it points into.
+function initTimeline() {
+    const NOW = /present|oggi|attuale|اکنون|تاکنون/i;
+    document.querySelectorAll('.experience .job').forEach((job, i) => {
+        const header = job.querySelector('.job-header');
+        const list = job.querySelector('.job-description');
+        if (!header || !list) return;
+        job.classList.toggle('current', NOW.test(job.querySelector('.duration')?.textContent ?? ''));
+        // The list, in a box whose height can ease open and shut
+        const more = Object.assign(document.createElement('div'), { className: 'job-more', id: `job-more-${i}` });
+        const inner = Object.assign(document.createElement('div'), { className: 'job-more-inner' });
+        list.replaceWith(more);
+        inner.append(list);
+        more.append(inner);
+        const toggle = Object.assign(document.createElement('button'), { type: 'button', className: 'job-toggle' });
+        toggle.setAttribute('aria-controls', more.id);
+        toggle.innerHTML = `<span class="job-count">${digits(list.children.length)}</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>`;
+        header.append(toggle);
+        const set = (open, instant = false) => {
+            if (instant) job.classList.add('instant');
+            job.classList.toggle('collapsed', !open);
+            toggle.setAttribute('aria-expanded', open);
+            toggle.setAttribute('aria-label', open ? UI.show_less : UI.show_more);
+            inner.inert = !open;
+            if (instant) requestAnimationFrame(() => job.classList.remove('instant'));
+            // The pane's fade at its foot follows the new length
+            setTimeout(() => job.closest('.pane-body')?.dispatchEvent(new Event('scroll')), instant ? 0 : 480);
+        };
+        job.openJob = set;
+        set(job.classList.contains('current'), true);
+        header.addEventListener('click', event => {
+            // Only in the pane being read, and not when a link in the header is pressed
+            if (!job.closest('.pane.focused') || (event.target.closest('a') && !event.target.closest('.job-toggle'))) return;
+            interacted();
+            set(job.classList.contains('collapsed'));
+        });
+    });
+}
 
 // ---------- The language picker ----------
 
