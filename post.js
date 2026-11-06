@@ -10,12 +10,10 @@ const UI = JSON.parse(document.getElementById('ui-strings').textContent);
 const HOME = JSON.parse(document.getElementById('post-home').textContent);
 const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
 
-// Dark or light: as the site (script.js), the system's until the visitor picks one
+// Dark or light: as the site (script.js), dark unless the visitor picks light
 (() => {
-    const system = matchMedia('(prefers-color-scheme: light)');
     const meta = document.querySelector('meta[name="theme-color"]');
     const toggles = document.querySelectorAll('.theme-toggle');
-    const stored = () => { try { return localStorage.getItem('theme'); } catch { return null; } };
     const show = theme => toggles.forEach(toggle => toggle.setAttribute('aria-pressed', theme === 'dark'));
     const apply = theme => {
         root.dataset.theme = theme;
@@ -27,16 +25,13 @@ const THEME_COLORS = { light: '#f1eee7', dark: '#191a1e' };
         toggle.addEventListener('click', () => {
             const theme = root.dataset.theme === 'light' ? 'dark' : 'light';
             try {
-                if (theme === (system.matches ? 'light' : 'dark')) localStorage.removeItem('theme');
-                else localStorage.setItem('theme', theme);
+                if (theme === 'light') localStorage.setItem('theme', theme);
+                else localStorage.removeItem('theme');
             } catch {}
             if (matchMedia('(prefers-reduced-motion: reduce)').matches || !document.startViewTransition) apply(theme);
             else document.startViewTransition(() => apply(theme));
         });
     }
-    system.addEventListener('change', () => {
-        if (!stored()) apply(system.matches ? 'light' : 'dark');
-    });
 })();
 
 // Links to other sites open beside this one

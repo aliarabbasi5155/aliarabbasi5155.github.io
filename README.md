@@ -36,10 +36,20 @@ pane for Ali with his photo, wired to each section like a node graph
 (`_layouts/cv.html`, `canvas.css`, `script.js`). A visitor moves between them with the list
 of sections on the side (with a small map of the whole canvas under it), the pill at the
 foot (back and on, in the CV's order), a drag, the wheel, the arrow keys, or Esc for the
-whole map. On phones the panes stand in a row, a swipe apart, with the sections along the
-bottom. Each pane's place and size on the map is the `places` line at the top of
-`_layouts/cv.html`; its name is its entry in **Section names**. Right to left (Persian),
+whole map. On phones it is the same map, each pane the size of the screen: a swipe goes to
+the pane on that side, a pinch (or the round map button by the sections along the bottom)
+shows the whole map, and a tap there flies into a pane. Each pane's place and size on the
+map is the `places` line at the top of `_layouts/cv.html`; its name is its entry in
+**Section names**. Right to left (Persian),
 the map is mirrored and the list of sections sits on the right.
+
+Experience, Projects, Education and Publications are timelines: a line down the side with a
+dot at each item (coral for what is current), and each item opens and closes from its header,
+whose button counts its lines and pictures. What is current starts open, the rest closed. The
+dot field takes a shape for each pane drawn from Ali's work: a neural network for his pane, the
+Lorenz attractor for Experience, a knowledge graph for Projects, a swiss-roll manifold for
+Skills, a brain for Publications, the arc from Arak to Turin on the globe for Education, and a
+football for Interests (`dot-field.js`).
 
 Ali's photo moves a little, the way someone sitting for a portrait does: the head drifts
 and the shoulders rise and fall with each breath (`live-photo.js`). The face itself never
@@ -79,18 +89,14 @@ add only its changes (as `lab/canvas.css` does). To put it live, move the copy o
 original (`git mv -f lab/script.js script.js`) or the added rules into the live stylesheet;
 with nothing in `lab/` but its three pages, the lab is simply the live site.
 
-In the lab now: the spatial phone design; Experience, Projects, Education and Publications as
-timelines of items that open and close; and dot shapes drawn from Ali's work (`lab/dot-field.js`):
-a neural network, the Lorenz attractor, a knowledge graph, a swiss-roll manifold, a brain, a
-football, and the arc from Arak to Turin on the globe. `lab/script.js` is the live `script.js`
-with these changes applied.
+The lab holds nothing of its own right now: the phone map, the timelines and the dot shapes
+tried there are live.
 
 ## Themes
 
-The site has a dark and a light theme. A visitor's first visit follows their system's
-setting, and keeps following it as it changes; the sun/moon switch at the top of the page
-(and on the language picker) picks one instead, remembered in that browser. Picking the theme the system
-already uses forgets the choice, so the page follows the system again. Colours live once
+The site has a dark and a light theme. It opens dark; the sun/moon switch at the top of the
+page (and on the language picker) changes to light, remembered in that browser, and back.
+Colours live once
 in `styles.css` (`:root`, each as `light-dark(light, dark)`); the dot field's two palettes
 are `sand` and `paper` in `dot-field.js`.
 
