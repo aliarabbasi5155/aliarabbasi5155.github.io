@@ -281,14 +281,13 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         const talk = SMALL_TALK.find(([, pattern]) => pattern.test(question));
         if (talk && !HIM.test(question)) return { kind: 'chat', text: A.page[talk[0]], by };
         if (TASK.test(question.trim()) && !HIM.test(question)) return refusal();
-        // A leg-pull now and then, on a line of its own before the answer
-        const tease = !session.asked || Math.random() < 0.4 ? `${pick(A.page.teases)}\n` : '';
-        const prank = Boolean(tease);
-        if (CONTACT.test(lower) && byRef.has('contact')) return { kind: 'about', text: `${tease}${sentence(byRef.get('contact'))} [contact].`, by, prank };
-        if (RESUME.test(lower) && byRef.has('resume')) return { kind: 'about', text: `${tease}${sentence(byRef.get('resume'))} [resume].`, by, prank };
+        // A little leg-pull before the answer, as the AI would
+        const tease = `${pick(A.page.teases)} `;
+        if (CONTACT.test(lower) && byRef.has('contact')) return { kind: 'about', text: `${tease}${sentence(byRef.get('contact'))} [contact].`, by };
+        if (RESUME.test(lower) && byRef.has('resume')) return { kind: 'about', text: `${tease}${sentence(byRef.get('resume'))} [resume].`, by };
         if (WORK.test(question) && byRef.has('job-0')) {
             const lead = LANG === 'en' ? '' : `${A.page.lead} `;
-            return { kind: 'about', text: `${tease}${lead}${sentence(byRef.get('job-0'))} [job-0].${byRef.has('job-0-0') ? ` ${sentence(byRef.get('job-0-0'))} [job-0-0].` : ''}`, by, prank };
+            return { kind: 'about', text: `${tease}${lead}${sentence(byRef.get('job-0'))} [job-0].${byRef.has('job-0-0') ? ` ${sentence(byRef.get('job-0-0'))} [job-0-0].` : ''}`, by };
         }
         const ranked = rank(question);
         if (!ranked.length) return HIM.test(question) ? { kind: 'about', text: `${A.page.not_found} [contact].`, by } : refusal();
@@ -304,7 +303,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             if (chosen.length === 3) break;
         }
         const lead = LANG === 'en' ? '' : `${A.page.lead} `;
-        return { kind: 'about', text: tease + lead + chosen.map(doc => `${sentence(doc)} [${doc.ref}].`).join(' '), by, prank };
+        return { kind: 'about', text: tease + lead + chosen.map(doc => `${sentence(doc)} [${doc.ref}].`).join(' '), by };
     }
 
     const where = doc => [doc.title, doc.head && !doc.el.matches('h4') ? doc.head : ''].filter(Boolean).join(' · ');
@@ -333,21 +332,14 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         return view;
     }
 
-    // An answer with its references made into numbered buttons, and the list of them below it;
-    // a leg-pull (its first line, when the proxy says there is one) set apart before it
-    function render(view, raw, done, prank = false) {
+    // An answer with its references made into numbered buttons, and the list of them below it
+    function render(view, raw, done) {
         let shown = raw.replace(/\*\*/g, '');
-        let joke = '';
-        if (prank) {
-            const end = shown.indexOf('\n');
-            joke = end < 0 ? (done ? '' : shown) : shown.slice(0, end);
-            shown = end < 0 ? (done ? shown : '') : shown.slice(end + 1);
-        }
         // A reference still arriving stays hidden until it is whole
         const open = shown.lastIndexOf('[');
         if (!done && open > shown.lastIndexOf(']')) shown = shown.slice(0, open);
         const order = new Map();
-        const parts = joke ? [Object.assign(document.createElement('span'), { className: 'ask-prank', textContent: joke })] : [];
+        const parts = [];
         let last = 0;
         for (const match of shown.matchAll(REFS)) {
             const ids = match[1].split(/\s*,\s*/).filter(id => byRef.has(id));
@@ -405,7 +397,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
             const now = unpack(raw);
             if (now.text && (now.kind === 'about' || now.kind === 'chat')) {
                 view.classList.remove('thinking');
-                render(view, now.text, false, now.prank);
+                render(view, now.text, false);
             }
         }
         const result = localize(unpack(raw));
@@ -439,7 +431,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         if (mine !== turn) return;
         result ??= viaPage(q);
         view.classList.remove('thinking');
-        render(view, result.text || A.closing, true, result.prank);
+        render(view, result.text || A.closing, true);
         view.by.textContent = result.by ?? '';
 
         // How the visit stands now

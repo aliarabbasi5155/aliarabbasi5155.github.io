@@ -61,7 +61,7 @@ collections:
         fields:
           - { name: provider, label: Provider, widget: select, options: [deepseek, openai] }
           - { name: model, label: Model, widget: string, hint: "DeepSeek: deepseek-chat. OpenAI: gpt-4.1-mini (fast and cheap), gpt-4.1, gpt-4o-mini. Reasoning models (o…, gpt-5…) work but answer more slowly. A model the provider doesn't know falls back to its default." }
-          - { name: pranks, label: Leg-pulls (%), widget: number, value_type: int, min: 0, max: 100, step: 5, hint: "How often Alino opens with a made-up fact and a “just kidding 😜” before the real answer. The first question of a visit always gets one, unless this is 0." }
+          - { name: pranks, label: Leg-pulls (%), widget: number, value_type: int, min: 0, max: 100, step: 5, hint: "How often an answer about you opens with a short, made-up “fact” that turns straight back to the truth (“…well, not quite 😄”). 100 is every answer; with less, the first question of a visit still gets one, unless this is 0." }
 
   - name: cv
     label: CV
