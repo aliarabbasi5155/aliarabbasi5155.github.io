@@ -48,13 +48,13 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <!-- The theme, before anything is drawn: the visitor's own choice if they made one,
-         otherwise their system's (script.js keeps it in step and switches it) -->
+    <!-- The theme, before anything is drawn: dark, unless the visitor chose light
+         (script.js switches it) -->
     <script>
         (() => {
             let theme;
             try { theme = localStorage.getItem('theme'); } catch {}
-            if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            if (theme !== 'light') theme = 'dark';
             document.documentElement.dataset.theme = theme;
             document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f1eee7' : '#191a1e';
         })();

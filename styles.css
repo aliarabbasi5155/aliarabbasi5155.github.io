@@ -13,10 +13,10 @@
     box-sizing: border-box;
 }
 
-/* Every colour is set once for both themes, as light-dark(light, dark). The theme follows
-   the system until the visitor picks one (data-theme, set before the first paint). */
+/* Every colour is set once for both themes, as light-dark(light, dark). The theme is dark
+   unless the visitor picks light (data-theme, set before the first paint). */
 :root {
-    color-scheme: light dark;
+    color-scheme: dark;
     --bg: light-dark(#f1eee7, #191a1e);
     --panel: light-dark(#fbfaf6, #25262b);
     /* Pale mint would vanish on paper, so the light theme takes it much deeper */
