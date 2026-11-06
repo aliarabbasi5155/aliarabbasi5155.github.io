@@ -6,3 +6,13 @@ items:
     url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
     link_label: مشاهده‌ی مقاله
     abstract: این پژوهش رویکرد تازه‌ای برای سنجش شناختی ارائه می‌دهد که با Inverse Reinforcement Learning چندوجهی (multimodal)، رفتار نگاه انسان را در حین انجام تسک‌های Stroop بازسازی می‌کند. این مطالعه داده‌های EEG را با اطلاعات eye-tracking ترکیب می‌کند تا فرایندهای شناختی و الگوهای تصمیم‌گیری را در سطوح مختلف cognitive load بهتر بشناسد.
+    images:
+      - src: /assets/publications/gaze-irl/setup.webp
+        thumb: /assets/publications/gaze-irl/setup-thumb.webp
+        caption: "آزمایش: حسگرهای EEG و fNIRS، و آزمون Stroop روی صفحه"
+      - src: /assets/publications/gaze-irl/method.webp
+        thumb: /assets/publications/gaze-irl/method-thumb.webp
+        caption: "روش: EEG و مسیرهای نگاه انسان یک مدل GAIL را آموزش می‌دهند"
+      - src: /assets/publications/gaze-irl/brain.webp
+        thumb: /assets/publications/gaze-irl/brain-thumb.webp
+        caption: "فعالیت مغز هنگام انجام آزمون، از پنج زاویه"

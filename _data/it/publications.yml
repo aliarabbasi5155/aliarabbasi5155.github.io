@@ -6,3 +6,13 @@ items:
     url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
     link_label: Vedi la pubblicazione
     abstract: Questa ricerca presenta un nuovo approccio alla valutazione cognitiva, che usa l'Inverse Reinforcement Learning multimodale per ricostruire il comportamento dello sguardo umano durante i compiti di Stroop. Lo studio combina i dati EEG con quelli di eye-tracking per comprendere meglio i processi cognitivi e i modelli decisionali in diverse condizioni di carico cognitivo.
+    images:
+      - src: /assets/publications/gaze-irl/setup.webp
+        thumb: /assets/publications/gaze-irl/setup-thumb.webp
+        caption: "L’esperimento: sensori EEG e fNIRS, il test di Stroop sullo schermo"
+      - src: /assets/publications/gaze-irl/method.webp
+        thumb: /assets/publications/gaze-irl/method-thumb.webp
+        caption: "Il metodo: EEG e percorsi visivi umani addestrano un modello GAIL"
+      - src: /assets/publications/gaze-irl/brain.webp
+        thumb: /assets/publications/gaze-irl/brain-thumb.webp
+        caption: "L’attività cerebrale durante il compito, da cinque angolazioni"

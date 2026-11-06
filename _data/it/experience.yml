@@ -34,6 +34,37 @@ jobs:
       - Ho guidato un team di 4 ingegneri nella realizzazione di un sistema multipiattaforma di monitoraggio della flotta su AWS, con telemetria ogni 2 secondi per oltre 150 UAV in tutta Europa.
       - Ho modernizzato lo stack software (React Native, Django REST Framework, CI/CD, deployment containerizzati), risparmiando circa 50.000 € all'anno grazie alla minore capacità di ingegneria necessaria per mantenere ed evolvere la piattaforma.
       - Ho contribuito al progetto Charger Box, automatizzando il riposizionamento dei droni per la ricarica autonoma e raggiungendo il 98% di aggancio riuscito.
+    images:
+      - src: /assets/work/nimbus/flight.webp
+        thumb: /assets/work/nimbus/flight-thumb.webp
+        caption: "Un drone in volo"
+      - src: /assets/work/nimbus/charger-box.webp
+        thumb: /assets/work/nimbus/charger-box-thumb.webp
+        caption: "Dentro la Charger Box, dove i droni atterrano e si ricaricano da soli"
+      - src: /assets/work/nimbus/vtol-hangar.webp
+        thumb: /assets/work/nimbus/vtol-hangar-thumb.webp
+        caption: "Un drone VTOL nell’hangar"
+      - src: /assets/work/nimbus/vtol-workshop.webp
+        thumb: /assets/work/nimbus/vtol-workshop-thumb.webp
+        caption: "La costruzione di un VTOL nell’officina di Nimbus"
+      - src: /assets/work/nimbus/app-map.webp
+        thumb: /assets/work/nimbus/app-map-thumb.webp
+        caption: "L’app di monitoraggio della flotta: un drone in diretta sulla mappa"
+      - src: /assets/work/nimbus/app-checks.webp
+        thumb: /assets/work/nimbus/app-checks-thumb.webp
+        caption: "I controlli pre-volo nell’app"
+      - src: /assets/work/nimbus/gripper.webp
+        thumb: /assets/work/nimbus/gripper-thumb.webp
+        caption: "Un drone con un braccio robotico"
+      - src: /assets/work/nimbus/corridor.webp
+        thumb: /assets/work/nimbus/corridor-thumb.webp
+        caption: "Un corridoio di volo pianificato sulla valle del Taro"
+      - src: /assets/work/nimbus/mars.webp
+        thumb: /assets/work/nimbus/mars-thumb.webp
+        caption: "M.A.R.S., il Multiple Airborne Response System"
+      - src: /assets/work/nimbus/hexacopter.webp
+        thumb: /assets/work/nimbus/hexacopter-thumb.webp
+        caption: "Un esacottero pronto al decollo"
   - title: Machine Learning Engineer | Fullstack Developer
     company: Reefilla SRL
     company_url: https://www.reefilla.com/

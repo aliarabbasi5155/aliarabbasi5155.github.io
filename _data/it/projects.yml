@@ -81,6 +81,19 @@ items:
       - PPO
       - GAIL
       - WandB
+    images:
+      - src: /assets/projects/gaze-irl/stroop.webp
+        thumb: /assets/projects/gaze-irl/stroop-thumb.webp
+        caption: "Il test di Stroop: lo sguardo tra la parola e le risposte"
+      - src: /assets/projects/gaze-irl/detection.webp
+        thumb: /assets/projects/gaze-irl/detection-thumb.webp
+        caption: "Detectron2 individua la parola, il suo colore e le risposte"
+      - src: /assets/projects/gaze-irl/fixations.webp
+        thumb: /assets/projects/gaze-irl/fixations-thumb.webp
+        caption: "Un percorso visivo ricostruito, fissazione dopo fissazione"
+      - src: /assets/projects/gaze-irl/networks.webp
+        thumb: /assets/projects/gaze-irl/networks-thumb.webp
+        caption: "Le reti: generatore, discriminatore, actor e critic"
   - title: Modellazione di rete della pandemia di COVID-19 con dati di mobilità GSM e modello SIR
     links:
       - label: GitHub

@@ -12,9 +12,26 @@ degrees:
       - "**Tesi:** [\"Reconstructing Human Gaze Behavior in Stroop Test from EEG Data Using Inverse Reinforcement Learning\"](https://webthesis.biblio.polito.it/34008/)"
       - "**Pubblicazione:** pubblicata su [Elsevier Smart Health Journal](https://www.sciencedirect.com/science/article/pii/S2352648325000285) (2025) a partire dal lavoro di tesi"
       - "**Conferenza:** accettata anche alla conferenza IEEE/CHASE 2025"
+    images:
+      - src: /assets/education/polito/graduation.webp
+        thumb: /assets/education/polito/graduation-thumb.webp
+        caption: "Il giorno della laurea a Torino"
   - title: Laurea Triennale in Ingegneria Informatica
     institution: Università di Arak
     institution_url: https://www.araku.ac.ir/
     location: Arak, Iran
     period: 2015 - 2019
     details: []
+    images:
+      - src: /assets/education/arak/ceremony.webp
+        thumb: /assets/education/arak/ceremony-thumb.webp
+        caption: "Il giorno della laurea all’Università di Arak, 2019"
+      - src: /assets/education/arak/faculty.webp
+        thumb: /assets/education/arak/faculty-thumb.webp
+        caption: "La classe davanti alla Facoltà di Ingegneria"
+      - src: /assets/education/arak/caps.webp
+        thumb: /assets/education/arak/caps-thumb.webp
+        caption: "Tocchi in aria"
+      - src: /assets/education/arak/celebration.webp
+        thumb: /assets/education/arak/celebration-thumb.webp
+        caption: "E poi tutto il resto in aria"
