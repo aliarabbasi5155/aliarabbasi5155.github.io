@@ -250,6 +250,23 @@ async function reply(body, { strikes, last }, send) {
         trim = !rest;
         await send(`§${JSON.stringify({ kind })}\n${rest}`);
     };
+    // The label however it's written (about, about:, **About**, Chat.), and the words after it.
+    // It counts only once its line is whole: a line break, or words after it on the same line;
+    // so a stream that splits "about" from its ":" never lets the colon into the answer.
+    const LABEL = /^\s*[*_#]*\s*(about|chat|off)\b\s*[*_]*\s*[:：.\-–—]*[ \t]*/i;
+    const settle = async (final) => {
+        const match = head.match(LABEL);
+        if (!final) {
+            if (!head.trim()) return false;
+            if (match && match[0].length === head.length && !head.includes('\n')) return false;
+            if (!match && head.length < 24 && !head.includes('\n')) return false;
+        }
+        // Nothing at all counts as off the topic
+        kind = !head.trim() ? 'off' : match ? match[1].toLowerCase() : 'about';
+        if (kind === 'off') await refuse();
+        else await begin((match ? head.slice(match[0].length) : head).replace(/^[\s:：]+/, ''));
+        return true;
+    };
     for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -266,27 +283,19 @@ async function reply(body, { strikes, last }, send) {
             if (!words) continue;
             if (kind) {
                 if (trim) {
-                    words = words.replace(/^\s+/, '');
+                    words = words.replace(/^[\s:：]+/, '');
                     if (!words) continue;
                     trim = false;
                 }
                 await send(words);
                 continue;
             }
-            // Until the label is whole, hold the words back
+            // Until the label's line is whole, hold the words back
             head += words;
-            const match = head.match(/^\s*(about|chat|off)\b[:.\s]*\n?/i);
-            if (!match && head.length < 24 && !head.includes('\n')) continue;
-            kind = match ? match[1].toLowerCase() : 'about';
-            if (kind === 'off') return refuse();
-            await begin(match ? head.slice(match[0].length).replace(/^\s+/, '') : head);
+            if (await settle(false) && kind === 'off') return;
         }
     }
-    if (!kind) {
-        if (!head.trim()) return refuse();
-        kind = 'about';
-        await begin(head.trim());
-    }
+    if (!kind) await settle(true);
 }
 
 // Questions in the last minute, by visitor
