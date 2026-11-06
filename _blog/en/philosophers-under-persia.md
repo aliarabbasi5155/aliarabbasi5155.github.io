@@ -59,4 +59,4 @@ None of this makes them Persian rather than Greek. They wrote and thought in Gre
 
 ## About the bust
 
-The bust at the top is me, as I would look had I been born in Clazomenae around 500 BC and spent too long wondering what everything is made of. Back then they called me Aliaton (Plato is Aflatun in Persian) or Alius Abbasius :D I'm still working on that theory. So far, everything is coffee.
+The bust at the top is me, as I would look had I been born in Clazomenae around 500 BC and spent too long wondering what everything is made of. Back then they called me Aliaton, Plato’s teacher (in Persian, Plato is Aflatun), or Alius Abbasius :D I'm still working on that theory. So far, everything is coffee.
