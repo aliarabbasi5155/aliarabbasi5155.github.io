@@ -206,10 +206,6 @@ html:has(.canvas-page),
     overflow-y: auto;
 }
 
-.pane-body .blog-full-content p {
-    margin-top: 14px;
-}
-
 /* More above or below: the text fades out at that end */
 .pane-body {
     --fade-top: 0px;
@@ -1709,6 +1705,22 @@ html[lang="fa"] .home-role {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+}
+
+/* On an update in Ali's pane: a row of small ones, no captions */
+.update-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 88px));
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.update-gallery .gallery-caption {
+    display: none;
+}
+
+.update-gallery .gallery-item img {
+    border-radius: 9px;
+    object-position: 50% 0;
 }
 
 /* Beside an answer: small, no captions */

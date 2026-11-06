@@ -81,6 +81,19 @@ items:
       - PPO
       - GAIL
       - WandB
+    images:
+      - src: /assets/projects/gaze-irl/stroop.webp
+        thumb: /assets/projects/gaze-irl/stroop-thumb.webp
+        caption: "آزمون Stroop: حرکت نگاه میان کلمه و پاسخ‌ها"
+      - src: /assets/projects/gaze-irl/detection.webp
+        thumb: /assets/projects/gaze-irl/detection-thumb.webp
+        caption: "Detectron2 کلمه، رنگش و پاسخ‌ها را پیدا می‌کند"
+      - src: /assets/projects/gaze-irl/fixations.webp
+        thumb: /assets/projects/gaze-irl/fixations-thumb.webp
+        caption: "مسیر نگاه بازسازی‌شده، fixation به fixation"
+      - src: /assets/projects/gaze-irl/networks.webp
+        thumb: /assets/projects/gaze-irl/networks-thumb.webp
+        caption: "شبکه‌ها: generator، discriminator، actor و critic"
   - title: مدل‌سازی شبکه‌ای همه‌گیری COVID-19 با داده‌های جابه‌جایی GSM و مدل SIR
     links:
       - label: GitHub

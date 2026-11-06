@@ -3,6 +3,9 @@ title: "Recensione: \"Le lacrime di Nietzsche\" di Irvin D. Yalom, quando il med
 date: 2026-09-30 17:00
 topic: Recensione
 summary: Dopo il manuale di Yalom sulla terapia esistenziale, "Le lacrime di Nietzsche" è stato come vedere le stesse idee prendere vita, portate da due personaggi indimenticabili, ciascuno convinto di essere quello che cura...
+image: /assets/blog/when-nietzsche-wept/cover.webp
+image_thumb: /assets/blog/when-nietzsche-wept/cover-thumb.webp
+image_alt: "Un cervello disegnato a punti"
 ---
 
 "Le lacrime di Nietzsche" è un romanzo costruito su un "e se". Vienna, 1882: Josef Breuer, medico stimato e una delle prime figure dietro quella che sarebbe poi diventata la psicoanalisi, viene avvicinato dalla giovane Lou Salomé. Lei gli chiede di aiutare un suo amico, un filosofo brillante, quasi sconosciuto e profondamente disperato di nome Friedrich Nietzsche. Nella realtà i due uomini non si sono mai incontrati. Yalom inventa l'incontro e si chiede che cosa succederebbe chiudendoli insieme in una stanza.

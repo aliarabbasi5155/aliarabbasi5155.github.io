@@ -3,6 +3,9 @@ title: "Inverse Reinforcement Learning: فهم رفتار انسان"
 date: 2024-12-28 12:00
 topic: پژوهش
 summary: مسیر پژوهشم روی رفتار نگاه انسان با تکنیک‌های IRL، و آنچه درباره‌ی فرایندهای شناختی نشان می‌دهد...
+image: /assets/projects/gaze-irl/fixations.webp
+image_thumb: /assets/projects/gaze-irl/fixations-thumb.webp
+image_alt: "مسیر نگاه بازسازی‌شده، fixation به fixation"
 ---
 
 Inverse Reinforcement Learning (IRL) دریچه‌ی جذابی به فهم فرایندهای تصمیم‌گیری انسان باز می‌کند. در پایان‌نامه‌ام بررسی کردم که چطور می‌شود رفتار نگاه انسان را در حین تسک‌های Stroop با داده‌های EEG و الگوریتم‌های IRL بازسازی کرد.

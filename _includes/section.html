@@ -134,23 +134,35 @@
     {%- endfor %}
 </section>
 {%- when "blog" %}
+{%- comment -%}
+  Each post as a card: its cover, title, date, topic and summary, and a link to its own page
+  (_layouts/post.html) to read it in peace, or a button to share it.
+{%- endcomment %}
 {%- assign posts = site.blog | where: "lang", include.lang | sort: "date" | reverse %}
 <section class="blog">
     {%- for post in posts %}
-    <article class="blog-post" data-analytics-item="{{ post.slug | escape }}">
-        <div class="blog-header">
-            <h4 data-ref="post-{{ forloop.index0 }}">{{ post.title | escape }}</h4>
-            <div class="blog-meta">
-                <time class="blog-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{% include date.html date=post.date ui=ui %}</time>
-                <span class="blog-category">{{ post.topic | escape }}</span>
+    {%- assign words = post.content | number_of_words %}
+    {%- assign minutes = words | divided_by: 220 | plus: 1 %}
+    {%- capture minutes_text %}{% include digits.html text=minutes ui=ui %}{% endcapture %}
+    {%- assign minutes_line = ui.blog.minutes | replace: "{n}", minutes_text %}
+    <article class="blog-post{% if post.image %} has-cover{% endif %}" data-analytics-item="{{ post.slug | escape }}">
+        {%- if post.image %}
+        <a class="blog-cover" href="{{ post.url | relative_url }}" tabindex="-1" aria-hidden="true"><img src="{{ post.image_thumb | default: post.image | relative_url }}" alt="" loading="lazy" decoding="async"></a>
+        {%- endif %}
+        <div class="blog-card">
+            <div class="blog-header">
+                <h4 data-ref="post-{{ forloop.index0 }}"><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h4>
+                <div class="blog-meta">
+                    <time class="blog-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{% include date.html date=post.date ui=ui %}</time>
+                    <span class="blog-category">{{ post.topic | escape }}</span>
+                    <span class="blog-date">{{ minutes_line | escape }}</span>
+                </div>
             </div>
-        </div>
-        <div class="blog-content">
             <p class="blog-excerpt" data-ref="post-{{ forloop.index0 }}-summary">{% include inline.html text=post.summary %}</p>
-            <div class="blog-full-content" style="display: none;">
-                {{ post.content }}
+            <div class="blog-actions">
+                <a class="blog-read" href="{{ post.url | relative_url }}">{{ ui.blog.read | escape }}<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                <button class="blog-share" type="button" data-url="{{ post.url | absolute_url }}" data-title="{{ post.title | escape }}" data-copied="{{ ui.blog.copied | escape }}"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>{{ ui.blog.share | escape }}</span></button>
             </div>
-            <button class="blog-toggle-btn" type="button" aria-expanded="false">{{ ui.show_more | escape }}</button>
         </div>
     </article>
     {%- endfor %}

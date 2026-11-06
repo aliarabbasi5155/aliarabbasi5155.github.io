@@ -286,11 +286,18 @@
             else if (link.closest('.profile-contacts')) emit('contact_click', details);
             else if (link.hasAttribute('download') || /\.(pdf|docx?)$/i.test(url.pathname)) emit('cv_download', { link_kind: 'document' });
             else if (link.matches('.lang-link')) emit('language_switch', { target_language: link.hreflang });
+            else if (link.matches('.share-to')) { /* counted below, as article_share */ }
             else if (/^https?:$/.test(url.protocol) && url.origin !== location.origin) emit('outbound_click', details);
         }
-        const button = event.target.closest('.blog-toggle-btn');
-        if (button && button.closest('.blog-post')?.querySelector('.blog-full-content')?.style.display !== 'none') {
-            emit('article_expand', { item_id: button.closest('.blog-post').dataset.analyticsItem.slice(0, 100) });
+        // A post opened from its card, or shared (from its card or its own page)
+        const post = event.target.closest('.blog-post, .post-article');
+        const item = post ? { item_id: post.dataset.analyticsItem.slice(0, 100) } : {};
+        if (event.target.closest('.blog-post a[href]:not([href^="http"])')) emit('article_open', item);
+        const shared = event.target.closest('.blog-share, .share button, .share-to');
+        if (shared && post) {
+            const method = shared.matches('.share-to') ? shared.getAttribute('aria-label').toLowerCase()
+                : shared.matches('.share-copy') ? 'copy' : 'share';
+            emit('article_share', { ...item, share_method: method });
         }
     });
     window.setInterval(tick, 1000);

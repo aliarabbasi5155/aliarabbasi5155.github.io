@@ -3,6 +3,9 @@ title: "Inverse Reinforcement Learning: capire il comportamento umano"
 date: 2024-12-28 12:00
 topic: Ricerca
 summary: Il mio percorso di ricerca sul comportamento dello sguardo umano con le tecniche di IRL, e che cosa rivela sui processi cognitivi...
+image: /assets/projects/gaze-irl/fixations.webp
+image_thumb: /assets/projects/gaze-irl/fixations-thumb.webp
+image_alt: "Un percorso visivo ricostruito, fissazione dopo fissazione"
 ---
 
 L'Inverse Reinforcement Learning (IRL) apre una finestra affascinante sui processi decisionali umani. Nel mio lavoro di tesi ho studiato come ricostruire il comportamento dello sguardo umano durante i compiti di Stroop usando dati EEG e algoritmi di IRL.

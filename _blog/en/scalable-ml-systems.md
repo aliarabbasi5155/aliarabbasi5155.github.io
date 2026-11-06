@@ -3,6 +3,9 @@ title: "Building Scalable ML Systems: Lessons from Production"
 date: 2024-11-20 12:00
 topic: Engineering
 summary: Practical insights from deploying machine learning models in production environments and the challenges of scaling AI systems...
+image: /assets/blog/scalable-ml-systems/cover.webp
+image_thumb: /assets/blog/scalable-ml-systems/cover-thumb.webp
+image_alt: "A graph of connected nodes drawn in dots"
 ---
 
 Transitioning from research prototypes to production-ready ML systems presents unique challenges that every ML engineer must navigate. Over the past few years, I've learned valuable lessons about building scalable, reliable AI systems.

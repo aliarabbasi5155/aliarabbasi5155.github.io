@@ -70,6 +70,7 @@ alino:
   let_go: رها کنید تا برگردد
   placeholder: هر چه درباره‌ی علی می‌خواهی، از علینو بپرس…
   send: ارسال
+  about_selection: "درباره‌ی «{text}» بگو"
   hello: "سلام! من علینو هستم 👋 هر سؤالی درباره‌ی علی داری بپرس: کارش، پروژه‌هایش، درسش، یا فقط سلامی بکن. جواب می‌دهم و نشانت می‌دهم کجای رزومه‌اش آمده."
   references: منابع
   reference: "منبع {n}: {where}"
@@ -136,3 +137,14 @@ gallery:
   close: بستن
   previous: تصویر قبلی
   next: تصویر بعدی
+# A blog post's own page, and the share buttons
+blog:
+  read: "خواندن"
+  share: "اشتراک‌گذاری"
+  copy: "کپی لینک"
+  copied: "لینک کپی شد"
+  back: "بازگشت به سایت"
+  minutes: "{n} دقیقه مطالعه"
+  more: "نوشته‌های دیگر"
+  ask: "از علینو بپرس"
+

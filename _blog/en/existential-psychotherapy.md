@@ -3,6 +3,9 @@ title: "Book Review: \"Existential Psychotherapy\" by Irvin D. Yalom - Death, Fr
 date: 2026-09-30 16:00
 topic: Book Review
 summary: Technically this is a textbook for psychotherapists. It's long, dense, and I'm not a therapist. It still turned out to be one of the most personal books I've read, because every chapter is about something you've probably been quietly avoiding...
+image: /assets/blog/existential-psychotherapy/cover.webp
+image_thumb: /assets/blog/existential-psychotherapy/cover-thumb.webp
+image_alt: "A strange attractor drawn in dots: two loops a path circles forever without settling"
 ---
 
 I want to be upfront: "Existential Psychotherapy" is not a light read. It's a clinical textbook, written by Irvin Yalom in 1980 for therapists, and it's around 500 pages of theory, case studies, and references to philosophers and psychiatrists. It turned out to be a good companion to "The Fall," though. Camus holds up a mirror and leaves you alone with it. Yalom sits down next to you and helps you understand what you're looking at.

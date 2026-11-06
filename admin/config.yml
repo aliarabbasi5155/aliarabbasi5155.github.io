@@ -55,6 +55,10 @@ collections:
         i18n: duplicate
         hint: Newest first; the time only orders posts published on the same day.
       - { name: topic, label: Topic, widget: string, i18n: true, hint: "Shown next to the date, e.g. Book Review" }
+      - { name: image, label: Cover picture, widget: image, i18n: duplicate, required: false, hint: "Shown at the top of the post and beside it on the canvas, and when the post is shared" }
+      - { name: image_thumb, label: Smaller cover, widget: image, i18n: duplicate, required: false, hint: "Optional; the cover itself is used otherwise" }
+      - { name: image_alt, label: Cover description, widget: string, i18n: true, required: false }
+      - { name: cover_side, label: Cover beside the title, widget: boolean, i18n: duplicate, required: false, default: false, hint: "For an upright picture: beside the title instead of above it" }
       - name: summary
         label: Summary
         widget: text
@@ -131,6 +135,17 @@ collections:
               - { name: date, label: Date, widget: string, i18n: true, hint: "Written as it should appear, e.g. Nov 10 2025" }
               - { name: label, label: Label, widget: string, i18n: true, hint: "Bold lead-in, e.g. 🚀 New Position:" }
               - { name: text, label: Text, widget: text, i18n: true, hint: "Markdown works" }
+              - name: images
+                label: Pictures
+                widget: list
+                i18n: duplicate
+                required: false
+                summary: "{{caption}}"
+                hint: "Screenshots or photos, shown small under the update and full size when pressed"
+                fields:
+                  - { name: src, label: Picture, widget: image, i18n: duplicate }
+                  - { name: caption, label: Caption, widget: string, i18n: true, required: false }
+                  - { name: thumb, label: Smaller version, widget: image, i18n: duplicate, required: false }
 
       - name: experience
         label: Experience
@@ -337,6 +352,19 @@ collections:
               - { name: description, label: Question, widget: text }
               - { name: allow, label: Allow button, widget: string }
               - { name: decline, label: Decline button, widget: string }
+          - name: blog
+            label: Blog post pages
+            widget: object
+            i18n: true
+            fields:
+              - { name: read, label: Read button, widget: string }
+              - { name: share, label: Share button, widget: string }
+              - { name: copy, label: Copy link, widget: string }
+              - { name: copied, label: Link copied, widget: string }
+              - { name: back, label: Back to the site, widget: string }
+              - { name: minutes, label: Reading time, widget: string, hint: "{n} is the number of minutes" }
+              - { name: more, label: More posts heading, widget: string }
+              - { name: ask, label: Ask Alino about a passage, widget: string, hint: "On the button that appears over selected text" }
           - name: gallery
             label: Pictures
             widget: object
@@ -376,6 +404,7 @@ collections:
               - { name: let_go, label: Carried elsewhere, widget: string, hint: "Beside the orb while it is carried anywhere else" }
               - { name: placeholder, label: Question box, widget: string }
               - { name: send, label: Send button, widget: string, hint: Read aloud }
+              - { name: about_selection, label: Asking about a selection, widget: string, hint: "The question asked when a visitor selects a passage and presses Ask Alino; {text} is the passage" }
               - { name: hello, label: Hello, widget: text, hint: "Its first words, before any question" }
               - { name: references, label: References, widget: string, hint: "Read aloud for the list of references under an answer" }
               - { name: reference, label: A reference, widget: string, hint: "Read aloud for one; {n} is its number and {where} where it is" }

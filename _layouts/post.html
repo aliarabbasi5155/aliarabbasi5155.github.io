@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+{%- comment -%}
+  A blog post's own page, to read in peace and to share: its cover (above the title, or beside
+  it for an upright picture: cover_side), its title, date, topic and reading time, the post,
+  ways to share it, the same post in the other languages, and more posts at the foot. Shared,
+  it shows its cover, title and summary (the og: tags). The post's words come from
+  _blog/<lang>/<name>.md; its address is /blog/<name>/ (or /it/…, /fa/…, _config.yml).
+{%- endcomment -%}
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign data = site.data[lang] -%}
+{%- assign ui = data.ui -%}
+{%- assign live = site.languages | where: "code", lang | first -%}
+{%- assign versions = site.blog | where: "slug", page.slug -%}
+{%- assign words = content | number_of_words -%}
+{%- assign minutes = words | divided_by: 220 | plus: 1 -%}
+{%- capture minutes_text %}{% include digits.html text=minutes ui=ui %}{% endcapture -%}
+{%- assign minutes_line = ui.blog.minutes | replace: "{n}", minutes_text -%}
+{%- assign cover = page.image -%}
+{%- assign share_image = cover | default: "/profile-photo.jpg" | absolute_url -%}
+<html lang="{{ lang }}" dir="{{ page.direction | default: 'ltr' }}">
+<head>
+    <script defer src="{{ '/analytics.js' | relative_url }}"
+        data-hosts="{{ site.analytics.allowed_hosts | jsonify | escape }}"
+        data-measurement-ids="{{ site.analytics.measurement_ids | jsonify | escape }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title | escape }} · {{ data.profile.name | escape }}</title>
+    <meta name="description" content="{{ page.summary | strip_html | truncate: 200 | escape }}">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    {%- for version in versions %}
+    <link rel="alternate" hreflang="{{ version.lang }}" href="{{ version.url | absolute_url }}">
+    {%- endfor %}
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="{{ data.profile.name | escape }}">
+    <meta property="og:title" content="{{ page.title | escape }}">
+    <meta property="og:description" content="{{ page.summary | strip_html | truncate: 200 | escape }}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:image" content="{{ share_image }}">
+    <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#191a1e">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <script>
+        (() => {
+            let theme;
+            try { theme = localStorage.getItem('theme'); } catch {}
+            if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            document.documentElement.dataset.theme = theme;
+            document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f1eee7' : '#191a1e';
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {%- if lang == "fa" %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400..700&family=Vazirmatn:wght@400..700&family=JetBrains+Mono:wght@400;700&display=swap">
+    {%- else %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+    {%- assign persian = site.languages | where: "code", "fa" | first %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600&text={{ persian.name | url_encode }}&display=swap">
+    {%- endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/post.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/analytics.css' | relative_url }}">
+</head>
+<body class="post-page" data-section="blog">
+    <header class="post-top">
+        <a class="post-back" href="{{ live.url | relative_url }}#blog"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>{{ ui.blog.back | escape }}</span></a>
+        <div class="post-controls">
+            <nav class="lang-switch" aria-label="{{ ui.languages | escape }}">
+                {%- for language in site.languages %}
+                {%- assign version = versions | where: "lang", language.code | first %}
+                {%- if language.code == lang %}
+                <span aria-current="page" lang="{{ language.code }}">{{ language.name | escape }}</span>
+                {%- elsif version %}
+                <a class="lang-link" href="{{ version.url | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}">{{ language.name | escape }}</a>
+                {%- endif %}
+                {%- endfor %}
+            </nav>
+            {%- include theme-toggle.html id="post" label=ui.theme class="post-theme" %}
+        </div>
+    </header>
+
+    <main class="post">
+        <article class="post-article{% if cover and page.cover_side %} post-side{% endif %}" data-analytics-item="{{ page.slug | escape }}">
+            <header class="post-hero">
+                {%- if cover %}
+                <figure class="post-cover">
+                    <img src="{{ cover | relative_url }}" alt="{{ page.image_alt | escape }}" decoding="async">
+                </figure>
+                {%- endif %}
+                <div class="post-heading">
+                    <p class="post-meta">
+                        <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{% include date.html date=page.date ui=ui %}</time>
+                        <span>{{ page.topic | escape }}</span>
+                        <span>{{ minutes_line | escape }}</span>
+                    </p>
+                    <h1 class="post-title">{{ page.title | escape }}</h1>
+                    <p class="post-lede">{% include inline.html text=page.summary %}</p>
+                    {%- include share.html url=page.url title=page.title ui=ui %}
+                </div>
+            </header>
+            <div class="post-body">
+                {{ content }}
+            </div>
+            <footer class="post-end">
+                {%- include share.html url=page.url title=page.title ui=ui %}
+            </footer>
+        </article>
+
+        {%- assign others = site.blog | where: "lang", lang | sort: "date" | reverse %}
+        <section class="post-more" aria-labelledby="more-title">
+            <h2 id="more-title">{{ ui.blog.more | escape }}</h2>
+            <div class="post-more-list">
+                {%- assign shown = 0 %}
+                {%- for other in others %}
+                {%- if other.url != page.url and shown < 3 %}
+                {%- assign shown = shown | plus: 1 %}
+                <a class="post-card" href="{{ other.url | relative_url }}">
+                    {%- if other.image %}<img src="{{ other.image_thumb | default: other.image | relative_url }}" alt="" loading="lazy">{% endif %}
+                    <span class="post-card-meta">{{ other.topic | escape }}</span>
+                    <span class="post-card-title">{{ other.title | escape }}</span>
+                </a>
+                {%- endif %}
+                {%- endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="post-foot">
+        <p class="copyright">{{ ui.copyright | escape }}</p>
+        <button type="button" id="analytics-settings" class="privacy-settings" hidden>{{ ui.analytics.settings | escape }}</button>
+    </footer>
+    <section id="analytics-consent" class="analytics-consent" aria-label="{{ ui.analytics.title | escape }}" hidden>
+        <strong>{{ ui.analytics.title | escape }}</strong>
+        <p>{{ ui.analytics.description | escape }}</p>
+        <div class="consent-actions">
+            <button type="button" data-analytics-choice="denied">{{ ui.analytics.decline | escape }}</button>
+            <button type="button" data-analytics-choice="granted">{{ ui.analytics.allow | escape }}</button>
+        </div>
+    </section>
+
+    <script type="application/json" id="ui-strings">{ "blog": {{ ui.blog | jsonify }} }</script>
+    <script type="application/json" id="post-home">{{ live.url | relative_url | jsonify }}</script>
+    <script type="module" src="{{ '/post.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+</body>
+</html>

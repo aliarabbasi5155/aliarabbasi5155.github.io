@@ -3,6 +3,9 @@ title: "Inverse Reinforcement Learning: Understanding Human Behavior"
 date: 2024-12-28 12:00
 topic: Research
 summary: My journey through researching human gaze behavior using IRL techniques and what it reveals about cognitive processes...
+image: /assets/projects/gaze-irl/fixations.webp
+image_thumb: /assets/projects/gaze-irl/fixations-thumb.webp
+image_alt: "A reconstructed scanpath, fixation by fixation"
 ---
 
 Inverse Reinforcement Learning (IRL) offers a fascinating window into understanding human decision-making processes. In my thesis work, I explored how we can reconstruct human gaze behavior during Stroop tasks using EEG data and IRL algorithms.

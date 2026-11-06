@@ -115,11 +115,34 @@ colour (`styles.css`, `.pick`). The greeting, prompt and "continue" line are und
 All text lives in data files; the page layout is `_layouts/cv.html`.
 
 - CV sections: `_data/<lang>/*.yml` for `en`, `it` and `fa` (one file per section, same structure in every language)
-- Blog posts: `_blog/<lang>/<slug>.md` (same slug in every language)
+- Blog posts: `_blog/<lang>/<slug>.md` (same slug in every language); see **Blog posts** below
 - Section names, buttons, Alino's words and other site text: `_data/<lang>/ui.yml`
 - The line under your name on your pane: `pitch` in `_data/<lang>/profile.yml`; the latest
-  update shows there too, and all of them under About (`_data/<lang>/updates.yml`)
+  updates are listed there too (`_data/<lang>/updates.yml`), each with optional pictures
 - The languages themselves, their names and their order in the language switches: `languages` in `_config.yml`
+
+### Blog posts
+
+Each post has its own page, at `/blog/<slug>/` (`/it/blog/…`, `/fa/blog/…`), laid out by
+`_layouts/post.html` with `post.css` and `post.js`: the cover, the title, date, topic and
+reading time, the post in a column narrow enough to read comfortably, buttons to share it (the
+phone's share sheet, copy link, LinkedIn, X, Telegram, WhatsApp), links to the same post in
+the other languages, and more posts at the foot. A shared link shows the cover, title and
+summary as its preview. The Blog pane on the canvas shows each post as a card that links to
+its page.
+
+A post's cover comes from its front matter (**Cover picture** in the CMS):
+
+```yaml
+image: /assets/blog/<slug>/cover.webp        # the picture, about 1600px wide
+image_thumb: /assets/blog/<slug>/cover-thumb.webp  # smaller, for the cards
+image_alt: "What the picture shows"
+cover_side: true   # for an upright picture (a portrait): beside the title, not above it
+```
+
+Text a visitor selects, on the canvas or on a post's page, gets an **Ask Alino about this**
+chip beside it (`selection-ask.js`); on a post's page it opens the site with the question
+asked (`/?ask=…`).
 
 ### Pictures
 
@@ -189,7 +212,8 @@ it is not a persistent recipient identity or proof of who opened a link.
 | `section_depth` | Highest depth read in the pane: `percent_scrolled` = 25, 50, 75, 100 |
 | `project_click`, `publication_click` | Link to a public item; `item_id`, `link_kind` |
 | `contact_click` | Email/GitHub/LinkedIn link click; `link_kind` (not a message being sent) |
-| `article_expand` | Blog post expanded; `item_id` |
+| `article_open` | A blog post opened from its card on the canvas; `item_id` |
+| `article_share` | A blog post shared; `item_id`, `share_method` (share, copy, linkedin, x, telegram, whatsapp) |
 | `language_switch` | Language navigation; `target_language` |
 | `outbound_click`, `cv_download` | Other external links / document links if present |
 

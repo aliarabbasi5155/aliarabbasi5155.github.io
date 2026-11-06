@@ -3,6 +3,19 @@ items:
   - date: Nov 3 2026
     label: "🎨 Open-Source Release:"
     text: "Released [Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio), a private AI image studio built on FLUX.2 Klein, SAM 3 and ComfyUI that runs on your own Mac or NVIDIA PC and works from your phone."
+  - date: "Sep 2026"
+    label: "💡 New Project:"
+    text: "Started [LexiLight](https://app.lexilight.me): save the words you meet while reading, see them highlighted wherever they turn up again, and practise them. It works as a browser extension, a web app, and on Android and iOS. Try the canary version at [app.lexilight.me](https://app.lexilight.me)."
+    images:
+      - src: /assets/updates/lexilight/extension.webp
+        thumb: /assets/updates/lexilight/extension-thumb.webp
+        caption: "Saving a word from a web page with the browser extension"
+      - src: /assets/updates/lexilight/reader.webp
+        thumb: /assets/updates/lexilight/reader-thumb.webp
+        caption: "A PDF in the reader, the saved words highlighted and listed page by page"
+      - src: /assets/updates/lexilight/app.webp
+        thumb: /assets/updates/lexilight/app-thumb.webp
+        caption: "The web app: words saved, flashcards due and what you were reading"
   - date: Nov 10 2025
     label: "🚀 New Position:"
     text: Started as AI Engineer & Team Lead (Part-time, Remote) at Primentoring.AI, a fantastic startup, in London, UK.

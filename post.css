@@ -1,0 +1,519 @@
+/* A blog post's own page (_layouts/post.html): a calm column to read in, with the cover above
+   the title (or beside it, for an upright picture: .post-side), the ways to share it, and
+   more posts at the foot. Colours, fonts and the theme switch come from styles.css. */
+
+.post-page {
+    min-height: 100vh;
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+/* A faint dot grid behind it all, as the site's field at rest */
+.post-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle, color-mix(in srgb, var(--text) 13%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+    mask-image: linear-gradient(to bottom, #000, transparent 70%);
+    pointer-events: none;
+}
+
+/* ---------- The bar along the top: back to the site, the languages, the theme ---------- */
+
+.post-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+}
+
+.post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--soft);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
+
+.post-back:hover {
+    color: var(--mint);
+}
+
+.post-back i {
+    transition: translate 0.3s var(--ease);
+}
+
+.post-back:hover i {
+    translate: -3px 0;
+}
+
+[dir="rtl"] .post-back i {
+    rotate: 180deg;
+}
+
+[dir="rtl"] .post-back:hover i {
+    translate: 3px 0;
+}
+
+.post-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-controls .lang-switch {
+    padding: 0;
+}
+
+/* ---------- The post ---------- */
+
+.post {
+    width: min(100% - 32px, 1080px);
+    margin-inline: auto;
+    padding-block: clamp(28px, 6vw, 64px) 40px;
+}
+
+/* The cover, wide above the title: the picture fades into the page at its foot */
+.post-cover {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--line), 0 30px 60px -30px light-dark(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.6));
+}
+
+.post-cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.post-heading {
+    max-width: 720px;
+    margin: clamp(28px, 5vw, 48px) auto 0;
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    font: 400 12px/1.4 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.post-meta span:first-of-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.post-meta span:first-of-type::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--mint);
+}
+
+.post-title {
+    margin-top: 18px;
+    font: var(--d-weight) calc(clamp(38px, 6vw, 68px) * var(--d-size))/1.04 var(--display);
+    letter-spacing: var(--d-track);
+    text-wrap: balance;
+}
+
+.post-lede {
+    margin-top: 20px;
+    font-size: 1.15em;
+    line-height: 1.6;
+    font-style: italic;
+    color: var(--soft);
+}
+
+/* An upright cover (a portrait, a bust) stands beside the title, at its height, rather than
+   being cropped into a wide band */
+@media (min-width: 860px) {
+    .post-side .post-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+        align-items: center;
+        gap: clamp(32px, 5vw, 64px);
+    }
+
+    .post-side .post-heading {
+        max-width: none;
+        margin: 0;
+    }
+}
+
+.post-side .post-cover {
+    max-width: 460px;
+    margin-inline: auto;
+}
+
+.post-side .post-cover img {
+    aspect-ratio: 3 / 4;
+    object-position: 50% 30%;
+}
+
+/* A soft glow of mint behind an upright cover, as if lit from the page */
+.post-side .post-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent), transparent 35%);
+    pointer-events: none;
+}
+
+/* The words: a column narrow enough to read without losing the line */
+.post-body {
+    max-width: 680px;
+    margin: clamp(32px, 5vw, 56px) auto 0;
+    padding-top: clamp(28px, 4vw, 40px);
+    border-top: 1px dashed var(--dash);
+}
+
+.post-body > * + * {
+    margin-top: 1.1em;
+}
+
+.post-body h2,
+.post-body h3 {
+    margin-top: 1.8em;
+    font: var(--d-weight) calc(1.7em * var(--d-size))/1.15 var(--display);
+    letter-spacing: var(--d-track);
+}
+
+.post-body h3 {
+    font-size: calc(1.35em * var(--d-size));
+}
+
+.post-body a {
+    color: var(--mint);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.post-body strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.post-body ul,
+.post-body ol {
+    padding-inline-start: 1.3em;
+}
+
+.post-body li + li {
+    margin-top: 0.5em;
+}
+
+.post-body li::marker {
+    color: var(--mint);
+}
+
+.post-body blockquote {
+    padding-inline-start: 20px;
+    border-inline-start: 2px solid var(--coral);
+    font-style: italic;
+    color: var(--soft);
+}
+
+.post-body code {
+    padding: 0.1em 0.35em;
+    border-radius: 6px;
+    background: var(--wash-strong);
+    font: 0.85em var(--mono);
+}
+
+.post-body pre {
+    overflow-x: auto;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--wash-strong);
+}
+
+.post-body pre code {
+    padding: 0;
+    background: none;
+}
+
+.post-body hr {
+    margin-block: 2em;
+    border: 0;
+    border-top: 1px dashed var(--dash);
+}
+
+.post-body .blog-figure {
+    margin-block: 2em;
+}
+
+/* Pictures in the post may be a little wider than the words */
+@media (min-width: 860px) {
+    .post-body .blog-figure {
+        margin-inline: -60px;
+    }
+}
+
+.post-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.post-body th,
+.post-body td {
+    padding: 10px 12px;
+    border-bottom: 1px dashed var(--dash);
+    text-align: start;
+    vertical-align: top;
+}
+
+.post-body th {
+    font: 700 12px/1.4 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.post-end {
+    max-width: 680px;
+    margin: 48px auto 0;
+    padding-top: 28px;
+    border-top: 1px dashed var(--dash);
+}
+
+/* ---------- Sharing ---------- */
+
+.share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 26px;
+}
+
+.post-end .share {
+    margin-top: 0;
+}
+
+.share button,
+.share-to {
+    display: inline-grid;
+    grid-auto-flow: column;
+    place-items: center;
+    gap: 9px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border: 1px dashed var(--dash);
+    border-radius: 999px;
+    background: var(--panel);
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--soft);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.share-to {
+    padding: 0;
+    font-size: 15px;
+}
+
+.share button:hover,
+.share-to:hover {
+    border-color: var(--mint);
+    color: var(--mint);
+}
+
+.share button.done {
+    border-style: solid;
+    border-color: var(--mint);
+    background: var(--mint);
+    color: var(--bg);
+}
+
+.share button[hidden] {
+    display: none;
+}
+
+/* ---------- More to read ---------- */
+
+.post-more {
+    max-width: 1080px;
+    margin: clamp(56px, 8vw, 96px) auto 0;
+}
+
+.post-more h2 {
+    font: 700 12px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.post-more-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.post-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 12px 18px;
+    border: 1px dashed var(--dash);
+    border-radius: 22px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.3s, translate 0.3s var(--ease);
+}
+
+.post-card:hover {
+    border-color: var(--mint);
+    translate: 0 -2px;
+}
+
+.post-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.post-card-meta {
+    padding-inline: 6px;
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mint);
+}
+
+.post-card-title {
+    padding-inline: 6px;
+    font: var(--d-weight) calc(23px * var(--d-size))/1.2 var(--display);
+    letter-spacing: var(--d-track);
+}
+
+.post-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: min(100% - 32px, 1080px);
+    margin: 64px auto 0;
+    padding-block: 24px 32px;
+    border-top: 1px solid var(--line);
+}
+
+.post-foot .privacy-settings {
+    border: 0;
+    background: none;
+    font: 400 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.post-foot .privacy-settings:hover {
+    color: var(--mint);
+}
+
+.post-foot .privacy-settings[hidden] {
+    display: none;
+}
+
+/* ---------- Persian ---------- */
+
+html[lang="fa"] .post-page {
+    font-size: 17px;
+    line-height: 2;
+}
+
+html[lang="fa"] .post-title {
+    line-height: 1.3;
+}
+
+html[lang="fa"] .post-lede {
+    font-style: normal;
+    line-height: 1.9;
+}
+
+html[lang="fa"] .post-body h2,
+html[lang="fa"] .post-body h3 {
+    line-height: 1.4;
+}
+
+html[lang="fa"] .post-meta,
+html[lang="fa"] .post-back,
+html[lang="fa"] .share button,
+html[lang="fa"] .post-card-meta,
+html[lang="fa"] .post-more h2 {
+    font-size: 13px;
+}
+
+/* ---------- Phones ---------- */
+
+@media (max-width: 600px) {
+    .post-page {
+        font-size: 17px;
+    }
+
+    .post-back span {
+        display: none;
+    }
+
+    .post-cover {
+        border-radius: 20px;
+    }
+
+    .post-side .post-cover {
+        max-width: 290px;
+    }
+
+    /* The phone's own share sheet keeps its word; copying the link becomes an icon */
+    .share-copy span {
+        display: none;
+    }
+
+    .share .share-copy {
+        width: 40px;
+        padding: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-card,
+    .post-back i {
+        transition: none;
+    }
+}

@@ -3,6 +3,9 @@ title: "Book Review: \"Mindset\" by Carol Dweck - A Game-Changer for Personal Gr
 date: 2025-10-12 12:00
 topic: Book Review
 summary: "\"The view you adopt for yourself profoundly affects the way you lead your life.\" This powerful opening from Carol Dweck's \"Mindset\" perfectly captures why this book was such a fantastic read..."
+image: /assets/blog/mindset/cover.webp
+image_thumb: /assets/blog/mindset/cover-thumb.webp
+image_alt: "Rings of dots growing outward, like a tree’s"
 ---
 
 *"The view you adopt for yourself profoundly affects the way you lead your life."* This powerful statement from Carol Dweck's "Mindset" immediately grabbed my attention and set the tone for what would become a truly transformative reading experience.

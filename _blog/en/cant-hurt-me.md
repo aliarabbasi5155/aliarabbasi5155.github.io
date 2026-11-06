@@ -3,6 +3,9 @@ title: "Book Review: \"Can't Hurt Me\" by David Goggins - Stop Lying to Yourself
 date: 2026-09-30 18:00
 topic: Book Review
 summary: Next to the quiet, introspective books I've written about here, "Can't Hurt Me" feels like someone kicking the door open and yelling. It's loud, extreme, and sometimes too much. It's also the most direct book I've read about the lies we tell ourselves...
+image: /assets/blog/cant-hurt-me/cover.webp
+image_thumb: /assets/blog/cant-hurt-me/cover-thumb.webp
+image_alt: "A ridge of dots rising out of the dark"
 ---
 
 After a run of books about guilt, death, freedom, and meaning, David Goggins' "Can't Hurt Me" was a very different experience. Goggins doesn't want to discuss your existential concerns. He wants you to get up and go for a run. And strangely, after all that philosophy, it was refreshing to hear.

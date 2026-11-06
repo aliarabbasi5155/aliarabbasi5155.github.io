@@ -3,6 +3,9 @@ title: "The Evolution of LLMs: From GPT to Specialized Models"
 date: 2024-10-10 12:00
 topic: AI Trends
 summary: Analyzing the rapid evolution of large language models and their impact on various industries, including our experience with fine-tuning Llama-3...
+image: /assets/blog/evolution-of-llms/cover.webp
+image_thumb: /assets/blog/evolution-of-llms/cover-thumb.webp
+image_alt: "A neural network drawn in dots: layers of nodes and the connections between them"
 ---
 
 The landscape of Large Language Models has evolved dramatically over the past two years. From the initial excitement around GPT models to the current ecosystem of specialized, fine-tuned models, we're witnessing a maturation of the field.

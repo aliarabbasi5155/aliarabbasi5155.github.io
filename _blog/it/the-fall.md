@@ -3,6 +3,9 @@ title: "Recensione: \"La caduta\" di Albert Camus, una confessione che diventa u
 date: 2026-09-30 15:00
 topic: Recensione
 summary: "\"La caduta\" è lungo appena un centinaio di pagine, ma è uno dei libri più inquietanti che abbia letto. Camus ti fa sedere al tavolo con un affascinante sconosciuto in un bar di Amsterdam, lo lascia parlare e, a un certo punto, ti accorgi che stava parlando di te..."
+image: /assets/blog/the-fall/cover.webp
+image_thumb: /assets/blog/the-fall/cover-thumb.webp
+image_alt: "Flussi di punti che cadono e si intrecciano nel buio"
 ---
 
 Ho finito "La caduta" di Albert Camus e volevo scriverne prima che la sensazione svanisca, soprattutto perché non sono ancora sicuro di che sensazione sia. È un libro breve e in pratica non "succede" quasi nulla. Un uomo di nome Jean-Baptiste Clamence siede in un bar di marinai ad Amsterdam, il Mexico City, e parla con uno sconosciuto per cinque giorni. Tutto qui. Eppure mi è rimasto dentro più della maggior parte dei romanzi lunghi il triplo.

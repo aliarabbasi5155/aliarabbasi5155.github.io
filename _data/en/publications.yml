@@ -6,3 +6,13 @@ items:
     url: https://www.sciencedirect.com/science/article/pii/S2352648325000285
     link_label: View Publication
     abstract: This research presents a novel approach to cognitive assessment using multimodal Inverse Reinforcement Learning to reconstruct human gaze behavior during Stroop tasks. The study combines EEG data with eye-tracking information to better understand cognitive processes and decision-making patterns under different cognitive load conditions.
+    images:
+      - src: /assets/publications/gaze-irl/setup.webp
+        thumb: /assets/publications/gaze-irl/setup-thumb.webp
+        caption: "The experiment: EEG and fNIRS sensors on, the Stroop test on screen"
+      - src: /assets/publications/gaze-irl/method.webp
+        thumb: /assets/publications/gaze-irl/method-thumb.webp
+        caption: "The method: EEG and human scanpaths train a GAIL model"
+      - src: /assets/publications/gaze-irl/brain.webp
+        thumb: /assets/publications/gaze-irl/brain-thumb.webp
+        caption: "Brain activity during the task, from five angles"

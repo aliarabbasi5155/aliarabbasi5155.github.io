@@ -3,6 +3,9 @@ title: Il futuro del machine learning nei sistemi autonomi
 date: 2025-01-15 12:00
 topic: Machine Learning
 summary: Come algoritmi di ML avanzati stanno rivoluzionando i sistemi di droni autonomi e le loro applicazioni concrete in diversi settori...
+image: /assets/work/nimbus/flight.webp
+image_thumb: /assets/work/nimbus/flight-thumb.webp
+image_alt: "Un drone Nimbus in volo"
 ---
 
 Il machine learning è diventato la pietra angolare dei moderni sistemi autonomi, in particolare nel campo dei velivoli senza pilota (UAV). Entrando nel 2025, l'integrazione di algoritmi sofisticati come la Proximal Policy Optimization (PPO) e il deep reinforcement learning sta trasformando il modo in cui i droni operano in ambienti complessi.

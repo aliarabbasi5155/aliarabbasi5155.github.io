@@ -3,6 +3,9 @@ title: The Future of Machine Learning in Autonomous Systems
 date: 2025-01-15 12:00
 topic: Machine Learning
 summary: Exploring how advanced ML algorithms are revolutionizing autonomous drone systems and their real-world applications in various industries...
+image: /assets/work/nimbus/flight.webp
+image_thumb: /assets/work/nimbus/flight-thumb.webp
+image_alt: "A Nimbus drone in flight"
 ---
 
 Machine learning has become the cornerstone of modern autonomous systems, particularly in the realm of unmanned aerial vehicles (UAVs). As we advance into 2025, the integration of sophisticated algorithms like Proximal Policy Optimization (PPO) and deep reinforcement learning is transforming how drones operate in complex environments.

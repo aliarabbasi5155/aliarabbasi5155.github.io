@@ -34,6 +34,37 @@ jobs:
       - هدایت یک تیم چهارنفره‌ی مهندسی برای ساخت یک سیستم cross-platform مانیتورینگ ناوگان روی AWS، با telemetry دوثانیه‌ای برای بیش از ۱۵۰ پهپاد (UAV) در سراسر اروپا.
       - مدرن‌سازی stack نرم‌افزاری (React Native، Django REST Framework، CI/CD و deploymentهای containerized) که با کم کردن ظرفیت مهندسی لازم برای نگهداری و توسعه‌ی پلتفرم، سالانه حدود ۵۰٬۰۰۰ یورو صرفه‌جویی کرد.
       - مشارکت در پروژه‌ی Charger Box برای خودکارسازی جابه‌جایی پهپادها جهت شارژ خودکار، با ۹۸٪ docking موفق.
+    images:
+      - src: /assets/work/nimbus/flight.webp
+        thumb: /assets/work/nimbus/flight-thumb.webp
+        caption: "یک پهپاد در حال پرواز"
+      - src: /assets/work/nimbus/charger-box.webp
+        thumb: /assets/work/nimbus/charger-box-thumb.webp
+        caption: "داخل Charger Box، جایی که پهپادها خودشان فرود می‌آیند و شارژ می‌شوند"
+      - src: /assets/work/nimbus/vtol-hangar.webp
+        thumb: /assets/work/nimbus/vtol-hangar-thumb.webp
+        caption: "یک پهپاد VTOL در آشیانه"
+      - src: /assets/work/nimbus/vtol-workshop.webp
+        thumb: /assets/work/nimbus/vtol-workshop-thumb.webp
+        caption: "ساخت یک VTOL در کارگاه Nimbus"
+      - src: /assets/work/nimbus/app-map.webp
+        thumb: /assets/work/nimbus/app-map-thumb.webp
+        caption: "اپ پایش ناوگان: یک پهپاد زنده روی نقشه"
+      - src: /assets/work/nimbus/app-checks.webp
+        thumb: /assets/work/nimbus/app-checks-thumb.webp
+        caption: "بررسی‌های پیش از پرواز در اپ"
+      - src: /assets/work/nimbus/gripper.webp
+        thumb: /assets/work/nimbus/gripper-thumb.webp
+        caption: "پهپادی با بازوی رباتیک"
+      - src: /assets/work/nimbus/corridor.webp
+        thumb: /assets/work/nimbus/corridor-thumb.webp
+        caption: "یک کریدور پروازی برنامه‌ریزی‌شده بر فراز دره‌ی Taro"
+      - src: /assets/work/nimbus/mars.webp
+        thumb: /assets/work/nimbus/mars-thumb.webp
+        caption: "M.A.R.S.، سامانه‌ی Multiple Airborne Response System"
+      - src: /assets/work/nimbus/hexacopter.webp
+        thumb: /assets/work/nimbus/hexacopter-thumb.webp
+        caption: "یک هگزاکوپتر آماده‌ی برخاستن"
   - title: Machine Learning Engineer و Fullstack Developer
     company: Reefilla SRL
     company_url: https://www.reefilla.com/

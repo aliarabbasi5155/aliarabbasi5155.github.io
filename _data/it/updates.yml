@@ -3,6 +3,19 @@ items:
   - date: 3 novembre 2026
     label: "🎨 Nuovo progetto open source:"
     text: "Ho pubblicato [Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio), uno studio di immagini AI privato basato su FLUX.2 Klein, SAM 3 e ComfyUI, che gira sul tuo Mac o PC NVIDIA e funziona anche dal telefono."
+  - date: "settembre 2026"
+    label: "💡 Nuovo progetto:"
+    text: "Ho avviato [LexiLight](https://app.lexilight.me): salvi le parole che incontri leggendo, le ritrovi evidenziate ovunque ricompaiano e le ripassi. Funziona come estensione del browser, come web app e su Android e iOS. Prova la versione canary su [app.lexilight.me](https://app.lexilight.me)."
+    images:
+      - src: /assets/updates/lexilight/extension.webp
+        thumb: /assets/updates/lexilight/extension-thumb.webp
+        caption: "Salvare una parola da una pagina web con l'estensione del browser"
+      - src: /assets/updates/lexilight/reader.webp
+        thumb: /assets/updates/lexilight/reader-thumb.webp
+        caption: "Un PDF nel lettore, con le parole salvate evidenziate ed elencate pagina per pagina"
+      - src: /assets/updates/lexilight/app.webp
+        thumb: /assets/updates/lexilight/app-thumb.webp
+        caption: "La web app: parole salvate, flashcard da ripassare e cosa stavi leggendo"
   - date: 10 novembre 2025
     label: "🚀 Nuovo incarico:"
     text: Ho iniziato come AI Engineer e Team Lead (part-time, da remoto) in Primentoring.AI, una fantastica startup di Londra, nel Regno Unito.

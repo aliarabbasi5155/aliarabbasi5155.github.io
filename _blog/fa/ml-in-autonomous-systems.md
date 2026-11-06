@@ -3,6 +3,9 @@ title: آینده‌ی Machine Learning در سیستم‌های خودمختا�
 date: 2025-01-15 12:00
 topic: یادگیری ماشین
 summary: نگاهی به این‌که الگوریتم‌های پیشرفته‌ی ML چطور سیستم‌های پهپادی خودمختار و کاربردهای واقعی‌شان را در صنایع مختلف متحول می‌کنند...
+image: /assets/work/nimbus/flight.webp
+image_thumb: /assets/work/nimbus/flight-thumb.webp
+image_alt: "یک پهپاد Nimbus در حال پرواز"
 ---
 
 Machine learning به سنگ بنای سیستم‌های خودمختار مدرن تبدیل شده، به‌خصوص در حوزه‌ی پهپادها (UAV). با ورود به ۲۰۲۵، ادغام الگوریتم‌های پیشرفته‌ای مثل Proximal Policy Optimization (PPO) و deep reinforcement learning در حال تغییر شیوه‌ی عملکرد پهپادها در محیط‌های پیچیده است.

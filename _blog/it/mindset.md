@@ -3,6 +3,9 @@ title: "Recensione: \"Mindset\" di Carol Dweck, una svolta per la crescita perso
 date: 2025-10-12 12:00
 topic: Recensione
 summary: "\"L'idea che adottiamo di noi stessi influisce profondamente sul modo in cui conduciamo la nostra vita.\" Questa frase potente di \"Mindset\" di Carol Dweck spiega perfettamente perché è stata una lettura così straordinaria..."
+image: /assets/blog/mindset/cover.webp
+image_thumb: /assets/blog/mindset/cover-thumb.webp
+image_alt: "Anelli di punti che crescono verso l’esterno, come quelli di un albero"
 ---
 
 *"L'idea che adottiamo di noi stessi influisce profondamente sul modo in cui conduciamo la nostra vita."* Questa affermazione potente di "Mindset" di Carol Dweck ha subito catturato la mia attenzione e ha dato il tono a quella che sarebbe diventata una lettura davvero trasformativa.
