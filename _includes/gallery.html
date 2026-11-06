@@ -1,10 +1,10 @@
 {%- comment -%}
   An item's pictures (include.images: src, an optional smaller thumb, and a caption), as a row of
   thumbnails; a press opens them full size (lightbox.js). Alino shows the same pictures beside an
-  answer that cites the item.
+  answer that cites the item. include.class adds classes (update-gallery: small, on Ali's pane).
 {%- endcomment -%}
 {%- if include.images.size > 0 %}
-<div class="gallery">
+<div class="gallery{% if include.class %} {{ include.class }}{% endif %}">
     {%- for image in include.images %}
     <button type="button" class="gallery-item" data-full="{{ image.src | relative_url }}" data-caption="{{ image.caption | escape }}">
         <img src="{{ image.thumb | default: image.src | relative_url }}" alt="{{ image.caption | escape }}" loading="lazy" decoding="async" draggable="false">

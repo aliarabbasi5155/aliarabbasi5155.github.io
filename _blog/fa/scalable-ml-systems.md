@@ -3,6 +3,9 @@ title: "ساخت سیستم‌های ML مقیاس‌پذیر: درس‌هایی
 date: 2024-11-20 12:00
 topic: مهندسی
 summary: تجربه‌های عملی از deploy کردن مدل‌های machine learning در محیط production و چالش‌های scale کردن سیستم‌های AI...
+image: /assets/blog/scalable-ml-systems/cover.webp
+image_thumb: /assets/blog/scalable-ml-systems/cover-thumb.webp
+image_alt: "گرافی از گره‌های به‌هم‌پیوسته که با نقطه کشیده شده"
 ---
 
 گذار از prototypeهای پژوهشی به سیستم‌های ML آماده‌ی production چالش‌های خاص خودش را دارد که هر ML engineer باید از پسشان بربیاید. در چند سال گذشته درس‌های ارزشمندی درباره‌ی ساخت سیستم‌های AI مقیاس‌پذیر و قابل‌اتکا یاد گرفته‌ام.

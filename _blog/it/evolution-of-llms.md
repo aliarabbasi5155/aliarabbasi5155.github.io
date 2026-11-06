@@ -3,6 +3,9 @@ title: "L'evoluzione degli LLM: da GPT ai modelli specializzati"
 date: 2024-10-10 12:00
 topic: Tendenze AI
 summary: Un'analisi della rapida evoluzione dei large language model e del loro impatto su diversi settori, compresa la nostra esperienza con il fine-tuning di Llama-3...
+image: /assets/blog/evolution-of-llms/cover.webp
+image_thumb: /assets/blog/evolution-of-llms/cover-thumb.webp
+image_alt: "Una rete neurale disegnata a punti: strati di nodi e le connessioni tra loro"
 ---
 
 Negli ultimi due anni il panorama dei Large Language Model è cambiato radicalmente. Dall'entusiasmo iniziale per i modelli GPT all'attuale ecosistema di modelli specializzati e sottoposti a fine-tuning, stiamo assistendo alla maturazione del settore.

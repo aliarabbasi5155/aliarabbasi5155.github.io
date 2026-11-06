@@ -3,6 +3,9 @@ title: "Book Review: \"The Fall\" by Albert Camus - A Confession That Turns Into
 date: 2026-09-30 15:00
 topic: Book Review
 summary: "\"The Fall\" is barely a hundred pages long, but it's one of the most unsettling books I've read. Camus sits you across the table from a charming stranger in an Amsterdam bar, lets him talk, and somewhere along the way you realize he has been talking about you..."
+image: /assets/blog/the-fall/cover.webp
+image_thumb: /assets/blog/the-fall/cover-thumb.webp
+image_alt: "Streams of dots falling and twisting through the dark"
 ---
 
 I finished "The Fall" by Albert Camus and wanted to write something about it before the feeling fades, mostly because I'm still not sure what the feeling is. It's a short book and almost nothing "happens" in it. A man named Jean-Baptiste Clamence sits in a sailors' bar in Amsterdam called Mexico City and talks to a stranger over five days. That's it. And yet it stayed with me more than most novels three times its length.

@@ -70,6 +70,7 @@ alino:
   let_go: Lascia andare per rimandarlo indietro
   placeholder: Chiedi ad Alino qualsiasi cosa su Ali…
   send: Invia
+  about_selection: "Parlami di “{text}”"
   hello: "Ciao! Sono Alino 👋 Chiedimi qualsiasi cosa su Ali: il suo lavoro, i suoi progetti, i suoi studi, o fammi solo un saluto. Ti rispondo e ti mostro dove lo dice il suo CV."
   references: Fonti
   reference: "Fonte {n}: {where}"
@@ -136,3 +137,14 @@ gallery:
   close: Chiudi
   previous: Immagine precedente
   next: Immagine successiva
+# A blog post's own page, and the share buttons
+blog:
+  read: "Leggi"
+  share: "Condividi"
+  copy: "Copia il link"
+  copied: "Link copiato"
+  back: "Torna al sito"
+  minutes: "{n} min di lettura"
+  more: "Altro da leggere"
+  ask: "Chiedi ad Alino"
+

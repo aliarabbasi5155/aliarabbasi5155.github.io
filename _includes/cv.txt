@@ -14,7 +14,7 @@ ABOUT
 {% for paragraph in d.about.paragraphs %}[about-{{ forloop.index0 }}] {% include plain.txt text=paragraph %}
 {% endfor %}
 LATEST UPDATES (newest first)
-{% for update in d.updates.items %}[update-{{ forloop.index0 }}] {{ update.date }}: {{ update.label }} {% include plain.txt text=update.text %}
+{% for update in d.updates.items %}[update-{{ forloop.index0 }}] {{ update.date }}: {{ update.label }} {% include plain.txt text=update.text %}{% if update.images.size > 0 %} Pictures: {{ update.images | map: "caption" | join: "; " }}.{% endif %}
 {% endfor %}
 EXPERIENCE
 {% for job in d.experience.jobs %}{% assign j = forloop.index0 %}[job-{{ j }}] {{ job.title }} at {{ job.company }}, {{ job.location }} ({{ job.period }}).{% if job.images.size > 0 %} Pictures: {{ job.images | map: "caption" | join: "; " }}.{% endif %}

@@ -3,6 +3,9 @@ title: "Local Image Studio؛ استودیوی تصویر با AI که از خا�
 date: 2026-11-04 12:00
 topic: پروژه‌ی Open Source
 summary: می‌خواستم عکس‌های خودم را با AI ویرایش کنم، بدون این‌که جایی upload شوند. برای همین یک ماه وقت گذاشتم و یک استودیوی کامل تصویر ساختم که روی لپ‌تاپ خودم اجرا می‌شود، از گوشی هم کار می‌کند و با یک دستور نصب می‌شود. حالا Open Source است...
+image: /assets/projects/local-image-studio/compare.webp
+image_thumb: /assets/projects/local-image-studio/compare-thumb.webp
+image_alt: "Local Image Studio: یک عکس قبل و بعد از ویرایش، کنار هم"
 ---
 
 هر ابزار تصویرسازی با AI که امتحان کردم یک معامله‌ی ثابت پیشنهاد می‌داد: عکس‌هایت را upload کن، قوانین یک نفر دیگر را بپذیر و هر ماه پول بده. Local Image Studio جواب من به این معامله است؛ یک استودیوی کامل تصویر بر پایه‌ی FLUX.2 Klein 9B و SAM 3 و ComfyUI که همه‌چیزش روی GPU خودتان اجرا می‌شود. عکس‌ها و promptهایتان هیچ‌وقت از شبکه‌ی خانه بیرون نمی‌روند.

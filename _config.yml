@@ -26,8 +26,9 @@ languages:
 
 collections:
   blog:
-    # Posts are shown inside the one page, not as pages of their own
-    output: false
+    # Each post has a page of its own, to read and to share (_layouts/post.html), at
+    # /blog/<file name>/, /it/blog/<file name>/ and /fa/blog/<file name>/
+    output: true
 
 defaults:
   - scope:
@@ -35,16 +36,23 @@ defaults:
       type: blog
     values:
       lang: en
+      layout: post
+      permalink: /blog/:name/
   - scope:
       path: _blog/it
       type: blog
     values:
       lang: it
+      layout: post
+      permalink: /it/blog/:name/
   - scope:
       path: _blog/fa
       type: blog
     values:
       lang: fa
+      direction: rtl
+      layout: post
+      permalink: /fa/blog/:name/
 
 exclude:
   - README.md

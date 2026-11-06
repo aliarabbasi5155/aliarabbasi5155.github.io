@@ -382,7 +382,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         const seen = new Set();
         const pictures = [];
         for (const id of order.keys()) {
-            const holder = byRef.get(id).el.closest('.project, .job, .degree, .publication');
+            const holder = byRef.get(id).el.closest('.project, .job, .degree, .publication, .home-update');
             for (const picture of picturesOf(holder?.querySelectorAll('.gallery-item') ?? [])) {
                 if (pictures.length < 4 && !seen.has(picture.full)) {
                     seen.add(picture.full);
@@ -568,7 +568,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         }
     });
     document.addEventListener('pointerdown', event => {
-        if (!panel.hidden && !event.target.closest('.ask, .orb, .lightbox')) close(false);
+        if (!panel.hidden && !event.target.closest('.ask, .orb, .lightbox, .select-ask')) close(false);
     });
     addEventListener('resize', place);
 
@@ -576,6 +576,11 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         open,
         close,
         toggle: trigger => (panel.hidden ? open(trigger) : close()),
+        // Open and ask this (text selected on the page, or a question brought from a post: ?ask=)
+        ask: (question, trigger) => {
+            open(trigger);
+            ask(question);
+        },
         isOpen: () => !panel.hidden,
         // Whether the visitor has asked anything this visit
         asked: () => session.asked > 0,

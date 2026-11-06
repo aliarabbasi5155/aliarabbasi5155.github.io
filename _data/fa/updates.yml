@@ -3,6 +3,19 @@ items:
   - date: ۳ نوامبر ۲۰۲۶
     label: "🎨 پروژه‌ی Open Source جدید:"
     text: "[Local Image Studio](https://github.com/aliarabbasi5155/local-image-studio) را منتشر کردم؛ یک استودیوی خصوصی تصویر با AI بر پایه‌ی FLUX.2 Klein و SAM 3 و ComfyUI که روی Mac یا PC مجهز به NVIDIA خودتان اجرا می‌شود و از گوشی هم کار می‌کند."
+  - date: "سپتامبر ۲۰۲۶"
+    label: "💡 پروژه‌ی جدید:"
+    text: "[LexiLight](https://app.lexilight.me) را شروع کردم: کلمه‌هایی را که موقع خواندن می‌بینید ذخیره می‌کنید، هر جا دوباره پیدا شوند هایلایت‌شده می‌بینیدشان و مرورشان می‌کنید. به‌صورت افزونه‌ی مرورگر، وب‌اپ و روی Android و iOS کار می‌کند. نسخه‌ی canary را روی [app.lexilight.me](https://app.lexilight.me) امتحان کنید."
+    images:
+      - src: /assets/updates/lexilight/extension.webp
+        thumb: /assets/updates/lexilight/extension-thumb.webp
+        caption: "ذخیره‌ی یک کلمه از صفحه‌ی وب با افزونه‌ی مرورگر"
+      - src: /assets/updates/lexilight/reader.webp
+        thumb: /assets/updates/lexilight/reader-thumb.webp
+        caption: "یک PDF در خواننده، با کلمه‌های ذخیره‌شده که هایلایت شده‌اند و صفحه به صفحه فهرست شده‌اند"
+      - src: /assets/updates/lexilight/app.webp
+        thumb: /assets/updates/lexilight/app-thumb.webp
+        caption: "وب‌اپ: کلمه‌های ذخیره‌شده، فلش‌کارت‌های آماده‌ی مرور و آنچه داشتید می‌خواندید"
   - date: ۱۰ نوامبر ۲۰۲۵
     label: "🚀 موقعیت شغلی جدید:"
     text: به‌عنوان AI Engineer و Team Lead (پاره‌وقت، دورکاری) به Primentoring.AI پیوستم؛ یک استارتاپ فوق‌العاده در لندن.

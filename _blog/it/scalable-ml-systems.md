@@ -3,6 +3,9 @@ title: "Costruire sistemi di ML scalabili: lezioni dalla produzione"
 date: 2024-11-20 12:00
 topic: Ingegneria
 summary: Indicazioni pratiche dal deployment di modelli di machine learning in produzione e dalle sfide nello scalare i sistemi di AI...
+image: /assets/blog/scalable-ml-systems/cover.webp
+image_thumb: /assets/blog/scalable-ml-systems/cover-thumb.webp
+image_alt: "Un grafo di nodi collegati, disegnato a punti"
 ---
 
 Passare dai prototipi di ricerca a sistemi di ML pronti per la produzione comporta sfide particolari che ogni ML engineer deve affrontare. Negli ultimi anni ho imparato lezioni preziose su come costruire sistemi di AI scalabili e affidabili.

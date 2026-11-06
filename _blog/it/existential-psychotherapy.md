@@ -3,6 +3,9 @@ title: "Recensione: \"Psicoterapia esistenziale\" di Irvin D. Yalom, morte, libe
 date: 2026-09-30 16:00
 topic: Recensione
 summary: Tecnicamente è un manuale per psicoterapeuti. È lungo, denso, e io non sono un terapeuta. Eppure si è rivelato uno dei libri più personali che abbia letto, perché ogni capitolo parla di qualcosa che probabilmente stai evitando in silenzio...
+image: /assets/blog/existential-psychotherapy/cover.webp
+image_thumb: /assets/blog/existential-psychotherapy/cover-thumb.webp
+image_alt: "Un attrattore strano disegnato a punti: due anelli attorno a cui un percorso gira per sempre senza fermarsi"
 ---
 
 Lo dico subito: "Psicoterapia esistenziale" non è una lettura leggera. È un manuale clinico, scritto da Irvin Yalom nel 1980 per i terapeuti, e sono circa 500 pagine di teoria, casi clinici e riferimenti a filosofi e psichiatri. Si è però rivelato un buon compagno di "La caduta". Camus ti mette davanti uno specchio e ti lascia solo con lui. Yalom si siede accanto a te e ti aiuta a capire che cosa stai guardando.

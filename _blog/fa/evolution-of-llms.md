@@ -3,6 +3,9 @@ title: "تکامل LLMها: از GPT تا مدل‌های تخصصی"
 date: 2024-10-10 12:00
 topic: ترندهای AI
 summary: تحلیلی بر تکامل سریع large language modelها و اثرشان بر صنایع مختلف، از جمله تجربه‌ی ما در fine-tune کردن Llama-3...
+image: /assets/blog/evolution-of-llms/cover.webp
+image_thumb: /assets/blog/evolution-of-llms/cover-thumb.webp
+image_alt: "یک شبکه‌ی عصبی از نقطه‌ها: لایه‌هایی از گره‌ها و اتصال‌های میانشان"
 ---
 
 چشم‌انداز Large Language Modelها در دو سال گذشته به‌شدت تغییر کرده. از هیجان اولیه درباره‌ی مدل‌های GPT تا اکوسیستم فعلی مدل‌های تخصصی و fine-tuneشده، داریم بلوغ این حوزه را می‌بینیم.

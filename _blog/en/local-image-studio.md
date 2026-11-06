@@ -3,6 +3,9 @@ title: "Local Image Studio: An AI Image Studio That Never Leaves Home"
 date: 2026-11-04 12:00
 topic: Open Source
 summary: I wanted to edit my own photos with AI without uploading them anywhere. So I spent a month building a complete image studio that runs on my laptop, works from my phone and installs with a single command. Now it's open source...
+image: /assets/projects/local-image-studio/compare.webp
+image_thumb: /assets/projects/local-image-studio/compare-thumb.webp
+image_alt: "Local Image Studio: a photo before and after an edit, side by side"
 ---
 
 Every AI image tool I tried offered the same deal: upload your photos, accept someone else's rules, and pay every month. Local Image Studio is my answer to that. It's a complete image studio built on FLUX.2 Klein 9B, SAM 3 and ComfyUI, and everything runs on your own GPU. Your photos and prompts never leave your home network.

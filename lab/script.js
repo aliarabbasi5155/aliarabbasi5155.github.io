@@ -28,6 +28,8 @@ import { GlassRings } from './glass-rings.js';
 import { initAsk } from './ask.js';
 import { livePhoto } from './live-photo.js';
 import { initGalleries } from './lightbox.js';
+import { share } from './share.js';
+import { initSelectionAsk } from './selection-ask.js';
 
 const UI = JSON.parse(document.getElementById('ui-strings')?.textContent || '{}');
 const ALINO = UI.alino ?? {};
@@ -202,17 +204,12 @@ function initExternalLinks() {
     }
 }
 
-// A blog post's "show more" opens the rest of it in place (analytics.js reads its display)
-function initBlogToggles() {
-    for (const button of document.querySelectorAll('.blog-toggle-btn')) {
-        button.addEventListener('click', () => {
-            const full = button.closest('.blog-post').querySelector('.blog-full-content');
-            const opening = full.style.display === 'none';
-            full.style.display = opening ? '' : 'none';
-            button.textContent = opening ? UI.show_less : UI.show_more;
-            button.setAttribute('aria-expanded', opening);
-        });
-    }
+// A post's card shares it: the share sheet where there is one, or else the link copied
+function initBlogShare() {
+    document.addEventListener('click', event => {
+        const button = event.target.closest('.blog-share');
+        if (button) share({ url: button.dataset.url, title: button.dataset.title }, button);
+    });
 }
 
 // Letters cycle through random glyphs, then settle in reading order
@@ -455,7 +452,7 @@ const deferField = !location.hash && !REDUCE_MOTION;
 const field = createField(picker || deferField ? MAP : HOME);
 initTheme();
 initLanguageMemory();
-initBlogToggles();
+initBlogShare();
 initExternalLinks();
 initTimelines();
 initGalleries();
@@ -733,6 +730,18 @@ const ask = initAsk({
         } else {
             orbState();
         }
+    },
+});
+
+// Text selected on the canvas: "Ask Alino" beside it, which asks about it
+const aboutSelection = text => (ALINO.about_selection ?? 'Tell me about “{text}”').replace('{text}', text);
+initSelectionAsk({
+    scope: viewport,
+    label: UI.blog?.ask ?? 'Ask Alino',
+    exclude: '.ask, .lightbox, input, textarea, .pane-label',
+    ask: text => {
+        interacted();
+        ask.ask(aboutSelection(text), orbCore);
     },
 });
 
@@ -1247,6 +1256,19 @@ initPicker(() => {
         intro = setTimeout(() => focus('home', { push: false }), 1100);
     }
     scramble(document.querySelector('.home-name'), undefined, 900);
+    // A question brought from a post's page (?ask=): Alino opens with it asked
+    const query = new URLSearchParams(location.search);
+    const brought = query.get('ask')?.trim().slice(0, 240);
+    if (brought) {
+        query.delete('ask');
+        const rest = query.toString();
+        history.replaceState(history.state, '', `${location.pathname}${rest ? `?${rest}` : ''}${location.hash}`);
+        setTimeout(() => {
+            interacted();
+            ask.ask(aboutSelection(brought), orbCore);
+        }, panes.has(start) || !deferField || phone.matches ? 500 : 1700);
+        return;
+    }
     // The orb says what it does, for a moment
     orb.classList.add('tip-show');
     setTimeout(() => orb.classList.remove('tip-show'), 5200);

@@ -3,6 +3,9 @@ title: "Local Image Studio: uno studio di immagini AI che non esce mai di casa"
 date: 2026-11-04 12:00
 topic: Open source
 summary: Volevo modificare le mie foto con l'AI senza caricarle da nessuna parte. Così ho passato un mese a costruire uno studio di immagini completo che gira sul mio portatile, funziona dal telefono e si installa con un solo comando. Ora è open source...
+image: /assets/projects/local-image-studio/compare.webp
+image_thumb: /assets/projects/local-image-studio/compare-thumb.webp
+image_alt: "Local Image Studio: una foto prima e dopo una modifica, a confronto"
 ---
 
 Ogni strumento di immagini AI che ho provato proponeva lo stesso patto: carica le tue foto, accetta le regole di qualcun altro e paga ogni mese. Local Image Studio è la mia risposta. È uno studio di immagini completo basato su FLUX.2 Klein 9B, SAM 3 e ComfyUI, e tutto gira sulla tua GPU. Le tue foto e i tuoi prompt non lasciano mai la rete di casa.

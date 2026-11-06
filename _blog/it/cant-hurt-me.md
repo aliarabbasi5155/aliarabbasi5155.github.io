@@ -3,6 +3,9 @@ title: "Recensione: \"Can't Hurt Me\" di David Goggins, smettila di mentire a te
 date: 2026-09-30 18:00
 topic: Recensione
 summary: Accanto ai libri tranquilli e introspettivi di cui ho scritto qui, "Can't Hurt Me" sembra qualcuno che spalanca la porta con un calcio e si mette a urlare. È rumoroso, estremo e a volte eccessivo. Ma è anche il libro più diretto che abbia letto sulle bugie che raccontiamo a noi stessi...
+image: /assets/blog/cant-hurt-me/cover.webp
+image_thumb: /assets/blog/cant-hurt-me/cover-thumb.webp
+image_alt: "Un crinale di punti che sale dal buio"
 ---
 
 Dopo una serie di libri sulla colpa, sulla morte, sulla libertà e sul senso, "Can't Hurt Me" di David Goggins è stato un'esperienza molto diversa. Goggins non vuole discutere delle tue inquietudini esistenziali. Vuole che ti alzi e vada a correre. E stranamente, dopo tutta quella filosofia, è stato rinfrescante sentirselo dire.

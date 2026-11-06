@@ -3,6 +3,9 @@ title: "Book Review: \"When Nietzsche Wept\" by Irvin D. Yalom - When the Doctor
 date: 2026-09-30 17:00
 topic: Book Review
 summary: After Yalom's textbook on existential therapy, "When Nietzsche Wept" felt like watching the same ideas come to life, carried by two unforgettable characters who each believe they are the one doing the healing...
+image: /assets/blog/when-nietzsche-wept/cover.webp
+image_thumb: /assets/blog/when-nietzsche-wept/cover-thumb.webp
+image_alt: "A brain drawn in dots"
 ---
 
 "When Nietzsche Wept" is a novel built on a "what if." Vienna, 1882: Josef Breuer, a respected physician and one of the early figures behind what later became psychoanalysis, is approached by the young Lou Salomé. She asks him to help a friend of hers, a brilliant, mostly unknown, and deeply despairing philosopher named Friedrich Nietzsche. The two men never met in real life. Yalom invents the meeting and asks what would happen if you locked them in a room together.

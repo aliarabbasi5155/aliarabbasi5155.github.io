@@ -70,6 +70,7 @@ alino:
   let_go: Let go to send it back
   placeholder: Ask Alino anything about Ali…
   send: Send
+  about_selection: "Tell me about “{text}”"
   hello: "Hi! I’m Alino 👋 Ask me anything about Ali: his work, his projects, his studies, or just say hi. I’ll answer and show you where his CV says so."
   references: References
   reference: "Reference {n}: {where}"
@@ -136,3 +137,14 @@ gallery:
   close: Close
   previous: Previous picture
   next: Next picture
+# A blog post's own page, and the share buttons
+blog:
+  read: "Read"
+  share: "Share"
+  copy: "Copy link"
+  copied: "Link copied"
+  back: "Back to the site"
+  minutes: "{n} min read"
+  more: "More to read"
+  ask: "Ask Alino about this"
+

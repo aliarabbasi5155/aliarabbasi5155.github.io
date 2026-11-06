@@ -1,0 +1,14 @@
+{%- comment -%}
+  Share a post (include.url: its address; include.title): the phone's own share sheet where
+  there is one (post.js shows it), the link copied, or a few places to post it.
+{%- endcomment -%}
+{%- assign _url = include.url | url_encode -%}
+{%- assign _title = include.title | url_encode -%}
+<div class="share" data-url="{{ include.url }}" data-title="{{ include.title | escape }}">
+    <button type="button" class="share-native" hidden><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i><span>{{ include.ui.blog.share | escape }}</span></button>
+    <button type="button" class="share-copy" data-copied="{{ include.ui.blog.copied | escape }}"><i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ include.ui.blog.copy | escape }}</span></button>
+    <a class="share-to" href="https://www.linkedin.com/sharing/share-offsite/?url={{ _url }}" aria-label="LinkedIn" title="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+    <a class="share-to" href="https://twitter.com/intent/tweet?url={{ _url }}&amp;text={{ _title }}" aria-label="X" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+    <a class="share-to" href="https://t.me/share/url?url={{ _url }}&amp;text={{ _title }}" aria-label="Telegram" title="Telegram"><i class="fab fa-telegram" aria-hidden="true"></i></a>
+    <a class="share-to" href="https://wa.me/?text={{ _title }}%20{{ _url }}" aria-label="WhatsApp" title="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
+</div>
