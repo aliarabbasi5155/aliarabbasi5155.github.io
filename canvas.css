@@ -1265,6 +1265,25 @@ html:has(.canvas-page),
     color: var(--text);
 }
 
+/* A message in the other direction from the page (ask.js sets its dir: Persian on the English
+   page, English on the Persian one) reads its own way; the question keeps its tail on the
+   outside, and Persian gets its own font on a page in another language */
+html:not([dir="rtl"]) .ask-question[dir="rtl"],
+html[dir="rtl"] .ask-question[dir="ltr"] {
+    border-end-end-radius: 18px;
+    border-end-start-radius: 6px;
+}
+
+html:not([lang="fa"]) .ask-text[dir="rtl"],
+html:not([lang="fa"]) .ask-question[dir="rtl"] {
+    font-family: "Vazirmatn", Tahoma, sans-serif;
+    line-height: 1.85;
+}
+
+html:not([lang="fa"]) .ask-text[dir="rtl"] {
+    font-size: 14.5px;
+}
+
 /* Thinking: three dots that breathe in turn */
 .ask-turn.thinking .ask-text::after {
     content: "";

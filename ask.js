@@ -149,6 +149,35 @@ function proxyWriter(url) {
     };
 }
 
+// Which way a message reads: right to left when a fair share of its words are Persian, even
+// with English terms among them (an answer in Persian on the English page, say); left to right
+// when they are Latin; the page's own way when there are no words yet
+function direction(text) {
+    let rtl = 0;
+    let ltr = 0;
+    for (const word of text.match(/[\p{L}\p{N}]+/gu) ?? []) {
+        if (/\p{Script=Arabic}/u.test(word)) rtl++;
+        else if (/\p{Script=Latin}/u.test(word)) ltr++;
+    }
+    if (!rtl && !ltr) return '';
+    return rtl / (rtl + ltr) >= 0.3 ? 'rtl' : 'ltr';
+}
+
+// A message laid out its own way; Persian on a page in another language gets its font too
+let persianFont = document.documentElement.lang === 'fa';
+function orient(element, text) {
+    const way = direction(text);
+    if (way) element.dir = way;
+    else element.removeAttribute('dir');
+    if (way === 'rtl' && !persianFont) {
+        persianFont = true;
+        document.head.append(Object.assign(document.createElement('link'), {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400..700&display=swap',
+        }));
+    }
+}
+
 // What may be left of the AI's label line at the start of an answer: the label itself
 // ("about:", "**chat**" on its own line) or a stray colon
 const LEFTOVER = /^\s*(?:[*_]*\s*(?:about|chat)\b\s*[*_]*\s*(?:[:：.]|\n))?[\s:：]*/i;
@@ -332,7 +361,12 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         const pictures = Object.assign(document.createElement('div'), { className: 'ask-images', hidden: true });
         const by = bubble('ask-by', '');
         answer.append(words, pictures, refs, by);
-        if (question) view.append(bubble('ask-question', question));
+        if (question) {
+            const asked = bubble('ask-question', question);
+            orient(asked, question);
+            view.append(asked);
+        }
+        orient(words, text);
         view.append(answer);
         thread.replaceChildren(view);
         Object.assign(view, { text: words, refs, pictures, by });
@@ -365,6 +399,7 @@ export function initAsk({ panel, panes, anchor, go, onToggle }) {
         }
         parts.push(document.createTextNode(shown.slice(last)));
         view.text.replaceChildren(...parts);
+        orient(view.text, shown.replace(REFS, ''));
         view.refs.replaceChildren(...[...order].map(([id, n]) => {
             const doc = byRef.get(id);
             const item = document.createElement('li');
