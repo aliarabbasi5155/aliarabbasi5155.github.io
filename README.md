@@ -38,9 +38,11 @@ of sections on the side (with a small map of the whole canvas under it), the pil
 foot (back and on, in the CV's order), a drag, the wheel, the arrow keys, or Esc for the
 whole map. On phones it is the same map, each pane the size of the screen: a swipe goes to
 the pane on that side, a pinch (or the round map button by the sections along the bottom)
-shows the whole map, and a tap there flies into a pane. Each pane's place and size on the
-map is the `places` line at the top of `_layouts/cv.html`; its name is its entry in
-**Section names**. Right to left (Persian),
+shows the whole map, and a tap there flies into a pane. There, Ali's pane fits the screen
+with nothing to scroll: his photo beside his role and name, the résumé and his contacts in
+one row, and the latest updates filling the rest (the line under his name waits on the About
+pane). Each pane's place and size on the map is the `places` line at the top of
+`_layouts/cv.html`; its name is its entry in **Section names**. Right to left (Persian),
 the map is mirrored and the list of sections sits on the right.
 
 Experience, Projects, Education and Publications are timelines: a line down the side with a

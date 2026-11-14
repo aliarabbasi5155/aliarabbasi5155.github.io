@@ -1,6 +1,7 @@
 {%- comment -%}
-  The ways to reach Ali, on his pane: the résumé first, the email written out, every other
-  contact as a round icon. .profile-contacts tells analytics.js these are contact links.
+  The ways to reach Ali, on his pane: the résumé first, the email written out (a round icon
+  too on phones), every other contact as a round icon. .profile-contacts tells analytics.js
+  these are contact links.
 {%- endcomment -%}
 {%- assign profile = include.profile -%}
 <div class="actions profile-contacts" data-ref="contact">
@@ -9,7 +10,7 @@
     {%- endif %}
     {%- for contact in profile.contacts %}
     {%- if contact.url contains "mailto:" %}
-    <a href="{{ contact.url }}" class="act"><i class="{{ contact.icon }}" aria-hidden="true"></i><span class="act-mail" dir="ltr">{{ contact.label | escape }}</span></a>
+    <a href="{{ contact.url }}" class="act act-email" aria-label="{{ contact.label | escape }}" title="{{ contact.label | escape }}"><i class="{{ contact.icon }}" aria-hidden="true"></i><span class="act-mail" dir="ltr">{{ contact.label | escape }}</span></a>
     {%- else %}
     <a href="{{ contact.url }}" class="act act-icon" aria-label="{{ contact.label | escape }}" title="{{ contact.label | escape }}"><i class="{{ contact.icon }}" aria-hidden="true"></i></a>
     {%- endif %}

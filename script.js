@@ -670,7 +670,7 @@ function goTo(id, element, then) {
     element?.closest('.timeline-item.collapsed')?.openItem?.(true, true);
     focus(id);
     afterLanding(() => {
-        const body = element?.closest('.pane-body');
+        const body = element?.closest('.pane-body, .home-updates-list');
         if (body) {
             const offset = (element.getBoundingClientRect().top - body.getBoundingClientRect().top) / cam.s;
             body.scrollTo({ top: Math.max(0, body.scrollTop + offset - body.clientHeight * 0.3), behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
